@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Labirinto de Depuração | Prof. Cristhiano Vasconcellos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+<style>
+:root {
+  --text:#0f172a; --text-soft:#475569; --text-muted:#64748b; --border:rgba(15,23,42,.08);
+  --primary:#22c55e; --primary-active:#15803d; --shadow-sm:0 8px 24px rgba(15,23,42,.05); --shadow-md:0 18px 40px rgba(15,23,42,.08);
+  --radius-lg:28px; --radius-md:22px; --container:980px; --transition:220ms cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:"Inter",sans-serif;color:var(--text);background:
+radial-gradient(circle at top left, rgba(34,197,94,.08), transparent 24%),
+radial-gradient(circle at 90% 20%, rgba(14,165,233,.08), transparent 20%),
+linear-gradient(180deg,#fcfefe 0%,#f8fafc 30%,#f4f8fb 100%);min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(15,23,42,.03) 1px, transparent 1px),linear-gradient(90deg, rgba(15,23,42,.03) 1px, transparent 1px);background-size:44px 44px;mask-image:radial-gradient(circle at center, black 35%, transparent 85%);pointer-events:none;z-index:0}
+a{color:inherit;text-decoration:none}
+.container{width:min(var(--container), calc(100% - 36px));margin:0 auto;position:relative;z-index:1}
+.page-wrap{padding:20px 0 36px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px;flex-wrap:wrap}
+.back-link{display:inline-flex;align-items:center;gap:8px;color:var(--text-soft);font-weight:600;transition:var(--transition)}
+.back-link:hover{color:var(--text)}
+.score-chip{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.82);border:1px solid var(--border);color:var(--text-soft);box-shadow:var(--shadow-sm);font-weight:700}
+.hero{margin-bottom:16px}
+.hero h1{font-family:"Space Grotesk",sans-serif;font-size:clamp(2rem,4vw,3rem);line-height:1;letter-spacing:-.05em;margin-bottom:8px}
+.hero p{color:var(--text-soft);font-size:1rem}
+.progress-wrap{margin-bottom:18px;background:rgba(255,255,255,.82);border:1px solid var(--border);border-radius:20px;padding:14px 16px;box-shadow:var(--shadow-sm)}
+.progress-label{display:flex;justify-content:space-between;gap:12px;margin-bottom:8px;color:var(--text-muted);font-size:.9rem}
+.progress{width:100%;height:12px;background:#e2e8f0;border-radius:999px;overflow:hidden}
+.progress-bar{height:100%;width:0%;background:linear-gradient(135deg,var(--primary) 0%, #34d399 100%);border-radius:inherit}
+.activity-card{background:rgba(255,255,255,.92);border:1px solid var(--border);box-shadow:var(--shadow-md);border-radius:var(--radius-lg);padding:22px}
+.code{background:#0f172a;color:#e2e8f0;border-radius:var(--radius-md);padding:18px;font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.65;white-space:pre-wrap;overflow-x:auto;min-height:260px;text-align:left}
+.answers{display:grid;gap:12px;margin-top:16px}
+.answer-btn{width:100%;border:1px solid rgba(15,23,42,.08);border-radius:22px;background:rgba(255,255,255,.98);padding:16px 18px;display:flex;align-items:flex-start;gap:12px;text-align:left;cursor:pointer;transition:var(--transition);box-shadow:0 8px 24px rgba(15,23,42,.04);color:var(--text);font-size:.98rem;font-weight:600}
+.answer-btn:hover{transform:translateY(-2px);box-shadow:0 18px 32px rgba(15,23,42,.08);border-color:rgba(34,197,94,.45)}
+.answer-pill{width:36px;height:36px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:rgba(34,197,94,.12);color:var(--primary-active);font-weight:800;flex:0 0 auto}
+.feedback-area{min-height:26px;margin-top:16px;text-align:center;font-size:1rem;color:var(--text-soft)}
+.correct{color:#15803d;font-weight:700} .error{color:#dc2626;font-weight:700}
+.actions{margin-top:18px;display:flex;justify-content:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:none;cursor:pointer;transition:var(--transition);padding:14px 22px;border-radius:999px;font-weight:800;font-size:.96rem}
+.btn-primary{background:linear-gradient(135deg,var(--primary) 0%, #34d399 100%);color:#052e16;box-shadow:0 14px 28px rgba(34,197,94,.22)}
+.btn-primary:hover{transform:translateY(-2px)}
+.btn-primary:disabled{opacity:.55;cursor:not-allowed;transform:none !important;box-shadow:none}
+.microcopy{color:var(--text-muted);font-size:.9rem;text-align:center;margin-top:12px}
+
+    .end-screen {
+      min-height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0;
+    }
+
+    .end-card {
+      width: min(760px, 100%);
+      background: rgba(255,255,255,.94);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      border-radius: 32px;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .end-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34,197,94,.12);
+      color: var(--primary-active);
+      font-size: 1.8rem;
+      margin-bottom: 14px;
+    }
+
+    .end-card h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+      margin-bottom: 10px;
+    }
+
+    .end-card p {
+      color: var(--text-soft);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .end-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .end-stat {
+      background: rgba(255,255,255,.84);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .end-stat strong {
+      display: block;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.6rem;
+      margin-bottom: 4px;
+    }
+
+    .end-stat span {
+      color: var(--text-muted);
+      font-size: .9rem;
+    }
+
+    .end-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 16px;
+    }
+
+    .end-secondary {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .end-secondary a {
+      font-size: 0.9rem;
+      color: #64748b;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+
+    .end-secondary a:hover {
+      color: #0f172a;
+    }
+
+@media (max-width:640px) {
+.container{width:min(var(--container), calc(100% - 20px))}
+.page-wrap{padding-top:14px}
+.activity-card{padding:16px;border-radius:22px}
+.code,.answer-btn{border-radius:18px}
+.end-stats{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<main class="page-wrap">
+  <div class="container" id="app">
+    <div class="topbar">
+      <a class="back-link" href="objetos.html"><i class="fas fa-arrow-left"></i> Voltar aos objetos</a>
+      <div id="score" class="score-chip"><i class="fas fa-star"></i> Pontos: 0</div>
+    </div>
+    <section class="hero">
+      <h1>Labirinto de Depuração</h1>
+      <p>Encontre o erro no pseudocódigo e escolha a explicação correta.</p>
+    </section>
+    <section class="progress-wrap">
+      <div class="progress-label"><span>Progresso</span><span>uma questão por vez</span></div>
+      <div class="progress"><div id="bar" class="progress-bar"></div></div>
+    </section>
+    <article class="activity-card">
+      <pre id="codigo" class="code"></pre>
+      <div class="answers">
+        <button id="op1" class="answer-btn" type="button"><span class="answer-pill">A</span><span class="answer-text"></span></button>
+        <button id="op2" class="answer-btn" type="button"><span class="answer-pill">B</span><span class="answer-text"></span></button>
+      </div>
+      <div id="feedback" class="feedback-area">Selecione uma alternativa para responder.</div>
+      <div class="actions">
+        <button id="btnProximo" class="btn btn-primary" type="button" disabled><i class="fas fa-arrow-right"></i> Próximo</button>
+      </div>
+      <div class="microcopy">Leia o código, identifique o erro e escolha a melhor explicação.</div>
+    </article>
+  </div>
+</main>
+<script>
+// Base de questões com texto original e resposta correta ('a' ou 'b')
+const questoesBase = [
+  { codigo: `algoritmo "Exemplo1"\nvar\n   numero: inteiro\ninicio\n   numero <- 10\n   se numero > 5\n      escreva("Maior que 5")\n   fimse\nfimalgoritmo`, opA: "Falta 'entao' após a condição", opB: "A variável deveria ser real", correta: "a" },
+  { codigo: `algoritmo "Exemplo2"\nvar\n   cont: inteiro\ninicio\n   cont <- 1\n   enquanto cont < 5 faca\n      escreva(cont)\n      cont <- cont + 1\n   fimse\nfimalgoritmo`, opA: "O laço deve terminar com 'fimenquanto', não 'fimse'", opB: "Falta incrementar o contador", correta: "a" },
+  { codigo: `algoritmo "Exemplo3"\nvar\n   valor: inteiro\ninicio\n   valor <- 7\n   se valor % 2 = 0 entao\n      escreva("Par")\n   senao\n      escreva("Ímpar")\n   fimse\nfimalgoritmo`, opA: "O operador de resto em pseudocódigo é 'mod', não '%'", opB: "A variável deveria ser real", correta: "a" },
+  { codigo: `algoritmo "Exemplo4"\nvar\n   nota: real\ninicio\n   leia(nota)\n   se nota >= 7 entao\n      escreva("Aprovado")\n   senao nota >= 5\n      escreva("Recuperação")\n   senao\n      escreva("Reprovado")\n   fimse\nfimalgoritmo`, opA: "A estrutura 'senao nota >= 5' não é válida; deveria ser 'senao se nota >= 5'", opB: "Falta declarar a variável 'nota' como inteiro", correta: "a" },
+  { codigo: `algoritmo "Exemplo5"\nvar\n   i: inteiro\ninicio\n   para i de 1 ate 10 passo 1 faca\n      escreva(i)\n   fimenquanto\nfimalgoritmo`, opA: "O laço 'para' deve terminar com 'fimpara'", opB: "Faltou o passo 2", correta: "a" },
+  { codigo: `algoritmo "Exemplo6"\nvar\n   i: inteiro\ninicio\n   i <- 0\n   repita\n      escreva(i)\n      i <- i + 1\n   ate i = 10\nfimalgoritmo`, opA: "O laço 'repita' deve terminar com 'fimrepita'", opB: "A condição deveria ser i > 10", correta: "a" },
+  { codigo: `algoritmo "Exemplo7"\nvar\n   a, b: inteiro\ninicio\n   a <- 5\n   b <- 3\n   resultado <- a + b\n   escreva(resultado)\nfimalgoritmo`, opA: "A variável 'resultado' não foi declarada", opB: "Faltou o operador de soma", correta: "a" },
+  { codigo: `algoritmo "Exemplo8"\nvar\n   nome: caractere\ninicio\n   nome <- "Ana"\n   escreva("Olá, " + nome)\nfimalgoritmo`, opA: "Em pseudocódigo, a concatenação é feita com vírgula, não com '+'", opB: "Está correto, não há erro", correta: "a" },
+  { codigo: `algoritmo "Exemplo9"\nvar\n   x: inteiro\ninicio\n   x <- 10\n   se x > 5 entao\n      escreva("Maior")\n   fimse\n   escreva("Fim")\nfimalgoritmo`, opA: "Está correto, não há erro", opB: "Falta 'senao' para o caso contrário", correta: "a" },
+  { codigo: `algoritmo "Exemplo10"\nvar\n   idade: inteiro\ninicio\n   leia(idade)\n   se idade >= 18 entao\n      escreva("Maior de idade")\n   senao\n      escreva("Menor de idade")\nfimalgoritmo`, opA: "Falta 'fimse' para fechar a estrutura condicional", opB: "Falta declarar a variável 'idade'", correta: "a" }
+];
+
+// Função para embaralhar a ordem das opções e ajustar a resposta correta
+function prepararQuestao(base) {
+  // Decide se vamos inverter as opções (50% de chance)
+  const inverter = Math.random() < 0.5;
+  let opA, opB, correta;
+  if (inverter) {
+    opA = base.opB;
+    opB = base.opA;
+    correta = base.correta === 'a' ? 'b' : 'a';
+  } else {
+    opA = base.opA;
+    opB = base.opB;
+    correta = base.correta;
+  }
+  return { codigo: base.codigo, opA, opB, correta };
+}
+
+// Embaralhar a ordem das questões
+let questoes = questoesBase.map(prepararQuestao);
+questoes.sort(() => Math.random() - 0.5);
+
+let atual = 0, pontos = 0, respondeu = false, jaRegistrou = false;
+const URL_WEBAPP = "https://script.google.com/macros/s/AKfycbzoeygTm-R27yb8QOcdH0s7fViv6vGPQ5MtDuCgHBt3RhvFVQKlGxf3A7yQUR3RfRqFcw/exec";
+const NOME_ATIVIDADE = "Labirinto de Depuração";
+
+function obterNomeAluno() {
+  let nome = sessionStorage.getItem("nomeAluno");
+  if (!nome) {
+    nome = prompt("Digite seu nome completo para registrar sua atividade:");
+    if (nome && nome.trim() !== "") sessionStorage.setItem("nomeAluno", nome.trim());
+    else nome = "Anônimo";
+  }
+  return nome;
+}
+
+async function registrarResultado(nome, atividade, acertos, total) {
+  const dados = { nome, atividade, acertos, total };
+  try {
+    await fetch(URL_WEBAPP, { method:"POST", mode:"no-cors", headers:{"Content-Type":"application/json"}, body:JSON.stringify(dados) });
+    console.log("Registrado:", dados);
+  } catch(e) { console.error(e); }
+}
+
+function carregar() {
+  const q = questoes[atual];
+  document.getElementById('codigo').innerText = q.codigo;
+  document.getElementById('op1').innerText = q.opA;
+  document.getElementById('op2').innerText = q.opB;
+  document.getElementById('feedback').innerHTML = "Selecione uma alternativa para responder.";
+  respondeu = false;
+  document.getElementById('btnProximo').disabled = true;
+  document.getElementById('btnProximo').disabled = false;
+  atualizarUI();
+}
+
+function responder(op) {
+  if (respondeu) return;
+  respondeu = true;
+  const q = questoes[atual];
+  if (op === q.correta) {
+    pontos++;
+    document.getElementById('feedback').innerHTML = "<span class='correct'>✔ Correto!</span>";
+  } else {
+    document.getElementById('feedback').innerHTML = "<span class='error'>✖ Errado! Clique em Próximo.</span>";
+  }
+  atualizarUI();
+}
+
+function proxima() {
+  if (!respondeu) return;
+  atual++;
+  if (atual >= questoes.length) {
+    if (!jaRegistrou) {
+      jaRegistrou = true;
+      const nome = obterNomeAluno();
+      registrarResultado(nome, NOME_ATIVIDADE, pontos, questoes.length);
+    }
+    document.getElementById('app').innerHTML = `
+      <section class="end-screen">
+        <div class="end-card">
+          <div class="end-icon"><i class="fas fa-bug-slash"></i></div>
+          <h1>Labirinto de Depuração concluído</h1>
+          <p>Você acertou ${pontos} de ${questoes.length} questões.</p>
+          <div class="end-stats">
+            <div class="end-stat"><strong>${pontos}</strong><span>Acertos</span></div>
+            <div class="end-stat"><strong>${questoes.length}</strong><span>Questões</span></div>
+          </div>
+          <div class="end-actions">
+            <a class="btn btn-primary" href="objetos.html"><i class="fas fa-cubes"></i>Explorar objetos</a>
+          </div>
+          <div class="end-secondary"><a href="index.html">Voltar ao início</a></div>
+        </div>
+      </section>
+    `;
+    return;
+  }
+  carregar();
+}
+
+function atualizarUI() {
+  document.getElementById('score').innerText = "Pontos: " + pontos;
+  const percent = ((atual + (respondeu?1:0)) / questoes.length) * 100;
+  document.getElementById('bar').style.width = percent + "%";
+}
+
+document.getElementById('op1').onclick = () => responder('a');
+document.getElementById('op2').onclick = () => responder('b');
+carregar();
+document.getElementById('op1').onclick = () => responder('a');
+document.getElementById('op2').onclick = () => responder('b');
+document.getElementById('btnProximo').onclick = () => { if (!document.getElementById('btnProximo').disabled) proxima(); };
+function syncAnswerLabels() {
+  document.querySelector('#op1 .answer-text').innerText = questoes[atual].opA;
+  document.querySelector('#op2 .answer-text').innerText = questoes[atual].opB;
+}
+const _carregarOriginal = carregar;
+carregar = function() {
+  _carregarOriginal();
+  syncAnswerLabels();
+};
+carregar();
+</script>
+</body>
+</html>

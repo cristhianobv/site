@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Xadrez Interativo | Prof. Cristhiano Vasconcellos</title>
+
+  <link rel="stylesheet" href="css/chessboard.min.css">
+  <script src="js/jquery.min.js"></script>
+  <script src="js/chess.min.js"></script>
+  <script src="js/chessboard.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <style>
+    :root {
+      --text: #0f172a;
+      --text-soft: #475569;
+      --text-muted: #64748b;
+      --border: rgba(15, 23, 42, 0.08);
+      --primary: #22c55e;
+      --primary-hover: #16a34a;
+      --primary-active: #15803d;
+      --blue: #2563eb;
+      --amber: #f59e0b;
+      --danger: #dc2626;
+      --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 18px 40px rgba(15, 23, 42, 0.08);
+      --radius-lg: 28px;
+      --radius-md: 22px;
+      --container: 1080px;
+      --transition: 220ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(34, 197, 94, 0.08), transparent 24%),
+        radial-gradient(circle at 90% 20%, rgba(14, 165, 233, 0.08), transparent 20%),
+        linear-gradient(180deg, #fcfefe 0%, #f8fafc 30%, #f4f8fb 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(circle at center, black 35%, transparent 85%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(var(--container), calc(100% - 36px));
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .page-wrap {
+      padding: 20px 0 36px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .back-link:hover {
+      color: var(--text);
+    }
+
+    .hero {
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1;
+      letter-spacing: -0.05em;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      color: var(--text-soft);
+      font-size: 1rem;
+    }
+
+    .status-strip {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .status-chip {
+      background: rgba(255,255,255,.86);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .status-chip strong {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: -0.03em;
+    }
+
+    .status-chip span {
+      color: var(--text-muted);
+      font-size: .9rem;
+    }
+
+    .activity-card {
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+    }
+
+    #board {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto 18px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 12px 32px rgba(15,23,42,.10);
+    }
+
+    #status {
+      margin: 0 auto 16px;
+      padding: 14px 16px;
+      background: rgba(255,255,255,.82);
+      border-radius: 20px;
+      font-size: 1rem;
+      color: var(--text-soft);
+      border: 1px solid var(--border);
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      max-width: 700px;
+      min-height: 54px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    #botoes {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button, .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      padding: 14px 20px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.95rem;
+    }
+
+    button {
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      color: #052e16;
+      box-shadow: 0 14px 28px rgba(34,197,94,.22);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      transform: none !important;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #60a5fa 0%, var(--blue) 100%);
+      color: white;
+      box-shadow: 0 14px 28px rgba(37,99,235,.20);
+    }
+
+    .btn-solution {
+      background: linear-gradient(135deg, #fbbf24 0%, var(--amber) 100%);
+      color: #111827;
+      box-shadow: 0 14px 28px rgba(245,158,11,.20);
+    }
+
+    .btn-menu {
+      background: rgba(255,255,255,.95);
+      color: var(--text);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .microcopy {
+      text-align: center;
+      margin-top: 14px;
+      color: var(--text-muted);
+      font-size: .9rem;
+    }
+
+    .end-screen {
+      min-height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0;
+    }
+
+    .end-card {
+      width: min(760px, 100%);
+      background: rgba(255,255,255,.94);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      border-radius: 32px;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .end-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34,197,94,.12);
+      color: var(--primary-active);
+      font-size: 1.8rem;
+      margin-bottom: 14px;
+    }
+
+    .end-card h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+      margin-bottom: 10px;
+    }
+
+    .end-card p {
+      color: var(--text-soft);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .end-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .end-stat {
+      background: rgba(255,255,255,.84);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .end-stat strong {
+      display: block;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.6rem;
+      margin-bottom: 4px;
+    }
+
+    .end-stat span {
+      color: var(--text-muted);
+      font-size: .9rem;
+    }
+
+    .end-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 16px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      color: #052e16;
+      box-shadow: 0 14px 28px rgba(34,197,94,.22);
+    }
+
+    .end-secondary {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .end-secondary a {
+      font-size: 0.9rem;
+      color: #64748b;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+
+    .end-secondary a:hover {
+      color: #0f172a;
+    }
+
+    @media (max-width: 700px) {
+      .status-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .container {
+        width: min(var(--container), calc(100% - 20px));
+      }
+
+      .page-wrap {
+        padding-top: 14px;
+      }
+
+      .activity-card {
+        padding: 16px;
+        border-radius: 22px;
+      }
+
+      #board {
+        max-width: 100%;
+      }
+
+      .end-stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-wrap">
+    <div class="container" id="app">
+      <div class="topbar">
+        <a class="back-link" href="objetos.html"><i class="fas fa-arrow-left"></i> Voltar aos objetos</a>
+      </div>
+
+      <section class="hero">
+        <h1>Xadrez Interativo</h1>
+        <p>Resolva desafios de xeque-mate em um movimento.</p>
+      </section>
+
+      <section class="status-strip">
+        <div class="status-chip">
+          <div>
+            <strong><span id="pontuacao">0</span></strong>
+            <span>Pontuação</span>
+          </div>
+          <i class="fas fa-trophy" style="color:#eab308;"></i>
+        </div>
+
+        <div class="status-chip">
+          <div>
+            <strong><span id="desafioAtual">1</span> / <span id="totalDesafios">10</span></strong>
+            <span>Desafio atual</span>
+          </div>
+          <i class="fas fa-list-ol" style="color:#64748b;"></i>
+        </div>
+      </section>
+
+      <article class="activity-card">
+        <div id="board"></div>
+
+        <div id="status">Clique em "Iniciar desafios" para começar.</div>
+
+        <div id="botoes">
+          <button id="btnIniciar" type="button"><i class="fas fa-play"></i> Iniciar desafios</button>
+          <button id="btnProximo" type="button" class="btn-secondary" disabled><i class="fas fa-forward"></i> Próximo</button>
+          <button id="btnSolucao" type="button" class="btn-solution" disabled><i class="fas fa-lightbulb"></i> Ver solução</button>
+          <button id="btnReiniciar" type="button"><i class="fas fa-rotate-right"></i> Reiniciar</button>
+          <button id="btnVoltar" type="button" class="btn-menu"><i class="fas fa-arrow-left"></i> Voltar</button>
+        </div>
+
+        <div class="microcopy">Tente encontrar o mate em 1. Se precisar, veja a solução antes de avançar.</div>
+      </article>
+    </div>
+  </main>
+
+  <script>
+// ====================== DESAFIOS ======================
+  // OBS: Mesmo que algum desafio esteja incorreto, o sistema agora valida automaticamente.
+
+  const desafios = [
+    { fen: "7k/8/6K1/8/8/8/5Q2/8 w - - 0 1", solucao: "Qg7#" },
+    { fen: "k7/2K5/8/8/8/8/8/R7 w - - 0 1", solucao: "Ra7#" },
+    { fen: "k7/3Q4/6K1/8/8/8/8/8 w - - 0 1", solucao: "Qa7#" },
+    { fen: "7k/8/5K2/8/8/8/8/1R6 w - - 0 1", solucao: "Rb8#" },
+    { fen: "7k/5K2/6Q1/8/8/8/8/8 w - - 0 1", solucao: "Qg7#" },
+    { fen: "7k/8/6K1/8/8/8/3Q4/8 w - - 0 1", solucao: "Qd8#" },
+    { fen: "7k/8/7K/8/8/8/8/R7 w - - 0 1", solucao: "Ra8#" },
+    { fen: "7k/8/6K1/4Q3/8/8/8/8 w - - 0 1", solucao: "Qe8#" },
+    { fen: "7k/8/6K1/8/8/2Q5/8/8 w - - 0 1", solucao: "Qc8#" },
+    { fen: "k7/8/1K6/8/8/8/8/2R5 w - - 0 1", solucao: "Rc8#" }
+  ];
+
+  let jogo = new Chess();
+  let board = null;
+  let modoDesafios = false;
+  let desafioIndex = 0;
+  let pontuacao = 0;
+  let desafioConcluido = false;
+  let fenAtual = "";
+
+  // ====================== VALIDADOR DE MATE EM 1 ======================
+  function validarMateEm1(fen) {
+    const teste = new Chess(fen);
+    const moves = teste.moves();
+
+    for (let m of moves) {
+      const copia = new Chess(fen);
+      copia.move(m);
+      if (copia.in_checkmate()) return true;
+    }
+    return false;
+  }
+
+  // ====================== DIAGNÓSTICO (DEBUG) ======================
+  function diagnosticar(fen) {
+    const teste = new Chess(fen);
+    const moves = teste.moves();
+    let mates = [];
+
+    for (let m of moves) {
+      const copia = new Chess(fen);
+      copia.move(m);
+      if (copia.in_checkmate()) mates.push(m);
+    }
+
+    return mates;
+  }
+
+  function atualizarPontuacao() {
+    document.getElementById('pontuacao').innerText = pontuacao;
+  }
+
+  function carregarDesafio(index) {
+  if (index >= desafios.length) {
+    finalizarJogo();
+    return;
+  }
+
+  let desafio = desafios[index];
+  let teste = new Chess(desafio.fen);
+
+  // 🔍 Verifica se existe mate em 1 REAL
+  let moves = teste.moves({ verbose: true });
+  let temMate = false;
+
+  for (let m of moves) {
+    let copia = new Chess(desafio.fen);
+    copia.move(m);
+    if (copia.in_checkmate()) {
+      temMate = true;
+      break;
+    }
+  }
+
+  // ❌ Se não tem mate, pula automaticamente
+  if (!temMate) {
+    console.warn("Desafio inválido (sem mate em 1):", desafio.fen);
+
+    document.getElementById('status').innerHTML =
+      "⚠️ Desafio inválido. Pulando automaticamente...";
+
+    setTimeout(() => {
+      desafioIndex++;
+      carregarDesafio(desafioIndex);
+    }, 1000);
+
+    return;
+  }
+
+  // ✅ Carrega desafio válido
+  fenAtual = desafio.fen;
+  jogo.load(fenAtual);
+  board.position(fenAtual);
+
+  desafioConcluido = false;
+
+  document.getElementById('status').innerHTML =
+    `Desafio ${index + 1}: Dê xeque-mate em 1!`;
+
+  document.getElementById('btnProximo').disabled = true;
+  document.getElementById('btnSolucao').disabled = false;
+  document.getElementById('desafioAtual').innerText = index + 1;
+}
+
+  function onDrop(source, target) {
+    if (!modoDesafios) return 'snapback';
+    if (desafioConcluido) return 'snapback';
+
+    let move = jogo.move({
+      from: source,
+      to: target,
+      promotion: 'q'
+    });
+
+    if (move === null) return 'snapback';
+
+    board.position(jogo.fen());
+
+    if (jogo.in_checkmate()) {
+      desafioConcluido = true;
+      pontuacao++;
+      atualizarPontuacao();
+
+      document.getElementById('status').innerHTML =
+        '✅ Correto! Xeque-mate! +1 ponto';
+
+      document.getElementById('btnProximo').disabled = false;
+      document.getElementById('btnSolucao').disabled = true;
+
+    } else {
+      jogo.load(fenAtual);
+      board.position(fenAtual);
+
+      document.getElementById('status').innerHTML =
+        '❌ Não é xeque-mate. Tente novamente.';
+    }
+  }
+
+  function mostrarSolucao() {
+    if (!modoDesafios || desafioConcluido) return;
+
+    const solucao = desafios[desafioIndex].solucao;
+
+    try {
+      const teste = new Chess(fenAtual);
+      const move = teste.move(solucao);
+
+      if (move && teste.in_checkmate()) {
+        jogo.load(fenAtual);
+        jogo.move(solucao);
+        board.position(jogo.fen());
+
+        desafioConcluido = true;
+
+        document.getElementById('status').innerHTML =
+          `💡 Solução: ${solucao}`;
+
+        document.getElementById('btnProximo').disabled = false;
+        document.getElementById('btnSolucao').disabled = true;
+      } else {
+        document.getElementById('status').innerHTML =
+          '⚠️ Solução inválida para este desafio.';
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function proximoDesafio() {
+    if (!modoDesafios) return;
+
+    if (!desafioConcluido) {
+      document.getElementById('status').innerHTML =
+        '⚠️ Resolva ou veja a solução antes de avançar.';
+      return;
+    }
+
+    desafioIndex++;
+    carregarDesafio(desafioIndex);
+  }
+
+  function finalizarJogo() {
+    modoDesafios = false;
+
+    document.getElementById('app').innerHTML = `
+      <section class="end-screen">
+        <div class="end-card">
+          <div class="end-icon"><i class="fas fa-chess-knight"></i></div>
+          <h1>Xadrez Interativo concluído</h1>
+          <p>Você finalizou os desafios de xeque-mate em um movimento.</p>
+
+          <div class="end-stats">
+            <div class="end-stat">
+              <strong>${pontuacao}</strong>
+              <span>Pontos</span>
+            </div>
+            <div class="end-stat">
+              <strong>${desafios.length}</strong>
+              <span>Desafios</span>
+            </div>
+          </div>
+
+          <div class="end-actions">
+            <a class="btn btn-primary" href="objetos.html">
+              <i class="fas fa-cubes"></i>
+              Explorar objetos
+            </a>
+          </div>
+
+          <div class="end-secondary">
+            <a href="index.html">Voltar ao início</a>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  function iniciarDesafios() {
+    modoDesafios = true;
+    desafioIndex = 0;
+    pontuacao = 0;
+    atualizarPontuacao();
+
+    if (board) board.destroy();
+
+    board = Chessboard('board', {
+      draggable: true,
+      position: 'start',
+      pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png',
+      onDrop: onDrop
+    });
+
+    carregarDesafio(0);
+
+    document.getElementById('btnIniciar').disabled = true;
+  }
+
+  function reiniciarJogo() {
+    if (modoDesafios) {
+      iniciarDesafios();
+    } else {
+      jogo.reset();
+      board.position(jogo.fen());
+    }
+  }
+
+  function voltarMenu() {
+    window.location.href = 'objetos.html';
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    board = Chessboard('board', {
+      draggable: true,
+      position: 'start',
+      pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png',
+      onDrop: function (source, target) {
+        if (modoDesafios) return 'snapback';
+
+        let move = jogo.move({ from: source, to: target, promotion: 'q' });
+        if (move === null) return 'snapback';
+
+        board.position(jogo.fen());
+
+        if (jogo.in_checkmate()) {
+          document.getElementById('status').innerHTML = 'Xeque-mate!';
+        }
+      }
+    });
+
+    document.getElementById('totalDesafios').innerText = desafios.length;
+
+    document.getElementById('btnIniciar').addEventListener('click', iniciarDesafios);
+    document.getElementById('btnProximo').addEventListener('click', proximoDesafio);
+    document.getElementById('btnSolucao').addEventListener('click', mostrarSolucao);
+    document.getElementById('btnReiniciar').addEventListener('click', reiniciarJogo);
+    document.getElementById('btnVoltar').addEventListener('click', voltarMenu);
+
+    document.getElementById('status').innerHTML =
+      'Clique em "Iniciar Desafios" para começar.';
+  });
+  </script>
+</body>
+</html>

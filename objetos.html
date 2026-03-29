@@ -1,0 +1,858 @@
+<!doctype html>
+
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Objetos Educacionais | Prof. Cristhiano Vasconcellos</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;family=Space+Grotesk:wght@500;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f8fafc;
+        --surface: rgba(255, 255, 255, 0.88);
+        --surface-strong: rgba(255, 255, 255, 0.96);
+        --text: #0f172a;
+        --text-soft: #475569;
+        --text-muted: #64748b;
+        --border: rgba(15, 23, 42, 0.08);
+
+        --primary: #22c55e;
+        --primary-hover: #16a34a;
+        --primary-active: #15803d;
+        --primary-soft: rgba(34, 197, 94, 0.12);
+
+        --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.06);
+        --shadow-md: 0 18px 40px rgba(15, 23, 42, 0.08);
+        --shadow-lg: 0 24px 60px rgba(15, 23, 42, 0.12);
+
+        --radius-md: 24px;
+        --radius-lg: 32px;
+        --radius-pill: 999px;
+
+        --container: 1240px;
+        --header-h: 84px;
+        --transition: 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background:
+          radial-gradient(
+            circle at top left,
+            rgba(34, 197, 94, 0.08),
+            transparent 22%
+          ),
+          radial-gradient(
+            circle at 90% 10%,
+            rgba(14, 165, 233, 0.08),
+            transparent 20%
+          ),
+          linear-gradient(180deg, #fcfefe 0%, #f8fafc 38%, #f4f8fb 100%);
+        color: var(--text);
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+        background-size: 44px 44px;
+        mask-image: radial-gradient(
+          circle at center,
+          black 38%,
+          transparent 85%
+        );
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .container {
+        width: min(var(--container), calc(100% - 40px));
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+      }
+
+      .site-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: var(--header-h);
+        display: flex;
+        align-items: center;
+        z-index: 1000;
+        transition: var(--transition);
+        background: transparent;
+      }
+
+      .site-header.scrolled {
+        background: rgba(255, 255, 255, 0.78);
+        backdrop-filter: blur(16px);
+        border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+      }
+
+      .header-inner {
+        width: min(var(--container), calc(100% - 40px));
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+      }
+
+      .brand {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+      }
+
+      .brand-title {
+        font-weight: 800;
+        font-size: 1rem;
+        letter-spacing: -0.02em;
+        color: var(--text);
+      }
+
+      .brand-title span {
+        color: var(--primary-hover);
+      }
+
+      .brand-subtitle {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 420px;
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .nav a {
+        padding: 10px 14px;
+        border-radius: var(--radius-pill);
+        font-size: 0.95rem;
+        color: var(--text-soft);
+        transition: var(--transition);
+      }
+
+      .nav a:hover,
+      .nav a.active {
+        background: rgba(255, 255, 255, 0.7);
+        color: var(--text);
+      }
+
+      .page-hero {
+        padding-top: calc(var(--header-h) + 56px);
+        padding-bottom: 42px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .page-hero-grid {
+        display: grid;
+        grid-template-columns: 1.08fr 0.92fr;
+        gap: 30px;
+        align-items: center;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        border-radius: var(--radius-pill);
+        background: rgba(255, 255, 255, 0.75);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        box-shadow: var(--shadow-sm);
+        color: var(--text-soft);
+        font-size: 0.92rem;
+        margin-bottom: 20px;
+      }
+
+      .eyebrow-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--primary);
+        box-shadow: 0 0 0 8px rgba(34, 197, 94, 0.12);
+      }
+
+      .page-hero h1 {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: clamp(2.4rem, 4vw, 4.3rem);
+        line-height: 1;
+        letter-spacing: -0.05em;
+        margin-bottom: 18px;
+        max-width: 10ch;
+      }
+
+      .page-hero h1 .highlight {
+        color: var(--primary-hover);
+      }
+
+      .page-hero p {
+        color: var(--text-soft);
+        font-size: 1.05rem;
+        line-height: 1.8;
+        max-width: 680px;
+      }
+
+      .hero-info {
+        margin-top: 22px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .hero-chip {
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.74);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        color: var(--text-soft);
+        font-size: 0.92rem;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .hero-panel {
+        position: relative;
+        min-height: 290px;
+        border-radius: 32px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.88),
+          rgba(255, 255, 255, 0.74)
+        );
+        border: 1px solid rgba(15, 23, 42, 0.07);
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+        backdrop-filter: blur(16px);
+      }
+
+      .hero-panel::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+        background-size: 32px 32px;
+        opacity: 0.7;
+      }
+
+      .hero-panel::after {
+        content: "";
+        position: absolute;
+        inset: -20%;
+        background: radial-gradient(
+          circle,
+          rgba(34, 197, 94, 0.11) 1px,
+          transparent 1.5px
+        );
+        background-size: 40px 40px;
+        animation: drift 16s linear infinite;
+      }
+
+      @keyframes drift {
+        from {
+          transform: translate(0, 0);
+        }
+        to {
+          transform: translate(-50px, -50px);
+        }
+      }
+
+      .panel-card {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.82);
+        border: 1px solid rgba(15, 23, 42, 0.07);
+        border-radius: 22px;
+        box-shadow: var(--shadow-md);
+        padding: 16px;
+        backdrop-filter: blur(10px);
+        z-index: 2;
+      }
+
+      .panel-card h3 {
+        font-size: 1rem;
+        margin-bottom: 6px;
+        letter-spacing: -0.02em;
+      }
+
+      .panel-card p {
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+      }
+
+      .panel-label {
+        display: inline-block;
+        margin-bottom: 10px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--primary-soft);
+        color: var(--primary-active);
+        font-size: 0.78rem;
+        font-weight: 700;
+      }
+
+      .panel-card.card-a {
+        top: 28px;
+        right: 28px;
+        width: 210px;
+      }
+      .panel-card.card-b {
+        left: 26px;
+        bottom: 34px;
+        width: 180px;
+      }
+      .panel-card.card-c {
+        right: 54px;
+        bottom: 28px;
+        width: 220px;
+      }
+
+      .main-section {
+        padding: 12px 0 90px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .section-intro {
+        margin-bottom: 28px;
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+      }
+
+      .section-kicker {
+        color: var(--primary-hover);
+        font-weight: 700;
+        font-size: 0.9rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+      }
+
+      .section-title {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: clamp(1.8rem, 2.8vw, 2.8rem);
+        line-height: 1.05;
+        letter-spacing: -0.04em;
+        margin-bottom: 10px;
+      }
+
+      .section-desc {
+        color: var(--text-soft);
+        max-width: 760px;
+        line-height: 1.75;
+      }
+
+      .section-note {
+        color: var(--text-muted);
+        max-width: 320px;
+        line-height: 1.7;
+        font-size: 0.95rem;
+      }
+
+      .objects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+        gap: 22px;
+      }
+
+      .object-card {
+        position: relative;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.94),
+          rgba(255, 255, 255, 0.82)
+        );
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        border-radius: 30px;
+        padding: 24px;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        min-height: 300px;
+      }
+
+      .object-card::before {
+        content: "";
+        position: absolute;
+        right: -34px;
+        bottom: -54px;
+        width: 170px;
+        height: 170px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(34, 197, 94, 0.1),
+          transparent 70%
+        );
+        transition: var(--transition);
+      }
+
+      .object-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-md);
+        border-color: rgba(34, 197, 94, 0.18);
+      }
+
+      .object-card:hover::before {
+        transform: scale(1.1);
+      }
+
+      .object-icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 18px;
+        background: linear-gradient(
+          135deg,
+          rgba(34, 197, 94, 0.16),
+          rgba(14, 165, 233, 0.08)
+        );
+        border: 1px solid rgba(34, 197, 94, 0.14);
+        color: var(--primary-active);
+        font-size: 1.3rem;
+      }
+
+      .object-title {
+        font-size: 1.18rem;
+        line-height: 1.2;
+        letter-spacing: -0.03em;
+        margin-bottom: 10px;
+      }
+
+      .object-desc {
+        color: var(--text-soft);
+        font-size: 0.95rem;
+        line-height: 1.72;
+        margin-bottom: 18px;
+      }
+
+      .object-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.78);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        font-size: 0.82rem;
+        color: var(--text-muted);
+      }
+
+      .object-footer {
+        margin-top: auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .object-type {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.78rem;
+        color: var(--primary-active);
+        background: rgba(220, 252, 231, 0.72);
+        border: 1px solid rgba(34, 197, 94, 0.15);
+        padding: 8px 10px;
+        border-radius: 14px;
+      }
+
+      .object-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 16px;
+        border-radius: 999px;
+        font-weight: 700;
+        color: var(--primary-active);
+        background: rgba(34, 197, 94, 0.08);
+        border: 1px solid rgba(34, 197, 94, 0.14);
+        transition: var(--transition);
+      }
+
+      .object-link:hover {
+        transform: translateY(-2px);
+        background: rgba(34, 197, 94, 0.14);
+      }
+
+      footer {
+        padding: 36px 0 48px;
+        border-top: 1px solid rgba(15, 23, 42, 0.06);
+        color: var(--text-muted);
+        position: relative;
+        z-index: 1;
+      }
+
+      .footer-inner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 18px;
+        flex-wrap: wrap;
+      }
+
+      .footer-brand {
+        font-weight: 700;
+        color: var(--text-soft);
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(28px);
+        transition:
+          opacity 700ms ease,
+          transform 700ms ease;
+      }
+
+      .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .delay-1 {
+        transition-delay: 80ms;
+      }
+      .delay-2 {
+        transition-delay: 160ms;
+      }
+      .delay-3 {
+        transition-delay: 240ms;
+      }
+
+      @media (max-width: 1024px) {
+        .page-hero-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .panel-card.card-a,
+        .panel-card.card-b,
+        .panel-card.card-c {
+          position: relative;
+          width: auto;
+          top: auto;
+          right: auto;
+          left: auto;
+          bottom: auto;
+          margin: 18px;
+        }
+
+        .hero-panel {
+          padding-top: 10px;
+          padding-bottom: 10px;
+        }
+
+        .brand-subtitle {
+          max-width: 280px;
+        }
+      }
+
+      @media (max-width: 820px) {
+        .site-header {
+          height: auto;
+          padding: 12px 0;
+        }
+
+        .header-inner {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .nav {
+          width: 100%;
+          gap: 4px;
+        }
+
+        .nav a {
+          padding: 8px 10px;
+        }
+
+        .page-hero {
+          padding-top: 150px;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .container,
+        .header-inner {
+          width: min(var(--container), calc(100% - 24px));
+        }
+
+        .object-footer {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .object-link {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header" id="siteHeader">
+      <div class="header-inner">
+        <div class="brand">
+          <div class="brand-title">
+            Prof. <span>Cristhiano Vasconcellos</span>
+          </div>
+          <div class="brand-subtitle">
+            Instituto Federal Farroupilha – Campus Alegrete
+          </div>
+        </div>
+        <nav class="nav">
+          <a href="index.html">Início</a>
+          <a href="index.html#disciplinas">Disciplinas</a>
+          <a class="active" href="objetos.html">Objetos</a>
+          <a href="index.html#projetos">Projetos</a>
+          <a href="index.html#sobre">Sobre</a>
+          <a href="#contato">Contato</a>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <section class="page-hero">
+        <div class="container page-hero-grid">
+          <div class="reveal visible">
+            <div class="eyebrow">
+              <span class="eyebrow-dot"></span>
+              Experiências interativas
+            </div>
+            <h1>
+              Objetos <span class="highlight">educacionais</span> para explorar.
+            </h1>
+            <p>
+              Objetos educacionais com foco em programação, lógica,
+              interatividade e aprendizagem ativa.
+            </p>
+          </div>
+          <div class="hero-panel reveal delay-1 visible">
+            <div class="panel-card card-a">
+              <span class="panel-label">Destaque</span>
+              <h3>Fluxograma Interativo</h3>
+              <p>Conecta representação visual e lógica algorítmica.</p>
+            </div>
+            <div class="panel-card card-b">
+              <span class="panel-label">Prática</span>
+              <h3>Quiz e desafios</h3>
+              <p>Feedback imediato e aprendizagem progressiva.</p>
+            </div>
+            <div class="panel-card card-c">
+              <span class="panel-label">Experiência</span>
+              <h3>Jogos e simulações</h3>
+              <p>
+                Mais engajamento para raciocínio lógico e tomada de decisão.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="main-section">
+        <div class="container">
+          <div class="section-intro reveal">
+            <div>
+
+              <h2 class="section-title">
+                Aprenda programação praticando com experiências interativas.
+              </h2>
+
+            </div>
+          </div>
+          <div class="objects-grid">
+            <article class="object-card reveal">
+              <a href="quiz1.html" style="text-decoration: none; color: inherit"
+                ><div class="object-icon"><i class="fas fa-brain"></i></div
+              ></a>
+              <a href="quiz1.html" style="text-decoration: none; color: inherit"
+                ><h3 class="object-title">Quiz Interativo</h3></a
+              >
+              <p class="object-desc">
+                Questões com feedback imediato, barra de progresso e reforço de
+                conceitos de pseudocódigo.
+              </p>
+
+
+            </article>
+            <article class="object-card reveal delay-1">
+              <a
+                href="fluxograma_interativo.html"
+                style="text-decoration: none; color: inherit"
+                ><div class="object-icon">
+                  <i class="fas fa-project-diagram"></i></div
+              ></a>
+              <a
+                href="fluxograma_interativo.html"
+                style="text-decoration: none; color: inherit"
+                ><h3 class="object-title">Fluxograma Interativo</h3></a
+              >
+              <p class="object-desc">
+                Associação entre fluxograma e lógica algorítmica em uma
+                experiência visual e comparativa.
+              </p>
+
+
+            </article>
+            <article class="object-card reveal delay-2">
+              <a href="robo.html" style="text-decoration: none; color: inherit"
+                ><div class="object-icon"><i class="fas fa-robot"></i></div
+              ></a>
+              <a href="robo.html" style="text-decoration: none; color: inherit"
+                ><h3 class="object-title">Robô com Condições</h3></a
+              >
+              <p class="object-desc">
+                Movimentação em níveis com foco em comandos, direção e
+                raciocínio lógico aplicado.
+              </p>
+  
+
+            </article>
+            <article class="object-card reveal delay-3">
+              <a
+                href="objeto_aprendizagem_blocos.html"
+                style="text-decoration: none; color: inherit"
+                ><div class="object-icon">
+                  <i class="fas fa-puzzle-piece"></i></div
+              ></a>
+              <a
+                href="objeto_aprendizagem_blocos.html"
+                style="text-decoration: none; color: inherit"
+                ><h3 class="object-title">Desafios com Blocos</h3></a
+              >
+              <p class="object-desc">
+                Montagem de algoritmos por blocos, com aprendizagem ativa e foco
+                em sequência lógica.
+              </p>
+
+
+            </article>
+            <article class="object-card reveal">
+              <a
+                href="depuracao.html"
+                style="text-decoration: none; color: inherit"
+                ><div class="object-icon"><i class="fas fa-bug"></i></div
+              ></a>
+              <a
+                href="depuracao.html"
+                style="text-decoration: none; color: inherit"
+                ><h3 class="object-title">Labirinto de Depuração</h3></a
+              >
+              <p class="object-desc">
+                Identificação de erros e análise de código com foco em depuração
+                e entendimento de sintaxe.
+              </p>
+
+            </article>
+            <article class="object-card reveal delay-1">
+              <a
+                href="xadrez.html"
+                style="text-decoration: none; color: inherit"
+                ><div class="object-icon"><i class="fas fa-chess"></i></div
+              ></a>
+              <a
+                href="xadrez.html"
+                style="text-decoration: none; color: inherit"
+                ><h3 class="object-title">Xadrez Interativo</h3></a
+              >
+              <p class="object-desc">
+                Desafios estratégicos com interface própria, conectando
+                raciocínio, atenção e tomada de decisão.
+              </p>
+
+
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer id="contato">
+      <div class="container footer-inner">
+        <div class="footer-brand">Prof. Cristhiano Vasconcellos</div>
+        <div>Instituto Federal Farroupilha – Campus Alegrete</div>
+      </div>
+    </footer>
+    <script>
+      const header = document.getElementById("siteHeader");
+
+      function handleHeader() {
+        if (window.scrollY > 18) {
+          header.classList.add("scrolled");
+        } else {
+          header.classList.remove("scrolled");
+        }
+      }
+
+      handleHeader();
+      window.addEventListener("scroll", handleHeader);
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+            }
+          });
+        },
+        { threshold: 0.14 },
+      );
+
+      document
+        .querySelectorAll(".reveal")
+        .forEach((el) => observer.observe(el));
+    </script>
+  </body>
+</html>

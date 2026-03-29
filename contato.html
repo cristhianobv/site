@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contato | Prof. Cristhiano Vasconcellos</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <style>
+    body {
+      font-family: "Inter", sans-serif;
+      background: linear-gradient(180deg, #fcfefe 0%, #f8fafc 100%);
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      text-align: center;
+      background: white;
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(15,23,42,.08);
+      border: 1px solid rgba(15,23,42,.06);
+      max-width: 500px;
+      width: 90%;
+    }
+
+    h1 {
+      font-family: "Space Grotesk", sans-serif;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #64748b;
+    }
+
+    .contact-card {
+      margin-top: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,.9);
+      border: 1px solid rgba(15,23,42,.08);
+      padding: 14px 18px;
+      border-radius: 999px;
+      box-shadow: 0 10px 25px rgba(15,23,42,.06);
+      font-weight: 600;
+    }
+
+    .contact-card i {
+      color: #22c55e;
+    }
+
+    .contact-card a {
+      color: #0f172a;
+      text-decoration: none;
+    }
+
+    .contact-card a:hover {
+      color: #16a34a;
+    }
+
+    .contact-note {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      color: #64748b;
+    }
+
+    .back-link {
+      display: block;
+      margin-top: 25px;
+      font-size: 0.9rem;
+      color: #64748b;
+      text-decoration: none;
+    }
+
+    .back-link:hover {
+      color: #0f172a;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Contato</h1>
+    <p>Dúvidas, sugestões ou ideias? Entre em contato:</p>
+
+    <div class="contact-card">
+      <i class="fas fa-envelope"></i>
+      <span id="email-protected"></span>
+    </div>
+
+    <p class="contact-note">
+      Tempo de resposta: até 48h úteis
+    </p>
+
+    <a href="index.html" class="back-link">← Voltar ao início</a>
+  </div>
+
+  <script>
+    const user = "cristhiano.vasconcellos";
+    const domain = "iffarroupilha.edu.br";
+    const email = user + "@" + domain;
+
+    const container = document.getElementById("email-protected");
+    if (container) {
+      const link = document.createElement("a");
+      link.href = "mailto:" + email;
+      link.textContent = email;
+      container.appendChild(link);
+    }
+  </script>
+
+</body>
+</html>

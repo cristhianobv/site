@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fluxograma Interativo | Prof. Cristhiano Vasconcellos</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --text-soft: #475569;
+      --text-muted: #64748b;
+      --border: rgba(15, 23, 42, 0.08);
+      --primary: #22c55e;
+      --primary-hover: #16a34a;
+      --shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+      --radius: 28px;
+      --container: 1320px;
+      --transition: 220ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(34,197,94,.08), transparent 24%),
+        radial-gradient(circle at 90% 20%, rgba(14,165,233,.08), transparent 18%),
+        linear-gradient(180deg, #fcfefe 0%, #f8fafc 36%, #f4f8fb 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(15,23,42,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15,23,42,.03) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(circle at center, black 35%, transparent 85%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(var(--container), calc(100% - 36px));
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .page-wrap {
+      padding: 20px 0 36px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-weight: 600;
+      padding: 8px 0;
+      transition: var(--transition);
+    }
+
+    .back-link:hover {
+      color: var(--text);
+    }
+
+    .score-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid var(--border);
+      color: var(--text-soft);
+      box-shadow: 0 8px 24px rgba(15,23,42,.05);
+      font-weight: 700;
+    }
+
+    .hero {
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1;
+      letter-spacing: -.05em;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      color: var(--text-soft);
+      font-size: 1rem;
+    }
+
+    .progress-wrap {
+      margin-bottom: 18px;
+    }
+
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+      font-size: .9rem;
+    }
+
+    .progress {
+      width: 100%;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      border-radius: inherit;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .panel {
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      min-width: 0;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: var(--text);
+    }
+
+    .panel-title i {
+      color: var(--primary-hover);
+    }
+
+    .diagram-container {
+      width: 100%;
+      min-height: 520px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(248,250,252,.96), rgba(241,245,249,.96));
+      border: 1px solid rgba(15,23,42,.06);
+      padding: 10px;
+      overflow-x: auto;
+    }
+
+    .diagram-container svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .code-col {
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .code-col:hover {
+      transform: translateY(-2px);
+    }
+
+    .code-col.selected {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(34,197,94,.10), var(--shadow);
+      background: rgba(255,255,255,.98);
+    }
+
+    .option-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(34,197,94,.12);
+      color: #15803d;
+      font-weight: 700;
+      font-size: .84rem;
+      margin-bottom: 12px;
+    }
+
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 20px;
+      padding: 14px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-x: auto;
+      min-height: 520px;
+    }
+
+    .footer-row {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .feedback {
+      min-height: 24px;
+      color: var(--text-soft);
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .correct {
+      color: #15803d;
+      font-weight: 700;
+    }
+
+    .error {
+      color: #dc2626;
+      font-weight: 700;
+    }
+
+    button {
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      border: none;
+      color: #052e16;
+      font-weight: 800;
+      padding: 14px 22px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: .96rem;
+      transition: var(--transition);
+      box-shadow: 0 14px 28px rgba(34,197,94,.22);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(135deg, var(--primary-hover) 0%, #22c55e 100%);
+    }
+
+    .microcopy {
+      color: var(--text-muted);
+      font-size: .9rem;
+      text-align: center;
+    }
+
+    @media (max-width: 1080px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .diagram-container,
+      pre {
+        min-height: 340px;
+      }
+    }
+
+    
+    .end-screen {
+      min-height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0;
+    }
+
+    .end-card {
+      width: min(760px, 100%);
+      background: rgba(255,255,255,.94);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      border-radius: 32px;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .end-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34,197,94,.12);
+      color: var(--primary-active);
+      font-size: 1.8rem;
+      margin-bottom: 14px;
+    }
+
+    .end-card h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+      margin-bottom: 10px;
+    }
+
+    .end-card p {
+      color: var(--text-soft);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .end-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .end-stat {
+      background: rgba(255,255,255,.84);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .end-stat strong {
+      display: block;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.6rem;
+      margin-bottom: 4px;
+    }
+
+    .end-stat span {
+      color: var(--text-muted);
+      font-size: .9rem;
+    }
+
+    .end-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 16px;
+    }
+
+    .end-secondary {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .end-secondary a {
+      font-size: 0.9rem;
+      color: #64748b;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+
+    .end-secondary a:hover {
+      color: #0f172a;
+    }
+
+
+    @media (max-width: 640px) {
+      .container {
+        width: min(var(--container), calc(100% - 20px));
+      }
+
+      .page-wrap {
+        padding-top: 14px;
+      }
+
+      .panel {
+        border-radius: 22px;
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-wrap">
+    <div class="container">
+      <div class="topbar">
+        <a class="back-link" href="objetos.html"><i class="fas fa-arrow-left"></i> Voltar aos objetos</a>
+        <div id="score" class="score-chip"><i class="fas fa-star"></i> Pontos: 0</div>
+      </div>
+
+      <section class="hero">
+        <h1>Fluxograma Interativo</h1>
+        <p>Clique no código que corresponde ao fluxograma.</p>
+      </section>
+
+      <section class="progress-wrap">
+        <div class="progress-head">
+          <span>Progresso</span>
+          <span>avance questão por questão</span>
+        </div>
+        <div class="progress"><div id="bar" class="progress-bar"></div></div>
+      </section>
+
+      <section class="workspace">
+        <div class="panel">
+          <div class="panel-title"><i class="fas fa-diagram-project"></i> Fluxograma</div>
+          <div class="diagram-container"><div id="diagrama"></div></div>
+        </div>
+
+        <div id="colCode0" class="panel code-col">
+          <div class="option-badge"><i class="fas fa-code"></i> Opção A</div>
+          <pre id="code0"></pre>
+        </div>
+
+        <div id="colCode1" class="panel code-col">
+          <div class="option-badge"><i class="fas fa-code"></i> Opção B</div>
+          <pre id="code1"></pre>
+        </div>
+      </section>
+
+      <div class="footer-row">
+        <div id="feedback" class="feedback"></div>
+        <button id="btnProximo">Próximo</button>
+        <div class="microcopy">Selecione uma opção para responder.</div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'dark',
+  themeVariables: {
+    background: '#1e2a3a',
+    primaryColor: '#22c55e',
+    primaryBorderColor: '#22c55e',
+    primaryTextColor: '#fff',
+    lineColor: '#22c55e',
+    secondaryColor: '#2d3748',
+    tertiaryColor: '#111827'
+  },
+  flowchart: { useMaxWidth: true, htmlLabels: true }
+});
+
+// ---------- QUESTÕES COM FLUXOGRAMAS TOTALMENTE TEXTUAIS (sem operadores) ----------
+const questoesBase = [
+  { // 1 - Aprovação
+    diagrama: `graph TD
+      A[Início] --> B[Leia nota]
+      B --> C{nota maior ou igual a 7}
+      C -->|Sim| D[Aprovado]
+      C -->|Não| E[Reprovado]
+      D --> F[Fim]
+      E --> F`,
+    codigos: [
+      "algoritmo \"Aprovacao\"\nvar\n   nota: real\ninicio\n   leia(nota)\n   se nota >= 7 entao\n      escreva(\"Aprovado\")\n   senao\n      escreva(\"Reprovado\")\n   fimse\nfimalgoritmo",
+      "algoritmo \"Aprovacao\"\nvar\n   nota: real\ninicio\n   leia(nota)\n   se nota > 7 entao\n      escreva(\"Aprovado\")\n   senao\n      escreva(\"Reprovado\")\n   fimse\nfimalgoritmo"
+    ],
+    correta: 0
+  },
+  { // 2 - Maior de dois
+    diagrama: `graph TD
+      A[Início] --> B[Leia x, y]
+      B --> C{x maior que y}
+      C -->|Sim| D[Escreva x]
+      C -->|Não| E[Escreva y]
+      D --> F[Fim]
+      E --> F`,
+    codigos: [
+      "algoritmo \"Maior\"\nvar\n   x, y: inteiro\ninicio\n   leia(x, y)\n   se x > y entao\n      escreva(x)\n   senao\n      escreva(y)\n   fimse\nfimalgoritmo",
+      "algoritmo \"Maior\"\nvar\n   x, y: inteiro\ninicio\n   leia(x, y)\n   se x < y entao\n      escreva(x)\n   senao\n      escreva(y)\n   fimse\nfimalgoritmo"
+    ],
+    correta: 0
+  },
+  { // 3 - Par ou Ímpar
+    diagrama: `graph TD
+      A[Início] --> B[Leia num]
+      B --> C{resto da divisao de num por 2 é igual a 0?}
+      C -->|Sim| D[Escreva Par]
+      C -->|Não| E[Escreva Ímpar]
+      D --> F[Fim]
+      E --> F`,
+    codigos: [
+      "algoritmo \"ParImpar\"\nvar\n   num: inteiro\ninicio\n   leia(num)\n   se num % 2 == 0 entao\n      escreva(\"Par\")\n   senao\n      escreva(\"Ímpar\")\n   fimse\nfimalgoritmo",
+      "algoritmo \"ParImpar\"\nvar\n   num: inteiro\ninicio\n   leia(num)\n   se num mod 2 == 0 entao\n      escreva(\"Ímpar\")\n   senao\n      escreva(\"Par\")\n   fimse\nfimalgoritmo"
+    ],
+    correta: 0
+  },
+  { // 4 - Média
+    diagrama: `graph TD
+      A[Início] --> B[Leia a, b, c]
+      B --> C[media igual o resultado da soma de a, b, c  dividido por 3]
+      C --> D{media maior ou igual a 6}
+      D -->|Sim| E[Aprovado]
+      D -->|Não| F[Reprovado]
+      E --> G[Fim]
+      F --> G`,
+    codigos: [
+      "algoritmo \"Media\"\nvar\n   a,b,c,media: real\ninicio\n   leia(a,b,c)\n   media <- (a+b+c)/3\n   se media >= 6 entao\n      escreva(\"Aprovado\")\n   senao\n      escreva(\"Reprovado\")\n   fimse\nfimalgoritmo",
+      "algoritmo \"Media\"\nvar\n   a,b,c,media: real\ninicio\n   leia(a,b,c)\n   media <- (a+b+c)/3\n   se media > 6 entao\n      escreva(\"Aprovado\")\n   senao\n      escreva(\"Reprovado\")\n   fimse\nfimalgoritmo"
+    ],
+    correta: 0
+  },
+  { // 5 - Laço enquanto (contagem)
+    diagrama: `graph TD
+      A[Inicio] --> B[x recebe 1]
+      B --> C{x menor ou igual a 5?}
+      C -->|Sim| D[Escreva x]
+      D --> E[x recebe x mais 1]
+      E --> C
+      C -->|Nao| F[Fim]`,
+    codigos: [
+      "algoritmo \"Contagem\"\nvar\n   x: inteiro\ninicio\n   x <- 1\n   enquanto x <= 5 faca\n      escreva(x)\n      x <- x + 1\n   fimenquanto\nfimalgoritmo",
+      "algoritmo \"Contagem\"\nvar\n   x: inteiro\ninicio\n   x <- 1\n   repita\n      escreva(x)\n      x <- x + 1\n   ate x = 5\nfimalgoritmo"
+    ],
+    correta: 0
+  },
+  { // 6 - Maioridade
+    diagrama: `graph TD
+      A[Início] --> B[Leia idade]
+      B --> C{idade maior ou igual a 18}
+      C -->|Sim| D[Escreva Maior de idade]
+      C -->|Não| E[Escreva Menor de idade]
+      D --> F[Fim]
+      E --> F`,
+    codigos: [
+      "algoritmo \"Maioridade\"\nvar\n   idade: inteiro\ninicio\n   leia(idade)\n   se idade >= 18 entao\n      escreva(\"Maior de idade\")\n   senao\n      escreva(\"Menor de idade\")\n   fimse\nfimalgoritmo",
+      "algoritmo \"Maioridade\"\nvar\n   idade: inteiro\ninicio\n   leia(idade)\n   se idade > 18 entao\n      escreva(\"Maior de idade\")\n   senao\n      escreva(\"Menor de idade\")\n   fimse\nfimalgoritmo"
+    ],
+    correta: 0
+  },
+  { // 7 - Sinal com três casos
+    diagrama: `graph TD
+      A[Início] --> B[Leia valor]
+      B --> C{valor maior que 0}
+      C -->|Sim| D[Escreva Positivo]
+      C -->|Não| E{valor menor que 0}
+      E -->|Sim| F[Escreva Negativo]
+      E -->|Não| G[Escreva Zero]
+      D --> H[Fim]
+      F --> H
+      G --> H`,
+    codigos: [
+      "algoritmo \"Sinal\"\nvar\n   valor: real\ninicio\n   leia(valor)\n   se valor > 0 entao\n      escreva(\"Positivo\")\n   senao\n      se valor < 0 entao\n         escreva(\"Negativo\")\n      senao\n         escreva(\"Zero\")\n      fimse\n   fimse\nfimalgoritmo",
+      "algoritmo \"Sinal\"\nvar\n   valor: real\ninicio\n   leia(valor)\n   se valor >= 0 entao\n      escreva(\"Positivo\")\n   senao\n      escreva(\"Negativo\")\n   fimse\nfimalgoritmo"
+    ],
+    correta: 0
+  },
+  { // 8 - Classificação com zero
+    diagrama: `graph TD
+      A[Início] --> B[Leia num]
+      B --> C{num recebe 0}
+      C -->|Sim| D[Escreva Zero]
+      C -->|Não| E{num maior que 0}
+      E -->|Sim| F[Escreva Positivo]
+      E -->|Não| G[Escreva Negativo]
+      D --> H[Fim]
+      F --> H
+      G --> H`,
+    codigos: [
+      "algoritmo \"Classifica\"\nvar\n   num: inteiro\ninicio\n   leia(num)\n   se num = 0 entao\n      escreva(\"Zero\")\n   senao\n      se num > 0 entao\n         escreva(\"Positivo\")\n      senao\n         escreva(\"Negativo\")\n      fimse\n   fimse\nfimalgoritmo",
+      "algoritmo \"Classifica\"\nvar\n   num: inteiro\ninicio\n   leia(num)\n   se num > 0 entao\n      escreva(\"Positivo\")\n   senao\n      escreva(\"Negativo\")\n   fimse\nfimalgoritmo"
+    ],
+    correta: 0
+  }
+];
+
+// Embaralhar e randomizar posição da opção correta
+let questoes = [];
+for (let base of questoesBase) {
+  const inverter = Math.random() < 0.5;
+  let codigos = [...base.codigos];
+  let corretaIndex = base.correta;
+  if (inverter) {
+    codigos.reverse();
+    corretaIndex = 1 - corretaIndex;
+  }
+  questoes.push({
+    diagrama: base.diagrama,
+    opcoes: codigos,
+    correta: corretaIndex
+  });
+}
+questoes.sort(() => Math.random() - 0.5);
+
+// ---------- VARIÁVEIS ----------
+let atual = 0;
+let pontos = 0;
+let respondeu = false;
+let jaRegistrou = false;
+let opcaoSelecionada = null;
+
+const URL_WEBAPP = "https://script.google.com/macros/s/AKfycbzoeygTm-R27yb8QOcdH0s7fViv6vGPQ5MtDuCgHBt3RhvFVQKlGxf3A7yQUR3RfRqFcw/exec";
+const NOME_ATIVIDADE = "Fluxograma Interativo";
+
+function obterNomeAluno() {
+  let nome = sessionStorage.getItem("nomeAluno");
+  if (!nome) {
+    nome = prompt("Digite seu nome completo para registrar sua atividade:");
+    if (nome && nome.trim() !== "") sessionStorage.setItem("nomeAluno", nome.trim());
+    else nome = "Anônimo";
+  }
+  return nome;
+}
+
+async function registrarResultado(nome, atividade, acertos, total) {
+  const dados = { nome, atividade, acertos, total };
+  try {
+    await fetch(URL_WEBAPP, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dados)
+    });
+    console.log("Registrado:", dados);
+  } catch (e) {
+    console.error("Erro ao registrar:", e);
+  }
+}
+
+async function renderizarFluxograma(diagrama) {
+  const container = document.getElementById('diagrama');
+  container.innerHTML = '';
+  try {
+    const id = `mermaid-${Date.now()}`;
+    const { svg } = await mermaid.render(id, diagrama);
+    container.innerHTML = svg;
+  } catch (err) {
+    console.error("Erro Mermaid:", err);
+    container.innerHTML = '<p style="color:red;">⚠️ Erro ao renderizar fluxograma. Tente recarregar a página.</p>';
+  }
+}
+
+function carregar() {
+  const q = questoes[atual];
+  renderizarFluxograma(q.diagrama);
+  document.getElementById('code0').innerText = q.opcoes[0];
+  document.getElementById('code1').innerText = q.opcoes[1];
+  document.getElementById('colCode0').classList.remove('selected');
+  document.getElementById('colCode1').classList.remove('selected');
+  opcaoSelecionada = null;
+  respondeu = false;
+  document.getElementById('feedback').innerHTML = '';
+  atualizarUI();
+}
+
+function selecionarOpcao(idx) {
+  if (respondeu) return;
+  opcaoSelecionada = idx;
+  document.getElementById('colCode0').classList.remove('selected');
+  document.getElementById('colCode1').classList.remove('selected');
+  document.getElementById(`colCode${idx}`).classList.add('selected');
+}
+
+function verificar() {
+  if (respondeu) return;
+  if (opcaoSelecionada === null) {
+    document.getElementById('feedback').innerHTML = "<span class='error'>⚠️ Clique em um dos códigos para responder.</span>";
+    return;
+  }
+  respondeu = true;
+  const q = questoes[atual];
+  const acertou = (opcaoSelecionada === q.correta);
+  if (acertou) {
+    pontos++;
+    document.getElementById('feedback').innerHTML = "<span class='correct'>✔ Correto! O código corresponde ao fluxograma.</span>";
+  } else {
+    document.getElementById('feedback').innerHTML = "<span class='error'>✖ Errado! O fluxograma representa outra lógica. Tente o próximo.</span>";
+  }
+  atualizarUI();
+}
+
+function proxima() {
+  if (!respondeu) {
+    verificar();
+    return;
+  }
+  atual++;
+  if (atual >= questoes.length) {
+    if (!jaRegistrou) {
+      jaRegistrou = true;
+      const nome = obterNomeAluno();
+      registrarResultado(nome, NOME_ATIVIDADE, pontos, questoes.length);
+    }
+    document.body.innerHTML = `
+      <div style="min-height:100vh;font-family:Inter,sans-serif;background:radial-gradient(circle at top left, rgba(34,197,94,.08), transparent 24%),radial-gradient(circle at 90% 20%, rgba(14,165,233,.08), transparent 18%),linear-gradient(180deg,#fcfefe 0%,#f8fafc 36%,#f4f8fb 100%);padding:24px;">
+        <section class="end-screen">
+          <div class="end-card">
+            <div class="end-icon"><i class="fas fa-diagram-project"></i></div>
+            <h1>Fluxograma Interativo concluído</h1>
+            <p>Você acertou ${pontos} de ${questoes.length} questões.</p>
+            <div class="end-stats">
+              <div class="end-stat"><strong>${pontos}</strong><span>Acertos</span></div>
+              <div class="end-stat"><strong>${questoes.length}</strong><span>Questões</span></div>
+            </div>
+            <div class="end-actions">
+              <a class="btn btn-primary" href="objetos.html"><i class="fas fa-cubes"></i>Explorar objetos</a>
+            </div>
+            <div class="end-secondary"><a href="index.html">Voltar ao início</a></div>
+          </div>
+        </section>
+      </div>
+    `;
+    return;
+  }
+  carregar();
+}
+
+function atualizarUI() {
+  document.getElementById('score').innerText = "Pontos: " + pontos;
+  const percent = ((atual + (respondeu ? 1 : 0)) / questoes.length) * 100;
+  document.getElementById('bar').style.width = percent + "%";
+}
+
+document.getElementById('colCode0').addEventListener('click', () => selecionarOpcao(0));
+document.getElementById('colCode1').addEventListener('click', () => selecionarOpcao(1));
+document.getElementById('btnProximo').addEventListener('click', proxima);
+
+carregar();
+  </script>
+</body>
+</html>
