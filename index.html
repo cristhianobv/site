@@ -722,9 +722,144 @@
         color: var(--text-muted);
       }
 
+      .hero-visual {
+        --parallax-x: 0px;
+        --parallax-y: 0px;
+      }
+
+      .visual-shell {
+        transform: translate3d(var(--parallax-x), var(--parallax-y), 0);
+        animation: heroFloat 7s ease-in-out infinite;
+        will-change: transform;
+      }
+
+      .visual-shell:hover {
+        box-shadow: 0 28px 70px rgba(15, 23, 42, 0.16);
+      }
+
+      @keyframes heroFloat {
+        0% {
+          transform: translate3d(
+            var(--parallax-x),
+            calc(var(--parallax-y) + 0px),
+            0
+          );
+        }
+        50% {
+          transform: translate3d(
+            var(--parallax-x),
+            calc(var(--parallax-y) - 12px),
+            0
+          );
+        }
+        100% {
+          transform: translate3d(
+            var(--parallax-x),
+            calc(var(--parallax-y) + 0px),
+            0
+          );
+        }
+      }
+
+      .glass-card {
+        animation: glassFloat 6.5s ease-in-out infinite;
+        will-change: transform;
+      }
+
+      .glass-card.small {
+        animation-delay: 0.5s;
+      }
+      .glass-card.medium:last-of-type {
+        animation-delay: 1s;
+      }
+
+      @keyframes glassFloat {
+        0% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
+        100% {
+          transform: translateY(0px);
+        }
+      }
+
+      .card:hover .icon-box {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 14px 28px rgba(34, 197, 94, 0.16);
+      }
+
+      .icon-box {
+        transition: var(--transition);
+      }
+
+      body.preload .hero-content,
+      body.preload .hero-visual,
+      body.preload .section-header,
+      body.preload .card,
+      body.preload .about-band {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+
+      body.loaded .hero-content,
+      body.loaded .hero-visual,
+      body.loaded .section-header,
+      body.loaded .card,
+      body.loaded .about-band {
+        opacity: 1;
+        transform: translateY(0);
+        transition:
+          opacity 700ms ease,
+          transform 700ms ease;
+      }
+
+      body.loaded .hero-visual {
+        transition-delay: 120ms;
+      }
+      body.loaded .card.reveal.delay-1 {
+        transition-delay: 80ms;
+      }
+      body.loaded .card.reveal.delay-2 {
+        transition-delay: 140ms;
+      }
+      body.loaded .card.reveal.delay-3 {
+        transition-delay: 200ms;
+      }
+      body.loaded .card.reveal.delay-4 {
+        transition-delay: 260ms;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .visual-shell,
+        .glass-card,
+        .card,
+        .icon-box {
+          animation: none !important;
+          transition: none !important;
+          transform: none !important;
+        }
+      }
+      .project-image {
+        width: 100%;
+        height: 140px;
+        object-fit: cover;
+        border-radius: 16px;
+        margin-bottom: 14px;
+        display: block;
+        transition:
+          transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+          box-shadow 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+
+      .card:hover .project-image {
+        transform: scale(1.02);
+        box-shadow: 0 18px 36px rgba(15, 23, 42, 0.18);
+      }
     </style>
   </head>
-  <body>
+  <body class="preload">
     <header class="site-header" id="siteHeader">
       <div class="header-inner">
         <div class="brand">
@@ -738,7 +873,7 @@
         <nav class="nav">
           <a href="#inicio">Início</a><a href="#disciplinas">Disciplinas</a
           ><a href="objetos.html">Objetos</a><a href="#projetos">Projetos</a
-          ><a href="#sobre">Sobre</a><a href="#contato">Contato</a>
+          ><a href="#sobre">Sobre</a><a href="contato.html">Contato</a>
         </nav>
       </div>
     </header>
@@ -855,72 +990,81 @@
         <div class="container">
           <div class="section-header reveal">
             <div>
-              <div class="section-kicker">Disciplinas</div>
+              <div class="section-kicker">Atuação</div>
               <h2 class="section-title">
-                Áreas de ensino organizadas para explorar, praticar e evoluir.
+                Áreas de ensino e atuação em tecnologia e programação.
               </h2>
               <p class="section-desc">
-                Uma estrutura preparada para crescer com novas disciplinas,
-                mantendo consistência visual, navegação clara e acesso rápido a
-                materiais e atividades interativas.
+                Campos que estruturam o ensino, os projetos e os objetos
+                educacionais, conectando teoria, prática e inovação no processo
+                de aprendizagem.
               </p>
             </div>
           </div>
           <div class="grid grid-5">
             <article class="card reveal">
               <div class="icon-box">&lt;/&gt;</div>
-              <h3>Programação I</h3>
+              <h3>Lógica e Algoritmos</h3>
               <p>
-                Curso Técnico em Informática com foco em lógica, algoritmos e
-                construção de base.
+                Desenvolvimento do pensamento computacional, resolução de
+                problemas e construção de algoritmos de forma estruturada e
+                progressiva.
               </p>
               <div class="card-meta">
-                <span class="tag">Curso Técnico</span
-                ><span class="tag">Lógica</span>
+                <span class="tag">Base</span>
+                <span class="tag">Raciocínio lógico</span>
               </div>
             </article>
+
             <article class="card reveal delay-1">
               <div class="icon-box">{ }</div>
-              <h3>Programação I</h3>
+              <h3>Programação e Desenvolvimento</h3>
               <p>
-                Curso ADS com abordagem introdutória para resolução de problemas
-                e estrutura lógica.
+                Construção de sistemas e aplicações com foco em prática,
+                organização de código e evolução do pensamento lógico.
               </p>
               <div class="card-meta">
-                <span class="tag">ADS</span><span class="tag">Fundamentos</span>
+                <span class="tag">Programação</span>
+                <span class="tag">Prática</span>
               </div>
             </article>
+
             <article class="card reveal delay-2">
               <div class="icon-box">UI</div>
-              <h3>Programação IV</h3>
+              <h3>Desenvolvimento Web</h3>
               <p>
-                Programação para Web com foco em sistemas, interfaces e
-                construção de aplicações.
+                Criação de interfaces, sistemas web e aplicações modernas,
+                integrando front-end, lógica e experiência do usuário.
               </p>
               <div class="card-meta">
-                <span class="tag">Web</span><span class="tag">ADS</span>
+                <span class="tag">Web</span>
+                <span class="tag">Interfaces</span>
               </div>
             </article>
+
             <article class="card reveal delay-3">
               <div class="icon-box">IoT</div>
-              <h3>Programação para Microcontroladores</h3>
+              <h3>Microcontroladores e IoT</h3>
               <p>
-                Integração entre software, prototipação, sensores e
-                desenvolvimento prático.
+                Integração entre hardware e software com Arduino, sensores e
+                prototipação de soluções tecnológicas aplicadas.
               </p>
               <div class="card-meta">
-                <span class="tag">Arduino</span><span class="tag">ADS</span>
+                <span class="tag">Arduino</span>
+                <span class="tag">IoT</span>
               </div>
             </article>
+
             <article class="card reveal delay-4">
               <div class="icon-box">DS</div>
               <h3>Estrutura de Dados</h3>
               <p>
-                Organização, eficiência, algoritmos e desenvolvimento do
-                raciocínio computacional.
+                Organização eficiente de dados, algoritmos e desenvolvimento do
+                raciocínio computacional para soluções mais robustas.
               </p>
               <div class="card-meta">
-                <span class="tag">Algoritmos</span><span class="tag">ADS</span>
+                <span class="tag">Algoritmos</span>
+                <span class="tag">Eficiência</span>
               </div>
             </article>
           </div>
@@ -931,7 +1075,9 @@
           <div class="section-header reveal">
             <div>
               <div class="section-kicker">Objetos educacionais</div>
-              <h2 class="section-title">Aprenda interagindo com os objetos educacionais.</h2>
+              <h2 class="section-title">
+                Aprenda interagindo com os objetos educacionais.
+              </h2>
             </div>
           </div>
           <div class="grid grid-4">
@@ -1007,6 +1153,104 @@
           </div>
         </div>
       </section>
+
+      <section class="section" id="youtube">
+        <div class="container">
+          <div class="section-header reveal">
+            <div>
+              <div class="section-kicker">YouTube</div>
+              <h2 class="section-title">
+                Conteúdo em vídeo para aprender programação de forma mais clara
+                e prática.
+              </h2>
+              <p class="section-desc">
+                O canal InfoVocê amplia a experiência do site com vídeos
+                explicativos, exemplos passo a passo e apoio visual para
+                disciplinas, objetos educacionais e temas de tecnologia.
+              </p>
+            </div>
+          </div>
+
+          <div class="grid grid-3" style="grid-auto-rows: 1fr">
+            <article class="card reveal">
+              <div class="icon-box"><i class="fab fa-youtube"></i></div>
+              <h3>Canal InfoVocê</h3>
+              <p>
+                Vídeos voltados ao ensino de programação, lógica, tecnologia e
+                desenvolvimento, com linguagem acessível e foco em aprendizagem
+                real.
+              </p>
+              <a
+                class="card-link"
+                href="https://www.youtube.com/infovoce"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Acessar canal →
+              </a>
+            </article>
+            <iframe
+              width="100%"
+              height="360"
+              src="https://www.youtube.com/embed/KJFzZg-XA1k"
+              title="Vídeo sobre programação e tecnologia"
+              style="border-radius: 20px; margin-bottom: 24px; border: none"
+              allow="
+                accelerometer;
+                autoplay;
+                clipboard-write;
+                encrypted-media;
+                gyroscope;
+                picture-in-picture;
+              "
+              allowfullscreen
+            >
+            </iframe>
+            <article class="card reveal delay-1">
+              <div class="icon-box"><i class="fas fa-play-circle"></i></div>
+              <h3>Apoio às disciplinas</h3>
+              <p>
+                Um espaço para complementar aulas e materiais com explicações
+                visuais, reforçando conceitos e facilitando a revisão dos
+                conteúdos.
+              </p>
+              <div class="card-meta">
+                <span class="tag">Vídeos</span>
+                <span class="tag">Aprendizagem visual</span>
+              </div>
+            </article>
+
+            <article class="card reveal delay-2">
+              <div class="icon-box"><i class="fas fa-lightbulb"></i></div>
+              <h3>Prática e clareza</h3>
+              <p>
+                Conteúdos pensados para aproximar teoria e prática, com exemplos
+                que ajudam a desenvolver raciocínio lógico e compreensão
+                aplicada.
+              </p>
+              <div class="card-meta">
+                <span class="tag">Programação</span>
+                <span class="tag">Tecnologia</span>
+              </div>
+            </article>
+          </div>
+
+          <div
+            class="reveal delay-2"
+            style="margin-top: 30px; display: flex; justify-content: center"
+          >
+            <a
+              class="btn btn-primary"
+              href="https://www.youtube.com/infovoce"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Visitar canal no YouTube
+            </a>
+          </div>
+        </div>
+      </section>
+
       <section class="section" id="projetos">
         <div class="container">
           <div class="section-header reveal">
@@ -1023,17 +1267,34 @@
             </div>
           </div>
           <div class="grid grid-3">
-            <article class="card reveal">
-              <div class="icon-box">RX</div>
-              <h3>Robótica Educacional</h3>
+            <article class="card reveal" style="grid-column: span 2">
+              <img
+                src="img/iftechinova1.jpg"
+                alt="Projeto IFTechInova"
+                class="project-image"
+              />
+              <div class="icon-box">🚀</div>
+              <h3>IFTechInova — Educação Tecnológica Inovadora</h3>
               <p>
-                Projeto de extensão voltado à aprendizagem prática, criatividade
-                e aproximação com a comunidade.
+                Projeto de extensão que conecta ensino, tecnologia e comunidade,
+                levando programação, Arduino, robótica e pensamento
+                computacional para alunos do ensino fundamental.
               </p>
+
+              <p style="margin-top: 10px; color: var(--text-soft)">
+                A iniciativa promove aprendizagem prática, criatividade e
+                inclusão digital, aproximando estudantes da escola pública do
+                universo da tecnologia e inovação.
+              </p>
+
               <div class="card-meta">
-                <span class="tag">Extensão</span
-                ><span class="tag">Robótica</span>
+                <span class="tag">Extensão</span>
+                <span class="tag">Robótica</span>
+                <span class="tag">Arduino</span>
+                <span class="tag">Impacto social</span>
               </div>
+
+              <a class="card-link" href="#"> Ver projeto → </a>
             </article>
             <article class="card reveal delay-1">
               <div class="icon-box">PQ</div>
@@ -1068,32 +1329,46 @@
             <div class="about-main">
               <div class="section-kicker">Sobre</div>
               <h2 class="section-title">
-                Professor, tecnologia e experiências de aprendizagem com
-                identidade própria.
+                Ensino, tecnologia e prática conectados à realidade.
               </h2>
+
               <p>
-                Este site foi pensado como uma plataforma para reunir ensino,
-                objetos educacionais, projetos e materiais em uma experiência
-                unificada, moderna e escalável. A proposta é valorizar a
-                prática, a clareza visual e a inovação como parte do processo de
-                aprender.
+                Sou professor do Instituto Federal Farroupilha – Campus
+                Alegrete, com mais de 20 anos de experiência na área de
+                Computação, atuando principalmente no ensino de programação,
+                desenvolvimento de sistemas e tecnologias aplicadas à educação.
               </p>
+
+              <p>
+                Minha trajetória envolve atuação em cursos técnicos, graduação e
+                pós-graduação, sempre com foco na aprendizagem prática, no
+                desenvolvimento do raciocínio lógico e na construção de soluções
+                reais com tecnologia.
+              </p>
+
+              <p>
+                Ao longo dos anos, tenho participado e coordenado projetos de
+                ensino, pesquisa e extensão que conectam sala de aula,
+                comunidade e inovação, promovendo uma formação mais aplicada,
+                criativa e significativa para os estudantes.
+              </p>
+
               <div class="stats">
                 <div class="stat">
-                  <strong>UI + UX</strong
-                  ><span>Experiência moderna, clara e consistente</span>
+                  <strong>20+ anos</strong>
+                  <span>Experiência em Computação e ensino</span>
                 </div>
                 <div class="stat">
-                  <strong>Design System</strong
-                  ><span>Base visual preparada para crescer</span>
+                  <strong>Ensino completo</strong>
+                  <span>Técnico, graduação e pós-graduação</span>
                 </div>
                 <div class="stat">
-                  <strong>Objetos Interativos</strong
-                  ><span>Aprendizagem com prática e feedback</span>
+                  <strong>Projetos reais</strong>
+                  <span>Extensão, pesquisa e desenvolvimento</span>
                 </div>
                 <div class="stat">
-                  <strong>Escalável</strong
-                  ><span>Pronto para novas disciplinas e projetos</span>
+                  <strong>Foco prático</strong>
+                  <span>Programação, lógica e inovação</span>
                 </div>
               </div>
             </div>
@@ -1158,6 +1433,31 @@
         emailContainer.appendChild(emailLink);
       }
 
+      window.addEventListener("load", () => {
+        document.body.classList.remove("preload");
+        requestAnimationFrame(() => {
+          document.body.classList.add("loaded");
+        });
+      });
+
+      if (window.innerWidth > 900) {
+        const heroVisual = document.querySelector(".hero-visual");
+        if (heroVisual) {
+          window.addEventListener("mousemove", (event) => {
+            const rect = heroVisual.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const moveX = (event.clientX - centerX) / 45;
+            const moveY = (event.clientY - centerY) / 55;
+            heroVisual.style.setProperty("--parallax-x", `${moveX}px`);
+            heroVisual.style.setProperty("--parallax-y", `${moveY}px`);
+          });
+          heroVisual.addEventListener("mouseleave", () => {
+            heroVisual.style.setProperty("--parallax-x", "0px");
+            heroVisual.style.setProperty("--parallax-y", "0px");
+          });
+        }
+      }
     </script>
   </body>
 </html>

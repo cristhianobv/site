@@ -643,6 +643,38 @@
         }
       }
   
+
+      /* animação do hero da direita */
+      .hero-panel {
+        animation: heroPanelFloat 7s ease-in-out infinite;
+        will-change: transform;
+      }
+
+      .panel-card {
+        animation: panelCardFloat 6s ease-in-out infinite;
+        will-change: transform;
+      }
+
+      .panel-card.card-b {
+        animation-delay: 0.5s;
+      }
+
+      .panel-card.card-c {
+        animation-delay: 1s;
+      }
+
+      @keyframes heroPanelFloat {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-8px); }
+        100% { transform: translateY(0px); }
+      }
+
+      @keyframes panelCardFloat {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-6px); }
+        100% { transform: translateY(0px); }
+      }
+
     /* animação refinada dos cards do catálogo */
     .object-card{
       transition:
@@ -681,6 +713,8 @@
 
     /* acessibilidade */
     @media (prefers-reduced-motion: reduce){
+      .hero-panel,
+      .panel-card,
       .object-card,
       .object-icon,
       .page-hero-grid > .reveal,
@@ -710,7 +744,7 @@
           <a class="active" href="objetos.html">Objetos</a>
           <a href="index.html#projetos">Projetos</a>
           <a href="index.html#sobre">Sobre</a>
-          <a href="#contato">Contato</a>
+          <a href="contato.html">Contato</a>
         </nav>
       </div>
     </header>
