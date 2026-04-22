@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Desafio do Se Encadeado | Prof. Cristhiano Vasconcellos</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <style>
+    :root {
+      --text: #0f172a;
+      --text-soft: #475569;
+      --text-muted: #64748b;
+      --border: rgba(15, 23, 42, 0.08);
+      --primary: #22c55e;
+      --primary-hover: #16a34a;
+      --primary-active: #15803d;
+      --danger: #dc2626;
+      --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 18px 40px rgba(15, 23, 42, 0.08);
+      --radius-lg: 28px;
+      --radius-md: 22px;
+      --container: 1080px;
+      --transition: 220ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(34, 197, 94, 0.08), transparent 24%),
+        radial-gradient(circle at 90% 20%, rgba(14, 165, 233, 0.08), transparent 20%),
+        linear-gradient(180deg, #fcfefe 0%, #f8fafc 30%, #f4f8fb 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(circle at center, black 35%, transparent 85%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(var(--container), calc(100% - 36px));
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .page-wrap {
+      padding: 20px 0 36px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .back-link:hover {
+      color: var(--text);
+    }
+
+    .score-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid var(--border);
+      color: var(--text-soft);
+      box-shadow: var(--shadow-sm);
+      font-weight: 700;
+    }
+
+    .hero {
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1;
+      letter-spacing: -0.05em;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      color: var(--text-soft);
+      font-size: 1rem;
+      line-height: 1.65;
+      max-width: 780px;
+    }
+
+    .progress-wrap {
+      margin-bottom: 18px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .progress {
+      width: 100%;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      border-radius: inherit;
+      transition: width var(--transition);
+    }
+
+    .activity-card {
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+    }
+
+    .question-title {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+
+    .code-block {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: var(--radius-md);
+      padding: 18px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 13px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      margin-bottom: 16px;
+      min-height: 220px;
+      text-align: left;
+    }
+
+    .answers {
+      display: grid;
+      gap: 12px;
+    }
+
+    .answer-btn {
+      width: 100%;
+      border: 1px solid rgba(15,23,42,.08);
+      border-radius: 22px;
+      background: rgba(255,255,255,.98);
+      padding: 16px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      text-align: left;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 8px 24px rgba(15,23,42,.04);
+      color: var(--text);
+      font-size: 0.98rem;
+      font-weight: 600;
+    }
+
+    .answer-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 32px rgba(15,23,42,.08);
+      border-color: rgba(34,197,94,.45);
+    }
+
+    .answer-btn:disabled {
+      cursor: default;
+      opacity: 1;
+    }
+
+    .answer-btn.correct {
+      border-color: rgba(34,197,94,.45);
+      background: rgba(34,197,94,.07);
+    }
+
+    .answer-btn.wrong {
+      border-color: rgba(220,38,38,.28);
+      background: rgba(220,38,38,.05);
+    }
+
+    .answer-pill {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34,197,94,.12);
+      color: var(--primary-active);
+      font-weight: 800;
+      flex: 0 0 auto;
+    }
+
+    .feedback-area {
+      min-height: 26px;
+      margin-top: 16px;
+      text-align: center;
+      font-size: 1rem;
+      color: var(--text-soft);
+      line-height: 1.6;
+    }
+
+    .correct-text {
+      color: #15803d;
+      font-weight: 700;
+    }
+
+    .error-text {
+      color: var(--danger);
+      font-weight: 700;
+    }
+
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      padding: 14px 22px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.96rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      color: #052e16;
+      box-shadow: 0 14px 28px rgba(34,197,94,.22);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none;
+    }
+
+    .microcopy {
+      color: var(--text-muted);
+      font-size: .9rem;
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    .end-screen {
+      min-height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0;
+    }
+
+    .end-card {
+      width: min(760px, 100%);
+      background: rgba(255,255,255,.94);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      border-radius: 32px;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .end-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34,197,94,.12);
+      color: var(--primary-active);
+      font-size: 1.8rem;
+      margin-bottom: 14px;
+    }
+
+    .end-card h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+      margin-bottom: 10px;
+    }
+
+    .end-card p {
+      color: var(--text-soft);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .end-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .end-stat {
+      background: rgba(255,255,255,.84);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .end-stat strong {
+      display: block;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.6rem;
+      margin-bottom: 4px;
+    }
+
+    .end-stat span {
+      color: var(--text-muted);
+      font-size: .9rem;
+    }
+
+    .end-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 16px;
+    }
+
+    .end-secondary {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .end-secondary a {
+      font-size: 0.9rem;
+      color: #64748b;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+
+    .end-secondary a:hover {
+      color: #0f172a;
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        width: min(var(--container), calc(100% - 20px));
+      }
+
+      .page-wrap {
+        padding-top: 14px;
+      }
+
+      .activity-card {
+        padding: 16px;
+        border-radius: 22px;
+      }
+
+      .code-block,
+      .answer-btn {
+        border-radius: 18px;
+      }
+
+      .end-stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-wrap">
+    <div class="container" id="app">
+      <div class="topbar">
+        <a class="back-link" href="objetos.html"><i class="fas fa-arrow-left"></i> Voltar aos objetos</a>
+        <div id="score" class="score-chip"><i class="fas fa-star"></i> Pontos: 0</div>
+      </div>
+
+      <section class="hero">
+        <h1>Desafio do Se Encadeado</h1>
+        <p>Leia o pseudocódigo, acompanhe a ordem das condições e escolha a saída ou a explicação correta. O desafio começa com casos mais simples e avança para situações com lógica mais cuidadosa.</p>
+      </section>
+
+      <section class="progress-wrap">
+        <div class="progress-label">
+          <span>Progresso</span>
+          <span>uma questão por vez</span>
+        </div>
+        <div class="progress"><div id="bar" class="progress-bar"></div></div>
+      </section>
+
+      <article class="activity-card">
+        <div id="tituloQuestao" class="question-title"></div>
+
+        <pre id="codigo" class="code-block"></pre>
+
+        <div class="answers">
+          <button id="op1" class="answer-btn" type="button">
+            <span class="answer-pill">A</span>
+            <span class="answer-text"></span>
+          </button>
+
+          <button id="op2" class="answer-btn" type="button">
+            <span class="answer-pill">B</span>
+            <span class="answer-text"></span>
+          </button>
+
+          <button id="op3" class="answer-btn" type="button">
+            <span class="answer-pill">C</span>
+            <span class="answer-text"></span>
+          </button>
+        </div>
+
+        <div id="feedback" class="feedback-area">Selecione uma alternativa para responder.</div>
+
+        <div class="actions">
+          <button id="btnProximo" class="btn btn-primary" type="button" disabled>
+            <i class="fas fa-arrow-right"></i>
+            Próximo
+          </button>
+        </div>
+
+        <div class="microcopy">Dica: em estruturas encadeadas, a ordem das condições muda o resultado.</div>
+      </article>
+    </div>
+  </main>
+
+  <script>
+    const questoes = [
+      {
+        titulo: "Observe o algoritmo e marque a saída correta.",
+        codigo: `algoritmo "situacao_nota"
+var
+   nota: real
+
+inicio
+   nota <- 8
+
+   se (nota >= 7) entao
+      escreval("Aprovado")
+   senao
+      escreval("Reprovado")
+   fimse
+
+fimalgoritmo`,
+        opcoes: ["Aprovado", "Reprovado", "Nenhuma das anteriores"],
+        correta: 0,
+        explicacao: 'Como a nota é 8, a condição (nota >= 7) é verdadeira. O algoritmo imprime "Aprovado".'
+      },
+      {
+        titulo: "Qual valor completa corretamente a condição para aprovação?",
+        codigo: `se (nota >= ___) entao
+   escreval("Aprovado")`,
+        opcoes: ["5", "7", "10"],
+        correta: 1,
+        explicacao: 'No padrão trabalhado na aula, a aprovação acontece quando a nota é maior ou igual a 7.'
+      },
+      {
+  titulo: "Para classificar corretamente a situação de um aluno, qual condição deve aparecer primeiro?",
+  codigo: `// Situação do aluno:
+ // nota >= 7  -> Aprovado
+ // nota >= 5  -> Recuperacao
+ // senao      -> Reprovado`,
+  opcoes: [
+    "nota >= 5",
+    "nota >= 7",
+    "A ordem não interfere"
+  ],
+  correta: 1,
+  explicacao: 'A condição "nota >= 7" precisa aparecer primeiro. Ela é a mais específica. Se "nota >= 5" vier antes, o algoritmo pode classificar errado.'
+},
+      {
+        titulo: "Leia o pseudocódigo e identifique o principal erro lógico.",
+        codigo: `algoritmo "notas"
+var
+   nota: real
+
+inicio
+   leia(nota)
+
+   se (nota >= 5) entao
+      escreval("Recuperacao")
+   senao
+      se (nota >= 7) entao
+         escreval("Aprovado")
+      senao
+         escreval("Reprovado")
+      fimse
+   fimse
+
+fimalgoritmo`,
+        opcoes: [
+          "A ordem das condições está errada",
+          "O algoritmo não tem nenhum erro",
+          "O erro está só na palavra escreval"
+        ],
+        correta: 0,
+        explicacao: 'Se a nota for 8, o algoritmo já entra em (nota >= 5) e nunca chega ao caso de aprovação.'
+      },
+      {
+        titulo: "Considere a situação abaixo e escolha a saída correta.",
+        codigo: `algoritmo "situacao_nota"
+var
+   nota: real
+
+inicio
+   nota <- 6
+
+   se (nota >= 7) entao
+      escreval("Aprovado")
+   senao
+      se (nota >= 5) entao
+         escreval("Recuperacao")
+      senao
+         escreval("Reprovado")
+      fimse
+   fimse
+
+fimalgoritmo`,
+        opcoes: ["Aprovado", "Recuperacao", "Reprovado"],
+        correta: 1,
+        explicacao: 'A nota 6 não aprova, mas ainda satisfaz a condição (nota >= 5). Por isso o resultado é "Recuperacao".'
+      },
+      {
+        titulo: "Agora observe o uso do operador lógico e marque a saída correta.",
+        codigo: `algoritmo "situacao_final"
+var
+   nota, frequencia: real
+
+inicio
+   nota <- 7
+   frequencia <- 70
+
+   se (nota >= 7) e (frequencia >= 75) entao
+      escreval("Aprovado")
+   senao
+      se (nota >= 5) entao
+         escreval("Recuperacao")
+      senao
+         escreval("Reprovado")
+      fimse
+   fimse
+
+fimalgoritmo`,
+        opcoes: ["Aprovado", "Recuperacao", "Reprovado"],
+        correta: 1,
+        explicacao: 'Para aprovar, as duas condições precisam ser verdadeiras. Como a frequência é 70, o aluno não aprova direto.'
+      }
+    ];
+
+    let atual = 0;
+    let pontos = 0;
+    let respondeu = false;
+
+    const tituloQuestao = document.getElementById("tituloQuestao");
+    const codigo = document.getElementById("codigo");
+    const feedback = document.getElementById("feedback");
+    const score = document.getElementById("score");
+    const bar = document.getElementById("bar");
+    const btnProximo = document.getElementById("btnProximo");
+
+    const botoes = [
+      document.getElementById("op1"),
+      document.getElementById("op2"),
+      document.getElementById("op3")
+    ];
+
+    function carregar() {
+      const q = questoes[atual];
+      tituloQuestao.innerText = q.titulo;
+      codigo.innerText = q.codigo;
+      feedback.innerHTML = "Selecione uma alternativa para responder.";
+      respondeu = false;
+      btnProximo.disabled = true;
+
+      botoes.forEach((btn, i) => {
+        btn.classList.remove("correct", "wrong");
+        btn.disabled = false;
+        btn.style.display = q.opcoes[i] ? "flex" : "none";
+        const texto = btn.querySelector(".answer-text");
+        texto.innerText = q.opcoes[i] || "";
+      });
+
+      atualizarUI();
+    }
+
+    function responder(indice) {
+      if (respondeu) return;
+
+      respondeu = true;
+      const q = questoes[atual];
+
+      botoes.forEach(btn => btn.disabled = true);
+
+      if (indice === q.correta) {
+        pontos++;
+        botoes[indice].classList.add("correct");
+        feedback.innerHTML = `<span class="correct-text">✔ Correto!</span> ${q.explicacao}`;
+      } else {
+        botoes[indice].classList.add("wrong");
+        botoes[q.correta].classList.add("correct");
+        feedback.innerHTML = `<span class="error-text">✖ Errado.</span> ${q.explicacao}`;
+      }
+
+      btnProximo.disabled = false;
+      atualizarUI();
+    }
+
+    function proxima() {
+      if (!respondeu) return;
+
+      atual++;
+
+      if (atual >= questoes.length) {
+        mostrarFinal();
+        return;
+      }
+
+      carregar();
+    }
+
+    function atualizarUI() {
+      score.innerHTML = `<i class="fas fa-star"></i> Pontos: ${pontos}`;
+      const percent = ((atual + (respondeu ? 1 : 0)) / questoes.length) * 100;
+      bar.style.width = percent + "%";
+    }
+
+    function mostrarFinal() {
+      document.getElementById("app").innerHTML = `
+        <section class="end-screen">
+          <div class="end-card">
+            <div class="end-icon"><i class="fas fa-code-branch"></i></div>
+            <h1>Desafio concluído!</h1>
+            <p>Você finalizou a atividade sobre <strong>se encadeado</strong> e já pode revisar os pontos em que teve mais dificuldade.</p>
+
+            <div class="end-stats">
+              <div class="end-stat">
+                <strong>${pontos}</strong>
+                <span>Acertos</span>
+              </div>
+              <div class="end-stat">
+                <strong>${questoes.length}</strong>
+                <span>Questões</span>
+              </div>
+            </div>
+
+            <div class="end-actions">
+              <a class="btn btn-primary" href="objetos.html">
+                <i class="fas fa-cubes"></i>
+                Explorar objetos
+              </a>
+            </div>
+
+            <div class="end-secondary">
+              <a href="index.html">Voltar ao início</a>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    botoes[0].onclick = () => responder(0);
+    botoes[1].onclick = () => responder(1);
+    botoes[2].onclick = () => responder(2);
+    btnProximo.onclick = proxima;
+
+    carregar();
+  </script>
+</body>
+</html>
