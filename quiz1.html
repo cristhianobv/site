@@ -1,276 +1,715 @@
 <!doctype html>
-<html lang="pt-br">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Quiz - Programação I</title>
-    <style>
-      body {
-        font-family: Arial;
-        background: #0b0f1a;
-        color: #fff;
-        text-align: center;
-        margin: 0;
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz de Pseudocódigo | Prof. Cristhiano Vasconcellos</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <style>
+    :root {
+      --text: #0f172a;
+      --text-soft: #475569;
+      --text-muted: #64748b;
+      --border: rgba(15, 23, 42, .08);
+      --primary: #22c55e;
+      --primary-active: #15803d;
+      --shadow-sm: 0 8px 24px rgba(15, 23, 42, .05);
+      --shadow-md: 0 18px 40px rgba(15, 23, 42, .08);
+      --radius-lg: 28px;
+      --radius-md: 22px;
+      --container: 980px;
+      --transition: 220ms cubic-bezier(.2, .8, .2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(34, 197, 94, .08), transparent 24%),
+        radial-gradient(circle at 90% 20%, rgba(14, 165, 233, .08), transparent 20%),
+        linear-gradient(180deg, #fcfefe 0%, #f8fafc 30%, #f4f8fb 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(15, 23, 42, .03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, .03) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(circle at center, black 35%, transparent 85%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page-wrap {
+      padding: 20px 0 36px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .container {
+      width: min(var(--container), calc(100% - 36px));
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .back-link:hover {
+      color: var(--text);
+    }
+
+    .score-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .82);
+      border: 1px solid var(--border);
+      color: var(--text-soft);
+      box-shadow: var(--shadow-sm);
+      font-weight: 700;
+    }
+
+    .hero {
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1;
+      letter-spacing: -.05em;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      color: var(--text-soft);
+      font-size: 1rem;
+      line-height: 1.65;
+      max-width: 760px;
+    }
+
+    .progress-wrap {
+      margin-bottom: 18px;
+      background: rgba(255, 255, 255, .82);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+      font-size: .9rem;
+      flex-wrap: wrap;
+    }
+
+    .progress {
+      width: 100%;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      border-radius: inherit;
+      transition: width .25s ease;
+    }
+
+    .activity-card {
+      background: rgba(255, 255, 255, .92);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(34, 197, 94, .10);
+      color: var(--primary-active);
+      border: 1px solid rgba(34, 197, 94, .16);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: .9rem;
+      font-weight: 700;
+    }
+
+    .question-counter {
+      color: var(--text-muted);
+      font-size: .95rem;
+      font-weight: 700;
+    }
+
+    .code {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: var(--radius-md);
+      padding: 18px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 13px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      min-height: 260px;
+      text-align: left;
+    }
+
+    .answers {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .answer-btn {
+      width: 100%;
+      border: 1px solid rgba(15, 23, 42, .08);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, .98);
+      padding: 16px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      text-align: left;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, .04);
+      color: var(--text);
+      font-size: .98rem;
+      font-weight: 600;
+    }
+
+    .answer-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 32px rgba(15, 23, 42, .08);
+      border-color: rgba(34, 197, 94, .45);
+    }
+
+    .answer-btn:disabled {
+      cursor: default;
+      transform: none;
+    }
+
+    .answer-btn.is-correct {
+      border-color: rgba(21, 128, 61, .32);
+      background: rgba(34, 197, 94, .08);
+    }
+
+    .answer-btn.is-wrong {
+      border-color: rgba(220, 38, 38, .22);
+      background: rgba(254, 242, 242, .92);
+    }
+
+    .answer-pill {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34, 197, 94, .12);
+      color: var(--primary-active);
+      font-weight: 800;
+      flex: 0 0 auto;
+    }
+
+    .answer-text {
+      flex: 1;
+      padding-top: 6px;
+    }
+
+    .feedback-area {
+      min-height: 28px;
+      margin-top: 16px;
+      text-align: center;
+      font-size: 1rem;
+      color: var(--text-soft);
+    }
+
+    .correct {
+      color: #15803d;
+      font-weight: 700;
+    }
+
+    .error {
+      color: #dc2626;
+      font-weight: 700;
+    }
+
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      padding: 14px 22px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: .96rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      color: #052e16;
+      box-shadow: 0 14px 28px rgba(34, 197, 94, .22);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none;
+    }
+
+    .microcopy {
+      color: var(--text-muted);
+      font-size: .9rem;
+      text-align: center;
+      margin-top: 12px;
+      line-height: 1.6;
+    }
+
+    .end-screen {
+      min-height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0;
+    }
+
+    .end-card {
+      width: min(760px, 100%);
+      background: rgba(255, 255, 255, .94);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      border-radius: 32px;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .end-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34, 197, 94, .12);
+      color: var(--primary-active);
+      font-size: 1.8rem;
+      margin-bottom: 14px;
+    }
+
+    .end-card h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.02;
+      letter-spacing: -.04em;
+      margin-bottom: 10px;
+    }
+
+    .end-card p {
+      color: var(--text-soft);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .end-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .end-stat {
+      background: rgba(255, 255, 255, .84);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .end-stat strong {
+      display: block;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.6rem;
+      margin-bottom: 4px;
+    }
+
+    .end-stat span {
+      color: var(--text-muted);
+      font-size: .9rem;
+    }
+
+    .end-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .end-secondary {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .end-secondary a {
+      font-size: .9rem;
+      color: #64748b;
+      text-decoration: none;
+      transition: .2s;
+    }
+
+    .end-secondary a:hover {
+      color: #0f172a;
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        width: min(var(--container), calc(100% - 20px));
       }
-      header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px 20px;
-        background: #111827;
-        border-bottom: 2px solid #22c55e;
+
+      .page-wrap {
+        padding-top: 14px;
       }
-      .controls {
-        display: flex;
-        align-items: center;
-        gap: 15px;
+
+      .activity-card {
+        padding: 16px;
+        border-radius: 22px;
       }
-      .progress {
-        width: 200px;
-        height: 10px;
-        background: #333;
-        border-radius: 5px;
-        overflow: hidden;
+
+      .code,
+      .answer-btn {
+        border-radius: 18px;
       }
-      .progress-bar {
-        height: 100%;
-        width: 0%;
-        background: #22c55e;
+
+      .end-stats {
+        grid-template-columns: 1fr;
       }
-      .slide {
-        padding: 40px;
+
+      .hero h1 {
+        font-size: 2rem;
       }
-      button {
-        padding: 10px 20px;
-        margin: 10px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        background: #22c55e;
-        color: #000;
-        font-weight: bold;
-      }
-      .code {
-        background: #111;
-        padding: 15px;
-        border-radius: 8px;
-        text-align: left;
-        display: inline-block;
-        white-space: pre;
-        font-family: "Courier New", monospace;
-      }
-      .correct {
-        color: #4caf50;
-      }
-      .error {
-        color: #ff5252;
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <div><h2>Programação I - Prof. Cristhiano</h2></div>
-      <div class="controls">
+    }
+  </style>
+</head>
+<body>
+  <main class="page-wrap">
+    <div class="container" id="app">
+      <div class="topbar">
+        <a class="back-link" href="objetos.html"><i class="fas fa-arrow-left"></i> Voltar aos objetos</a>
+        <div id="score" class="score-chip"><i class="fas fa-star"></i> Pontos: 0</div>
+      </div>
+
+      <section class="hero">
+        <h1>Quiz de Pseudocódigo</h1>
+        <p>Leia cada trecho com atenção, analise a saída do algoritmo e escolha a alternativa correta. A proposta mantém o mesmo cuidado visual dos outros objetos do seu site, sem alterar a lógica central da atividade.</p>
+      </section>
+
+      <section class="progress-wrap">
+        <div class="progress-label">
+          <span id="progressText">Questão 1 de 20</span>
+          <span id="progressPercent">0% concluído</span>
+        </div>
         <div class="progress"><div id="bar" class="progress-bar"></div></div>
-        <div id="score">Pontos: 0</div>
-      </div>
-    </header>
+      </section>
 
-    <div class="slide">
-      <div id="codigo" class="code"></div>
-      <div><button id="op1"></button> <button id="op2"></button></div>
-      <p id="feedback"></p>
-      <button onclick="proxima()">Próximo</button>
+      <section class="activity-card">
+        <div class="card-header">
+          <div class="section-tag"><i class="fas fa-code"></i> Analise o pseudocódigo</div>
+          <div id="questionCounter" class="question-counter">Questão 1</div>
+        </div>
+
+        <div id="codigo" class="code"></div>
+
+        <div class="answers">
+          <button id="op1" class="answer-btn" type="button">
+            <span class="answer-pill">A</span>
+            <span id="op1Text" class="answer-text"></span>
+          </button>
+
+          <button id="op2" class="answer-btn" type="button">
+            <span class="answer-pill">B</span>
+            <span id="op2Text" class="answer-text"></span>
+          </button>
+        </div>
+
+        <div id="feedback" class="feedback-area"></div>
+
+        <div class="actions">
+          <button id="nextBtn" class="btn btn-primary" type="button" onclick="proxima()" disabled>
+            <i class="fas fa-arrow-right"></i> Próximo
+          </button>
+        </div>
+
+        <p class="microcopy">Escolha uma alternativa para liberar o avanço para a próxima questão.</p>
+      </section>
     </div>
+  </main>
 
-    <script>
-      // ---------- DADOS DA ATIVIDADE ----------
-      const perguntas = [
-        {
-          c: "x <- 10\nx <- x + 5\nescreva(x)",
-          a: "15",
-          b: "10",
-          correta: "a",
-        },
-        { c: "x <- 3\nx <- x * 2\nescreva(x)", a: "6", b: "5", correta: "a" },
-        { c: "x <- 8\nx <- x - 3\nescreva(x)", a: "5", b: "3", correta: "a" },
-        {
-          c: 'x <- 4\nse x > 2 entao\n escreva("OK")\nfimse',
-          a: "OK",
-          b: "Nada",
-          correta: "a",
-        },
-        {
-          c: 'x <- 1\nse x > 2 entao\n escreva("OK")\nfimse',
-          a: "Nada",
-          b: "OK",
-          correta: "a",
-        },
-        {
-          c: 'x <- 7\nse x < 5 entao\n escreva("A")\nsenao\n escreva("B")\nfimse',
-          a: "A",
-          b: "B",
-          correta: "b",
-        },
-        {
-          c: 'x <- 2\nse x = 2 entao\n escreva("Certo")\nfimse',
-          a: "Certo",
-          b: "Nada",
-          correta: "a",
-        },
-        { c: "x <- 9\nx <- x / 3\nescreva(x)", a: "3", b: "6", correta: "a" },
-        {
-          c: 'x <- 5\nse x >= 5 entao\n escreva("Sim")\nfimse',
-          a: "Sim",
-          b: "Não",
-          correta: "a",
-        },
-        {
-          c: 'x <- 0\nse x > 0 entao\n escreva("Positivo")\nfimse',
-          a: "Nada",
-          b: "Positivo",
-          correta: "a",
-        },
-        { c: "x <- 6\nx <- x - 1\nescreva(x)", a: "5", b: "6", correta: "a" },
-        { c: "x <- 2\nx <- x * x\nescreva(x)", a: "4", b: "2", correta: "a" },
-        {
-          c: 'x <- 10\nse x <= 5 entao\n escreva("A")\nsenao\n escreva("B")\nfimse',
-          a: "A",
-          b: "B",
-          correta: "b",
-        },
-        {
-          c: 'x <- 3\nse x <= 3 entao\n escreva("Erro")\nfimse',
-          a: "Nada",
-          b: "Erro",
-          correta: "b",
-        },
-        { c: "x <- 4\nx <- x + 1\nescreva(x)", a: "5", b: "4", correta: "a" },
-        {
-          c: 'x <- 5\nse x < 10 entao\n escreva("OK")\nfimse',
-          a: "OK",
-          b: "Nada",
-          correta: "a",
-        },
-        { c: "x <- 8\nx <- x / 2\nescreva(x)", a: "4", b: "8", correta: "a" },
-        { c: "x <- 1\nx <- x + 9\nescreva(x)", a: "10", b: "9", correta: "a" },
-        {
-          c: 'x <- 7\nse x > 10 entao\n escreva("A")\nsenao\n escreva("B")\nfimse',
-          a: "A",
-          b: "B",
-          correta: "b",
-        },
-        {
-          c: 'x <- 10\nse x >= 10 entao\n escreva("A")\nsenao\n escreva("B")\nfimse',
-          a: "A",
-          b: "B",
-          correta: "a",
-        },
-      ];
-      perguntas.sort(() => Math.random() - 0.5);
+  <script>
+    const perguntas = [
+      { c: "x <- 10\nx <- x + 5\nescreva(x)", a: "15", b: "10", correta: "a" },
+      { c: "x <- 3\nx <- x * 2\nescreva(x)", a: "6", b: "5", correta: "a" },
+      { c: "x <- 8\nx <- x - 3\nescreva(x)", a: "5", b: "3", correta: "a" },
+      { c: 'x <- 4\nse x > 2 entao\n escreva("OK")\nfimse', a: "OK", b: "Nada", correta: "a" },
+      { c: 'x <- 1\nse x > 2 entao\n escreva("OK")\nfimse', a: "Nada", b: "OK", correta: "a" },
+      { c: 'x <- 7\nse x < 5 entao\n escreva("A")\nsenao\n escreva("B")\nfimse', a: "A", b: "B", correta: "b" },
+      { c: 'x <- 2\nse x = 2 entao\n escreva("Certo")\nfimse', a: "Certo", b: "Nada", correta: "a" },
+      { c: "x <- 9\nx <- x / 3\nescreva(x)", a: "3", b: "6", correta: "a" },
+      { c: 'x <- 5\nse x >= 5 entao\n escreva("Sim")\nfimse', a: "Sim", b: "Não", correta: "a" },
+      { c: 'x <- 0\nse x > 0 entao\n escreva("Positivo")\nfimse', a: "Nada", b: "Positivo", correta: "a" },
+      { c: "x <- 6\nx <- x - 1\nescreva(x)", a: "5", b: "6", correta: "a" },
+      { c: "x <- 2\nx <- x * x\nescreva(x)", a: "4", b: "2", correta: "a" },
+      { c: 'x <- 10\nse x <= 5 entao\n escreva("A")\nsenao\n escreva("B")\nfimse', a: "A", b: "B", correta: "b" },
+      { c: 'x <- 3\nse x <= 3 entao\n escreva("Erro")\nfimse', a: "Nada", b: "Erro", correta: "b" },
+      { c: "x <- 4\nx <- x + 1\nescreva(x)", a: "5", b: "4", correta: "a" },
+      { c: 'x <- 5\nse x < 10 entao\n escreva("OK")\nfimse', a: "OK", b: "Nada", correta: "a" },
+      { c: "x <- 8\nx <- x / 2\nescreva(x)", a: "4", b: "8", correta: "a" },
+      { c: "x <- 1\nx <- x + 9\nescreva(x)", a: "10", b: "9", correta: "a" },
+      { c: 'x <- 7\nse x > 10 entao\n escreva("A")\nsenao\n escreva("B")\nfimse', a: "A", b: "B", correta: "b" },
+      { c: 'x <- 10\nse x >= 10 entao\n escreva("A")\nsenao\n escreva("B")\nfimse', a: "A", b: "B", correta: "a" },
+    ];
 
-      // ---------- VARIÁVEIS GLOBAIS ----------
-      let atual = 0,
-        pontos = 0,
-        respondeu = false,
-        jaRegistrou = false;
-      const NOME_ATIVIDADE = "Quiz de Pseudocódigo";
-      const URL_WEBAPP =
-        "https://script.google.com/macros/s/AKfycbzoeygTm-R27yb8QOcdH0s7fViv6vGPQ5MtDuCgHBt3RhvFVQKlGxf3A7yQUR3RfRqFcw/exec";
+    perguntas.sort(() => Math.random() - 0.5);
 
-      // ---------- FUNÇÃO PARA OBTER NOME DO ALUNO ----------
-      function obterNomeAluno() {
-        let nome = sessionStorage.getItem("nomeAluno");
-        if (!nome) {
-          nome = prompt(
-            "Digite seu nome completo para registrar sua atividade:",
-          );
-          if (nome && nome.trim() !== "") {
-            sessionStorage.setItem("nomeAluno", nome.trim());
-          } else {
-            nome = "Anônimo";
-          }
-        }
-        return nome;
-      }
+    let atual = 0;
+    let pontos = 0;
+    let respondeu = false;
+    let jaRegistrou = false;
 
-      // ---------- FUNÇÃO DE REGISTRO NA PLANILHA ----------
-      async function registrarResultado(nome, atividade, acertos, total) {
-        const dados = { nome, atividade, acertos, total };
-        try {
-          await fetch(URL_WEBAPP, {
-            method: "POST",
-            mode: "no-cors", // evita bloqueio CORS, mas sem resposta
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(dados),
-          });
-          console.log("✅ Registrado:", dados);
-        } catch (erro) {
-          console.error("❌ Erro ao registrar:", erro);
-        }
-      }
+    const NOME_ATIVIDADE = "Quiz de Pseudocódigo";
+    const URL_WEBAPP = "https://script.google.com/macros/s/AKfycbzoeygTm-R27yb8QOcdH0s7fViv6vGPQ5MtDuCgHBt3RhvFVQKlGxf3A7yQUR3RfRqFcw/exec";
 
-      // ---------- LÓGICA DO QUIZ ----------
-      function carregar() {
-        const p = perguntas[atual];
-        document.getElementById("codigo").innerText = p.c;
-        document.getElementById("op1").innerText = p.a;
-        document.getElementById("op2").innerText = p.b;
-        document.getElementById("feedback").innerHTML = "";
-        respondeu = false;
-        atualizarUI();
-      }
+    const codigoEl = document.getElementById("codigo");
+    const op1Btn = document.getElementById("op1");
+    const op2Btn = document.getElementById("op2");
+    const op1Text = document.getElementById("op1Text");
+    const op2Text = document.getElementById("op2Text");
+    const feedbackEl = document.getElementById("feedback");
+    const nextBtn = document.getElementById("nextBtn");
+    const scoreEl = document.getElementById("score");
+    const barEl = document.getElementById("bar");
+    const progressTextEl = document.getElementById("progressText");
+    const progressPercentEl = document.getElementById("progressPercent");
+    const questionCounterEl = document.getElementById("questionCounter");
+    const appEl = document.getElementById("app");
 
-      function responder(op) {
-        if (respondeu) return;
-        respondeu = true;
-        const p = perguntas[atual];
-        if (op === p.correta) {
-          pontos++;
-          document.getElementById("feedback").innerHTML =
-            "<span class='correct'>✔ Correto!</span>";
+    function obterNomeAluno() {
+      let nome = sessionStorage.getItem("nomeAluno");
+      if (!nome) {
+        nome = prompt("Digite seu nome completo para registrar sua atividade:");
+        if (nome && nome.trim() !== "") {
+          sessionStorage.setItem("nomeAluno", nome.trim());
         } else {
-          document.getElementById("feedback").innerHTML =
-            "<span class='error'>✖ Errado! Clique em Próximo</span>";
+          nome = "Anônimo";
         }
-        atualizarUI();
+      }
+      return nome;
+    }
+
+    async function registrarResultado(nome, atividade, acertos, total) {
+      const dados = { nome, atividade, acertos, total };
+      try {
+        await fetch(URL_WEBAPP, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dados),
+        });
+        console.log("✅ Registrado:", dados);
+      } catch (erro) {
+        console.error("❌ Erro ao registrar:", erro);
+      }
+    }
+
+    function resetarBotoes() {
+      [op1Btn, op2Btn].forEach((btn) => {
+        btn.disabled = false;
+        btn.classList.remove("is-correct", "is-wrong");
+      });
+    }
+
+    function carregar() {
+      const p = perguntas[atual];
+      codigoEl.innerText = p.c;
+      op1Text.innerText = p.a;
+      op2Text.innerText = p.b;
+      feedbackEl.innerHTML = "";
+      respondeu = false;
+      nextBtn.disabled = true;
+      resetarBotoes();
+      atualizarUI();
+    }
+
+    function destacarResposta(corretaEscolhida, respostaCorreta) {
+      if (respostaCorreta === "a") {
+        op1Btn.classList.add("is-correct");
+        if (!corretaEscolhida) op2Btn.classList.add("is-wrong");
+      } else {
+        op2Btn.classList.add("is-correct");
+        if (!corretaEscolhida) op1Btn.classList.add("is-wrong");
+      }
+    }
+
+    function responder(op) {
+      if (respondeu) return;
+      respondeu = true;
+      nextBtn.disabled = false;
+
+      const p = perguntas[atual];
+      const acertou = op === p.correta;
+
+      op1Btn.disabled = true;
+      op2Btn.disabled = true;
+
+      if (acertou) {
+        pontos++;
+        feedbackEl.innerHTML = "<span class='correct'><i class='fas fa-check-circle'></i> Correto!</span>";
+        destacarResposta(true, p.correta);
+      } else {
+        feedbackEl.innerHTML = "<span class='error'><i class='fas fa-times-circle'></i> Errado! Agora clique em Próximo.</span>";
+        destacarResposta(false, p.correta);
       }
 
-      function proxima() {
-        if (!respondeu) return;
-        atual++;
-        if (atual >= perguntas.length) {
-          // Fim do quiz – registrar UMA VEZ
-          if (!jaRegistrou) {
-            jaRegistrou = true;
-            const nome = obterNomeAluno();
-            registrarResultado(nome, NOME_ATIVIDADE, pontos, perguntas.length);
-          }
-          document.body.innerHTML = `
-      <header style="display:flex; align-items:center; justify-content:space-between; padding:10px 20px; background:#111827; border-bottom:2px solid #22c55e;">
-        <div><h2>Programação I - Prof. Cristhiano</h2></div>
-        <div>Pontos finais: ${pontos}</div>
-      </header>
-      <div style="text-align:center; padding:50px;">
-        <h1>🎉 Quiz finalizado! 🎉</h1>
-        <h2>Você acertou ${pontos} de ${perguntas.length} questões.</h2>
-        <button onclick="location.href='index.html'">Voltar ao Menu</button>
-      </div>
-    `;
-          return;
+      atualizarUI();
+    }
+
+    function renderizarFim() {
+      appEl.innerHTML = `
+        <section class="end-screen">
+          <div class="end-card">
+            <div class="end-icon"><i class="fas fa-trophy"></i></div>
+            <h1>Quiz finalizado!</h1>
+            <p>Parabéns por concluir esta atividade. Seu resultado já pode ser registrado automaticamente na planilha configurada no objeto.</p>
+
+            <div class="end-stats">
+              <div class="end-stat">
+                <strong>${pontos}</strong>
+                <span>acertos</span>
+              </div>
+              <div class="end-stat">
+                <strong>${perguntas.length}</strong>
+                <span>questões no total</span>
+              </div>
+            </div>
+
+            <div class="end-actions">
+              <a class="btn btn-primary" href="objetos.html"><i class="fas fa-cubes"></i> Explorar objetos</a>
+            </div>
+
+            <div class="end-secondary"><a href="index.html">Voltar ao início</a></div>
+          </div>
+        </section>
+      `;
+    }
+
+    function proxima() {
+      if (!respondeu) return;
+
+      atual++;
+
+      if (atual >= perguntas.length) {
+        if (!jaRegistrou) {
+          jaRegistrou = true;
+          const nome = obterNomeAluno();
+          registrarResultado(nome, NOME_ATIVIDADE, pontos, perguntas.length);
         }
-        carregar();
+        renderizarFim();
+        return;
       }
 
-      function atualizarUI() {
-        document.getElementById("score").innerText = "Pontos: " + pontos;
-        const percent = ((atual + 1) / perguntas.length) * 100;
-        document.getElementById("bar").style.width = percent + "%";
-      }
-
-      // ---------- INICIAR ----------
-      document.getElementById("op1").onclick = () => responder("a");
-      document.getElementById("op2").onclick = () => responder("b");
       carregar();
-    </script>
-  </body>
+    }
+
+    function atualizarUI() {
+      scoreEl.innerHTML = `<i class="fas fa-star"></i> Pontos: ${pontos}`;
+      questionCounterEl.innerText = `Questão ${Math.min(atual + 1, perguntas.length)}`;
+      progressTextEl.innerText = `Questão ${Math.min(atual + 1, perguntas.length)} de ${perguntas.length}`;
+
+      const percent = ((atual + (respondeu ? 1 : 0)) / perguntas.length) * 100;
+      barEl.style.width = `${percent}%`;
+      progressPercentEl.innerText = `${Math.round(percent)}% concluído`;
+    }
+
+    op1Btn.onclick = () => responder("a");
+    op2Btn.onclick = () => responder("b");
+
+    carregar();
+  </script>
+</body>
 </html>
