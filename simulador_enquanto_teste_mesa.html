@@ -1,0 +1,1326 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Simulador do Enquanto com Teste de Mesa | Prof. Cristhiano Vasconcellos
+    </title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+
+    <style>
+      :root {
+        --text: #0f172a;
+        --text-soft: #475569;
+        --text-muted: #64748b;
+        --border: rgba(15, 23, 42, 0.08);
+        --primary: #22c55e;
+        --primary-active: #15803d;
+        --danger: #dc2626;
+        --warning: #d97706;
+        --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.05);
+        --shadow-md: 0 18px 40px rgba(15, 23, 42, 0.08);
+        --radius-lg: 28px;
+        --radius-md: 22px;
+        --container: 1180px;
+        --transition: 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(
+            circle at top left,
+            rgba(34, 197, 94, 0.08),
+            transparent 24%
+          ),
+          radial-gradient(
+            circle at 90% 20%,
+            rgba(14, 165, 233, 0.08),
+            transparent 20%
+          ),
+          linear-gradient(180deg, #fcfefe 0%, #f8fafc 30%, #f4f8fb 100%);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+        background-size: 44px 44px;
+        mask-image: radial-gradient(
+          circle at center,
+          black 35%,
+          transparent 85%
+        );
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .page-wrap {
+        padding: 20px 0 36px;
+        position: relative;
+        z-index: 1;
+      }
+      .container {
+        width: min(var(--container), calc(100% - 36px));
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-soft);
+        font-weight: 600;
+        transition: var(--transition);
+      }
+      .back-link:hover {
+        color: var(--text);
+      }
+
+      .score-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.82);
+        border: 1px solid var(--border);
+        color: var(--text-soft);
+        box-shadow: var(--shadow-sm);
+        font-weight: 700;
+      }
+
+      .hero {
+        margin-bottom: 16px;
+      }
+      .hero h1 {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: clamp(2rem, 4vw, 3rem);
+        line-height: 1;
+        letter-spacing: -0.05em;
+        margin-bottom: 8px;
+      }
+      .hero p {
+        color: var(--text-soft);
+        font-size: 1rem;
+        line-height: 1.65;
+        max-width: 860px;
+      }
+
+      .progress-wrap {
+        margin-bottom: 18px;
+        background: rgba(255, 255, 255, 0.82);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 14px 16px;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .progress-label {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 8px;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        flex-wrap: wrap;
+      }
+
+      .progress {
+        width: 100%;
+        height: 12px;
+        background: #e2e8f0;
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      .progress-bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+        border-radius: inherit;
+        transition: width var(--transition);
+      }
+
+      .activity-card {
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-md);
+        border-radius: var(--radius-lg);
+        padding: 22px;
+      }
+
+      .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+
+      .section-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(34, 197, 94, 0.1);
+        color: var(--primary-active);
+        border: 1px solid rgba(34, 197, 94, 0.16);
+        border-radius: 999px;
+        padding: 10px 14px;
+        font-size: 0.9rem;
+        font-weight: 700;
+      }
+
+      .question-counter {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        font-weight: 700;
+      }
+
+      .question-title {
+        font-size: 1.05rem;
+        line-height: 1.7;
+        color: var(--text);
+        margin-bottom: 16px;
+        font-weight: 600;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        align-items: start;
+      }
+
+      .panel {
+        background: rgba(255, 255, 255, 0.78);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        padding: 16px;
+      }
+
+      .card-subtitle {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        color: var(--text);
+        font-size: 0.95rem;
+        font-weight: 700;
+      }
+
+      .code-block {
+        background: #0f172a;
+        color: #e2e8f0;
+        border-radius: 18px;
+        padding: 18px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        line-height: 1.7;
+        white-space: pre-wrap;
+        overflow-x: auto;
+        min-height: 320px;
+        text-align: left;
+        font-variant-ligatures: none;
+        font-feature-settings: "liga" 0;
+      }
+
+      .mesa-note {
+        color: var(--text-soft);
+        font-size: 0.93rem;
+        line-height: 1.65;
+        margin-bottom: 12px;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        border-radius: 16px;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 420px;
+      }
+
+      th,
+      td {
+        padding: 12px 10px;
+        border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+        text-align: center;
+        font-size: 0.95rem;
+      }
+
+      th {
+        background: rgba(15, 23, 42, 0.03);
+        color: var(--text-soft);
+        font-weight: 800;
+      }
+
+      td:first-child,
+      th:first-child {
+        text-align: left;
+        white-space: nowrap;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      .mask-cell {
+        color: var(--warning);
+        font-weight: 800;
+        letter-spacing: 0.04em;
+      }
+
+      .trace-box {
+        margin-top: 12px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .trace-item {
+        border: 1px solid rgba(15, 23, 42, 0.07);
+        background: rgba(248, 250, 252, 0.9);
+        border-radius: 14px;
+        padding: 12px;
+      }
+
+      .trace-step {
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+        margin-bottom: 4px;
+        font-weight: 700;
+      }
+
+      .trace-value {
+        color: var(--text-soft);
+        line-height: 1.6;
+        font-size: 0.94rem;
+      }
+
+      .answers {
+        display: grid;
+        gap: 12px;
+        margin-top: 12px;
+      }
+
+      .answer-btn {
+        width: 100%;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.98);
+        padding: 16px 18px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        text-align: left;
+        cursor: pointer;
+        transition: var(--transition);
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+        color: var(--text);
+        font-size: 0.98rem;
+        font-weight: 600;
+      }
+
+      .answer-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 32px rgba(15, 23, 42, 0.08);
+        border-color: rgba(34, 197, 94, 0.45);
+      }
+      .answer-btn:disabled {
+        cursor: default;
+        opacity: 1;
+      }
+
+      .answer-btn.correct {
+        border-color: rgba(34, 197, 94, 0.45);
+        background: rgba(34, 197, 94, 0.07);
+      }
+      .answer-btn.wrong {
+        border-color: rgba(220, 38, 38, 0.28);
+        background: rgba(220, 38, 38, 0.05);
+      }
+
+      .answer-pill {
+        width: 36px;
+        height: 36px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(34, 197, 94, 0.12);
+        color: var(--primary-active);
+        font-weight: 800;
+        flex: 0 0 auto;
+      }
+
+      .feedback-area {
+        min-height: 26px;
+        margin-top: 16px;
+        text-align: center;
+        font-size: 1rem;
+        color: var(--text-soft);
+        line-height: 1.6;
+      }
+
+      .correct-text {
+        color: #15803d;
+        font-weight: 700;
+      }
+      .error-text {
+        color: var(--danger);
+        font-weight: 700;
+      }
+
+      .hint-box {
+        margin-top: 12px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        border: 1px dashed rgba(217, 119, 6, 0.35);
+        background: rgba(255, 247, 237, 0.88);
+        color: #92400e;
+        line-height: 1.65;
+        display: none;
+      }
+
+      .actions {
+        margin-top: 18px;
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border: none;
+        cursor: pointer;
+        transition: var(--transition);
+        padding: 14px 22px;
+        border-radius: 999px;
+        font-weight: 800;
+        font-size: 0.96rem;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+        color: #052e16;
+        box-shadow: 0 14px 28px rgba(34, 197, 94, 0.22);
+      }
+      .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+      }
+      .btn-primary:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none;
+      }
+
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--text);
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        box-shadow: var(--shadow-sm);
+      }
+      .btn-secondary:hover {
+        transform: translateY(-2px);
+      }
+
+      .microcopy {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        text-align: center;
+        margin-top: 12px;
+        line-height: 1.6;
+      }
+
+      .end-screen {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 0;
+      }
+
+      .end-card {
+        width: min(760px, 100%);
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-md);
+        border-radius: 32px;
+        padding: 32px;
+        text-align: center;
+      }
+
+      .end-icon {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(34, 197, 94, 0.12);
+        color: var(--primary-active);
+        font-size: 1.8rem;
+        margin-bottom: 14px;
+      }
+
+      .end-card h1 {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: clamp(2rem, 4vw, 3rem);
+        line-height: 1.02;
+        letter-spacing: -0.04em;
+        margin-bottom: 10px;
+      }
+
+      .end-card p {
+        color: var(--text-soft);
+        line-height: 1.7;
+        margin-bottom: 20px;
+      }
+
+      .end-stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .end-stat {
+        background: rgba(255, 255, 255, 0.84);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 16px;
+      }
+
+      .end-stat strong {
+        display: block;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.6rem;
+        margin-bottom: 4px;
+      }
+
+      .end-stat span {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
+
+      .end-actions {
+        display: flex;
+        justify-content: center;
+        margin-top: 16px;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .end-secondary {
+        text-align: center;
+        margin-top: 10px;
+      }
+
+      .end-secondary a {
+        font-size: 0.9rem;
+        color: #64748b;
+        transition: 0.2s;
+      }
+
+      .end-secondary a:hover {
+        color: #0f172a;
+      }
+
+      @media (max-width: 940px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .container {
+          width: min(var(--container), calc(100% - 20px));
+        }
+        .page-wrap {
+          padding-top: 14px;
+        }
+        .activity-card {
+          padding: 16px;
+          border-radius: 22px;
+        }
+        .code-block,
+        .panel,
+        .answer-btn {
+          border-radius: 18px;
+        }
+        .end-stats {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page-wrap">
+      <div class="container" id="app">
+        <div class="topbar">
+          <a class="back-link" href="objetos.html"
+            ><i class="fas fa-arrow-left"></i> Voltar aos objetos</a
+          >
+          <div id="score" class="score-chip">
+            <i class="fas fa-star"></i> Pontos: 0
+          </div>
+        </div>
+
+        <section class="hero">
+          <h1>Simulador do Enquanto com Teste de Mesa</h1>
+          <p>
+            Agora o foco é acompanhar a execução com cara de
+            <strong>teste de mesa</strong>. Leia o algoritmo com
+            <strong>enquanto</strong>, observe a tabela parcial e descubra o
+            valor faltante, a linha correta ou o resultado final.
+          </p>
+        </section>
+
+        <section class="progress-wrap">
+          <div class="progress-label">
+            <span id="progressText">Questão 1 de 10</span>
+            <span id="progressPercent">0% concluído</span>
+          </div>
+          <div class="progress"><div id="bar" class="progress-bar"></div></div>
+        </section>
+
+        <section class="activity-card">
+          <div class="card-header">
+            <div class="section-tag">
+              <i class="fas fa-table"></i> Teste de mesa guiado
+            </div>
+            <div id="questionCounter" class="question-counter">Questão 1</div>
+          </div>
+
+          <div id="tituloQuestao" class="question-title"></div>
+
+          <div class="layout">
+            <div class="panel">
+              <div class="card-subtitle">
+                <i class="fas fa-code"></i> Algoritmo
+              </div>
+              <pre id="codigo" class="code-block"></pre>
+            </div>
+
+            <div class="panel">
+              <div class="card-subtitle">
+                <i class="fas fa-list-ol"></i> Tabela de execução
+              </div>
+              <p class="mesa-note">
+                A tabela mostra parte da execução. Um campo está faltando ou
+                precisa ser interpretado com cuidado.
+              </p>
+              <div id="tableWrap" class="table-wrap"></div>
+              <div id="traceBox" class="trace-box"></div>
+              <div id="hintBox" class="hint-box"></div>
+            </div>
+          </div>
+
+          <div class="panel" style="margin-top: 14px">
+            <div class="card-subtitle">
+              <i class="fas fa-check-circle"></i> Escolha sua resposta
+            </div>
+            <div id="answers" class="answers"></div>
+          </div>
+
+          <div id="feedback" class="feedback-area">
+            Selecione uma alternativa para responder.
+          </div>
+
+          <div class="actions">
+            <button id="btnDica" class="btn btn-secondary" type="button">
+              <i class="fas fa-lightbulb"></i>
+              Mostrar dica
+            </button>
+            <button
+              id="btnProximo"
+              class="btn btn-primary"
+              type="button"
+              disabled
+            >
+              <i class="fas fa-arrow-right"></i>
+              Próximo
+            </button>
+          </div>
+
+          <div class="microcopy">
+            Dica geral: no <strong>enquanto</strong>, a condição é testada antes
+            de cada repetição. Em um teste de mesa, acompanhe o valor das
+            variáveis linha por linha.
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      const questoes = [
+        {
+          titulo:
+            "Qual valor deve preencher o espaço marcado com ??? na tabela?",
+          codigo: `algoritmo "mesa1"
+var
+   i: inteiro
+
+inicio
+   i <- 1
+
+   enquanto (i <= 3) faca
+      escreval(i)
+      i <- i + 1
+   fimenquanto
+
+fimalgoritmo`,
+          tabela: {
+            colunas: ["Momento", "i", "Saída"],
+            linhas: [
+              ["Antes do laço", "1", "-"],
+              ["Após 1ª repetição", "2", "1"],
+              ["Após 2ª repetição", "3", "1, 2"],
+              ["Após 3ª repetição", "???", "1, 2, 3"],
+            ],
+          },
+          rastros: [
+            [
+              "olhe o contador",
+              "A cada repetição, o algoritmo escreve o valor atual de i e depois soma 1 ao contador.",
+            ],
+          ],
+          dica: "Depois de escrever 3, ainda acontece o incremento.",
+          opcoes: ["3", "4", "5"],
+          correta: 1,
+          explicacao:
+            "Após a 3ª repetição, i é incrementado de 3 para 4. Só então a condição falha.",
+        },
+        {
+          titulo: "Qual é o valor final de soma ao terminar o laço?",
+          codigo: `algoritmo "mesa2"
+var
+   i, soma: inteiro
+
+inicio
+   i <- 1
+   soma <- 0
+
+   enquanto (i <= 3) faca
+      soma <- soma + i
+      i <- i + 1
+   fimenquanto
+
+   escreval(soma)
+
+fimalgoritmo`,
+          tabela: {
+            colunas: ["Momento", "i", "soma"],
+            linhas: [
+              ["Antes do laço", "1", "0"],
+              ["Após 1ª repetição", "2", "1"],
+              ["Após 2ª repetição", "3", "3"],
+              ["Após 3ª repetição", "4", "???"],
+            ],
+          },
+          rastros: [
+            [
+              "lembrete",
+              "soma acumula os valores de i que entram no laço: 1, depois 2, depois 3.",
+            ],
+          ],
+          dica: "Compare a última linha com a anterior e some o valor de i que ainda faltava entrar.",
+          opcoes: ["4", "5", "6"],
+          correta: 2,
+          explicacao: "Na 3ª repetição, soma recebe 3 + 3 e passa a valer 6.",
+        },
+        {
+          titulo:
+            "Qual linha completa corretamente a execução após a 2ª repetição?",
+          codigo: `algoritmo "mesa3"
+var
+   x: inteiro
+
+inicio
+   x <- 8
+
+   enquanto (x > 2) faca
+      x <- x - 2
+   fimenquanto
+
+   escreval(x)
+
+fimalgoritmo`,
+          tabela: {
+            colunas: ["Momento", "x"],
+            linhas: [
+              ["Antes do laço", "8"],
+              ["Após 1ª repetição", "6"],
+              ["Após 2ª repetição", "???"],
+              ["Após 3ª repetição", "2"],
+            ],
+          },
+          rastros: [
+            ["observe o padrão", "A variável x diminui sempre de 2 em 2."],
+          ],
+          dica: "Se 8 virou 6 na primeira, qual é o próximo valor?",
+          opcoes: ["4", "5", "3"],
+          correta: 0,
+          explicacao:
+            "Depois de 6, o próximo valor é 4. Na repetição seguinte, ele cai para 2.",
+        },
+        {
+          titulo: "O bloco do enquanto executa quantas vezes?",
+          codigo: `algoritmo "mesa4"
+var
+   i: inteiro
+
+inicio
+   i <- 5
+
+   enquanto (i < 5) faca
+      i <- i + 1
+   fimenquanto
+
+   escreval("Fim")
+
+fimalgoritmo`,
+          tabela: {
+            colunas: ["Momento", "i", "Observação"],
+            linhas: [
+              ["Antes do laço", "5", "Condição: 5 < 5"],
+              ["Entrada no laço", "???", "???"],
+              ["Depois do laço", "5", "Escreve Fim"],
+            ],
+          },
+          rastros: [
+            [
+              "ponto central",
+              "A condição já começa falsa. O laço pode terminar sem nenhuma repetição.",
+            ],
+          ],
+          dica: "No enquanto, o bloco só executa se a condição for verdadeira antes de entrar.",
+          opcoes: ["0 vezes", "1 vez", "5 vezes"],
+          correta: 0,
+          explicacao:
+            "Como 5 < 5 é falso logo no início, o bloco não executa nenhuma vez.",
+        },
+        {
+          titulo: "Qual opção completa corretamente o valor de total ao final?",
+          codigo: `algoritmo "mesa5"
+var
+   i, total: inteiro
+
+inicio
+   i <- 2
+   total <- 1
+
+   enquanto (i <= 4) faca
+      total <- total * i
+      i <- i + 1
+   fimenquanto
+
+   escreval(total)
+
+fimalgoritmo`,
+          tabela: {
+            colunas: ["Momento", "i", "total"],
+            linhas: [
+              ["Antes do laço", "2", "1"],
+              ["Após 1ª repetição", "3", "2"],
+              ["Após 2ª repetição", "4", "6"],
+              ["Após 3ª repetição", "5", "???"],
+            ],
+          },
+          rastros: [
+            [
+              "acompanhando",
+              "total começa em 1, depois multiplica por 2, por 3 e por 4.",
+            ],
+          ],
+          dica: "Na última repetição, o valor de total ainda deve ser multiplicado por 4.",
+          opcoes: ["10", "12", "24"],
+          correta: 2,
+          explicacao: "O total fica 1 × 2 × 3 × 4 = 24.",
+        },
+        {
+          titulo: "Qual será a saída exibida ao final do algoritmo?",
+          codigo: `algoritmo "mesa6"
+var
+   i, soma: inteiro
+
+inicio
+   i <- 0
+   soma <- 0
+
+   enquanto (i < 3) faca
+      soma <- soma + 2
+      i <- i + 1
+   fimenquanto
+
+   escreval(soma)
+
+fimalgoritmo`,
+          tabela: {
+            colunas: ["Momento", "i", "soma"],
+            linhas: [
+              ["Antes do laço", "0", "0"],
+              ["Após 1ª repetição", "1", "2"],
+              ["Após 2ª repetição", "2", "4"],
+              ["Após 3ª repetição", "3", "6"],
+            ],
+          },
+          rastros: [
+            [
+              "ideia-chave",
+              "A soma aumenta sempre de 2 em 2 enquanto o contador sobe de 1 em 1.",
+            ],
+          ],
+          dica: "A tabela já mostra o valor acumulado depois de cada repetição.",
+          opcoes: ["4", "5", "6"],
+          correta: 2,
+          explicacao:
+            "Depois de 3 repetições, soma vale 6. Esse é o valor exibido.",
+        },
+        {
+          titulo: "Qual valor deve aparecer na célula faltante da tabela?",
+          codigo: `algoritmo "mesa7"
+var
+   i: inteiro
+
+inicio
+   i <- 10
+
+   enquanto (i >= 4) faca
+      i <- i - 3
+   fimenquanto
+
+   escreval(i)
+
+fimalgoritmo`,
+          tabela: {
+            colunas: ["Momento", "i"],
+            linhas: [
+              ["Antes do laço", "10"],
+              ["Após 1ª repetição", "7"],
+              ["Após 2ª repetição", "4"],
+              ["Após 3ª repetição", "???"],
+            ],
+          },
+          rastros: [
+            [
+              "atenção",
+              "Quando i vale 4, a condição ainda é verdadeira, porque 4 >= 4.",
+            ],
+          ],
+          dica: "A última repetição ainda acontece com i valendo 4.",
+          opcoes: ["0", "1", "3"],
+          correta: 1,
+          explicacao:
+            "Com i = 4, o bloco executa e i passa para 1. Aí o laço termina.",
+        },
+        {
+          titulo:
+            "Qual alternativa descreve corretamente o erro lógico do algoritmo?",
+          codigo: `algoritmo "mesa8"
+var
+   i: inteiro
+
+inicio
+   i <- 1
+
+   enquanto (i <= 3) faca
+      escreval(i)
+   fimenquanto
+
+fimalgoritmo`,
+          tabela: {
+            colunas: ["Momento", "i", "Condição"],
+            linhas: [
+              ["Antes do laço", "1", "1 <= 3 → verdadeira"],
+              ["Após 1ª repetição", "1", "1 <= 3 → verdadeira"],
+              ["Após 2ª repetição", "1", "1 <= 3 → verdadeira"],
+              ["Após 3ª repetição", "1", "1 <= 3 → verdadeira"],
+            ],
+          },
+          rastros: [
+            [
+              "verifique",
+              "O valor de i não muda. Então a condição nunca deixa de ser verdadeira.",
+            ],
+          ],
+          dica: "Pergunte sempre: qual comando altera a variável de controle?",
+          opcoes: [
+            "O laço não executa nenhuma vez",
+            "O algoritmo entra em repetição infinita",
+            "O algoritmo termina em 3 repetições",
+          ],
+          correta: 1,
+          explicacao:
+            "Como i nunca é alterado, a condição permanece verdadeira e o laço não termina.",
+        },
+        {
+          titulo:
+            "Qual linha representa corretamente o estado após a 4ª repetição?",
+          codigo: `algoritmo "mesa9"
+var
+   i, soma: inteiro
+
+inicio
+   i <- 1
+   soma <- 0
+
+   enquanto (i <= 4) faca
+      soma <- soma + i
+      i <- i + 1
+   fimenquanto
+
+fimalgoritmo`,
+          tabela: {
+            colunas: ["Momento", "i", "soma"],
+            linhas: [
+              ["Antes do laço", "1", "0"],
+              ["Após 1ª repetição", "2", "1"],
+              ["Após 2ª repetição", "3", "3"],
+              ["Após 3ª repetição", "4", "6"],
+              ["Após 4ª repetição", "???", "???"],
+            ],
+          },
+          rastros: [
+            [
+              "sequência",
+              "A soma está acumulando 1, depois 1+2, depois 1+2+3. Falta a repetição com i = 4.",
+            ],
+          ],
+          dica: "Na 4ª repetição, soma ainda recebe o valor 4 antes de i ser incrementado.",
+          opcoes: [
+            "i = 4 e soma = 10",
+            "i = 5 e soma = 10",
+            "i = 5 e soma = 9",
+          ],
+          correta: 1,
+          explicacao:
+            "Na 4ª repetição, soma vai de 6 para 10 e depois i vai de 4 para 5.",
+        },
+        {
+          titulo: "Desafio final: qual valor falta na última linha da tabela?",
+          codigo: `algoritmo "mesa10"
+var
+   i, total: inteiro
+
+inicio
+   i <- 1
+   total <- 0
+
+   enquanto (i <= 4) faca
+      total <- total + (i * 2)
+      i <- i + 1
+   fimenquanto
+
+   escreval(total)
+
+fimalgoritmo`,
+          tabela: {
+            colunas: ["Momento", "i", "total"],
+            linhas: [
+              ["Antes do laço", "1", "0"],
+              ["Após 1ª repetição", "2", "2"],
+              ["Após 2ª repetição", "3", "6"],
+              ["Após 3ª repetição", "4", "12"],
+              ["Após 4ª repetição", "5", "???"],
+            ],
+          },
+          rastros: [
+            [
+              "interpretação",
+              "Em cada repetição, total recebe mais o dobro do valor atual de i.",
+            ],
+          ],
+          dica: "Na 4ª repetição, o dobro de i é 8.",
+          opcoes: ["16", "18", "20"],
+          correta: 2,
+          explicacao:
+            "Na 4ª repetição, total recebe 12 + 8 e passa a valer 20.",
+        },
+      ];
+
+      let atual = 0;
+      let pontos = 0;
+      let erros = 0;
+      let respondeu = false;
+      let jaRegistrou = false;
+      let dicaVisivel = false;
+
+      const NOME_ATIVIDADE = "Enquanto_Mesa";
+      const URL_WEBAPP =
+        "https://script.google.com/macros/s/AKfycbzoeygTm-R27yb8QOcdH0s7fViv6vGPQ5MtDuCgHBt3RhvFVQKlGxf3A7yQUR3RfRqFcw/exec";
+
+      const tituloQuestao = document.getElementById("tituloQuestao");
+      const codigo = document.getElementById("codigo");
+      const tableWrap = document.getElementById("tableWrap");
+      const traceBox = document.getElementById("traceBox");
+      const hintBox = document.getElementById("hintBox");
+      const answers = document.getElementById("answers");
+      const feedback = document.getElementById("feedback");
+      const score = document.getElementById("score");
+      const bar = document.getElementById("bar");
+      const btnProximo = document.getElementById("btnProximo");
+      const btnDica = document.getElementById("btnDica");
+      const progressText = document.getElementById("progressText");
+      const progressPercent = document.getElementById("progressPercent");
+      const questionCounter = document.getElementById("questionCounter");
+      const app = document.getElementById("app");
+
+      function obterNomeAluno() {
+        let nome = sessionStorage.getItem("nomeAluno");
+        if (!nome) {
+          nome = prompt(
+            "Digite seu nome completo para registrar sua atividade:",
+          );
+          if (nome && nome.trim() !== "") {
+            nome = nome.trim();
+            sessionStorage.setItem("nomeAluno", nome);
+          } else {
+            nome = "Anônimo";
+          }
+        }
+        return nome;
+      }
+
+      async function registrarResultado(
+        nome,
+        atividade,
+        acertos,
+        total,
+        erros,
+      ) {
+        const dados = { nome, atividade, acertos, total, erros };
+        try {
+          await fetch(URL_WEBAPP, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados),
+          });
+          console.log("✅ Registrado:", dados);
+        } catch (erro) {
+          console.error("❌ Erro ao registrar:", erro);
+        }
+      }
+
+      function atualizarUI() {
+        score.innerHTML = `<i class="fas fa-star"></i> Pontos: ${pontos}`;
+        questionCounter.innerText = `Questão ${Math.min(atual + 1, questoes.length)}`;
+        progressText.innerText = `Questão ${Math.min(atual + 1, questoes.length)} de ${questoes.length}`;
+        const percent = ((atual + (respondeu ? 1 : 0)) / questoes.length) * 100;
+        bar.style.width = `${percent}%`;
+        progressPercent.innerText = `${Math.round(percent)}% concluído`;
+      }
+
+      function renderizarTabela(tabela) {
+        const head = tabela.colunas.map((col) => `<th>${col}</th>`).join("");
+        const body = tabela.linhas
+          .map((linha) => {
+            const cells = linha
+              .map((valor) => {
+                const classe = String(valor).includes("???") ? "mask-cell" : "";
+                return `<td class="${classe}">${valor}</td>`;
+              })
+              .join("");
+            return `<tr>${cells}</tr>`;
+          })
+          .join("");
+        tableWrap.innerHTML = `<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+      }
+
+      function renderizarRastros(rastros) {
+        traceBox.innerHTML = rastros
+          .map(
+            ([etapa, texto]) => `
+        <div class="trace-item">
+          <div class="trace-step">${etapa}</div>
+          <div class="trace-value">${texto}</div>
+        </div>
+      `,
+          )
+          .join("");
+      }
+
+      function renderizarOpcoes(opcoes) {
+        answers.innerHTML = "";
+        opcoes.forEach((texto, indice) => {
+          const letra = ["A", "B", "C"][indice];
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "answer-btn";
+          btn.innerHTML = `<span class="answer-pill">${letra}</span><span>${texto}</span>`;
+          btn.onclick = () => responder(indice);
+          answers.appendChild(btn);
+        });
+      }
+
+      function carregar() {
+        const q = questoes[atual];
+        tituloQuestao.innerText = q.titulo;
+        codigo.textContent = q.codigo;
+        renderizarTabela(q.tabela);
+        renderizarRastros(q.rastros);
+        renderizarOpcoes(q.opcoes);
+
+        feedback.innerHTML = "Selecione uma alternativa para responder.";
+        respondeu = false;
+        dicaVisivel = false;
+        hintBox.style.display = "none";
+        hintBox.innerText = q.dica;
+        btnDica.innerHTML = `<i class="fas fa-lightbulb"></i> Mostrar dica`;
+        btnProximo.disabled = true;
+        atualizarUI();
+      }
+
+      function responder(indice) {
+        if (respondeu) return;
+        respondeu = true;
+
+        const q = questoes[atual];
+        const botoes = [...document.querySelectorAll(".answer-btn")];
+        botoes.forEach((btn) => (btn.disabled = true));
+
+        if (indice === q.correta) {
+          pontos++;
+          botoes[indice].classList.add("correct");
+          feedback.innerHTML = `<span class="correct-text">✔ Correto!</span> ${q.explicacao}`;
+        } else {
+          erros++;
+          botoes[indice].classList.add("wrong");
+          botoes[q.correta].classList.add("correct");
+          feedback.innerHTML = `<span class="error-text">✖ Errado.</span> ${q.explicacao}`;
+        }
+
+        btnProximo.disabled = false;
+        atualizarUI();
+      }
+
+      function proxima() {
+        if (!respondeu) return;
+        atual++;
+
+        if (atual >= questoes.length) {
+          if (!jaRegistrou) {
+            jaRegistrou = true;
+            const nome = obterNomeAluno();
+            registrarResultado(
+              nome,
+              NOME_ATIVIDADE,
+              pontos,
+              questoes.length,
+              erros,
+            );
+          }
+          mostrarFinal();
+          return;
+        }
+
+        carregar();
+      }
+
+      function mostrarFinal() {
+        app.innerHTML = `
+        <section class="end-screen">
+          <div class="end-card">
+            <div class="end-icon"><i class="fas fa-table"></i></div>
+            <h1>Versão 2 concluída!</h1>
+            <p>Você finalizou a atividade de <strong>teste de mesa com enquanto</strong>. Agora já consegue observar melhor o valor das variáveis a cada repetição.</p>
+
+            <div class="end-stats">
+              <div class="end-stat">
+                <strong>${pontos}</strong>
+                <span>Acertos</span>
+              </div>
+              <div class="end-stat">
+                <strong>${erros}</strong>
+                <span>Erros</span>
+              </div>
+              <div class="end-stat">
+                <strong>${questoes.length}</strong>
+                <span>Questões</span>
+              </div>
+            </div>
+
+            <div class="end-actions">
+              <a class="btn btn-primary" href="objetos.html">
+                <i class="fas fa-cubes"></i>
+                Explorar objetos
+              </a>
+            </div>
+
+            <div class="end-secondary">
+              <a href="index.html">Voltar ao início</a>
+            </div>
+          </div>
+        </section>
+      `;
+      }
+
+      btnDica.onclick = () => {
+        dicaVisivel = !dicaVisivel;
+        hintBox.style.display = dicaVisivel ? "block" : "none";
+        btnDica.innerHTML = dicaVisivel
+          ? `<i class="fas fa-eye-slash"></i> Ocultar dica`
+          : `<i class="fas fa-lightbulb"></i> Mostrar dica`;
+      };
+
+      btnProximo.onclick = proxima;
+
+      carregar();
+    </script>
+  </body>
+</html>
