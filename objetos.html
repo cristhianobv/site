@@ -399,6 +399,66 @@
         gap: 22px;
       }
 
+
+      .object-group {
+        margin-bottom: 34px;
+      }
+
+      .object-group-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 18px;
+        margin: 0 0 16px;
+        padding: 18px 20px;
+        border-radius: 26px;
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        box-shadow: var(--shadow-sm);
+        backdrop-filter: blur(12px);
+      }
+
+      .object-group-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        color: var(--primary-active);
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .object-group-title {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: clamp(1.35rem, 2vw, 1.9rem);
+        line-height: 1.05;
+        letter-spacing: -0.04em;
+        margin-bottom: 6px;
+      }
+
+      .object-group-desc {
+        color: var(--text-soft);
+        line-height: 1.65;
+        max-width: 760px;
+        font-size: 0.96rem;
+      }
+
+      .object-group-count {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: var(--radius-pill);
+        background: rgba(34, 197, 94, 0.08);
+        border: 1px solid rgba(34, 197, 94, 0.14);
+        color: var(--primary-active);
+        font-weight: 800;
+        font-size: 0.9rem;
+      }
+
       .object-card {
         position: relative;
         background: linear-gradient(
@@ -641,6 +701,13 @@
         .object-link {
           width: 100%;
         }
+
+        .object-group-header {
+          align-items: flex-start;
+          flex-direction: column;
+          border-radius: 22px;
+          padding: 16px;
+        }
       }
 
       /* animação do hero da direita */
@@ -804,229 +871,128 @@
               </h2>
             </div>
           </div>
-          <div class="objects-grid">
-            <article class="object-card reveal">
-              <a href="quiz1.html" style="text-decoration: none; color: inherit"
-                ><div class="object-icon"><i class="fas fa-brain"></i></div
-              ></a>
-              <a href="quiz1.html" style="text-decoration: none; color: inherit"
-                ><h3 class="object-title">Quiz Interativo</h3></a
-              >
-              <p class="object-desc">
-                Questões com feedback imediato, barra de progresso e reforço de
-                conceitos de pseudocódigo.
-              </p>
-            </article>
-            <article class="object-card reveal delay-1">
-              <a
-                href="fluxograma_interativo.html"
-                style="text-decoration: none; color: inherit"
-                ><div class="object-icon">
-                  <i class="fas fa-project-diagram"></i></div
-              ></a>
-              <a
-                href="fluxograma_interativo.html"
-                style="text-decoration: none; color: inherit"
-                ><h3 class="object-title">Fluxograma Interativo</h3></a
-              >
-              <p class="object-desc">
-                Associação entre fluxograma e lógica algorítmica em uma
-                experiência visual e comparativa.
-              </p>
-            </article>
-            <article class="object-card reveal delay-2">
-              <a href="robo.html" style="text-decoration: none; color: inherit"
-                ><div class="object-icon"><i class="fas fa-robot"></i></div
-              ></a>
-              <a href="robo.html" style="text-decoration: none; color: inherit"
-                ><h3 class="object-title">Robô com Condições</h3></a
-              >
-              <p class="object-desc">
-                Movimentação em níveis com foco em comandos, direção e
-                raciocínio lógico aplicado.
-              </p>
-            </article>
-            <article class="object-card reveal delay-3">
-              <a
-                href="objeto_aprendizagem_blocos.html"
-                style="text-decoration: none; color: inherit"
-                ><div class="object-icon">
-                  <i class="fas fa-puzzle-piece"></i></div
-              ></a>
-              <a
-                href="objeto_aprendizagem_blocos.html"
-                style="text-decoration: none; color: inherit"
-                ><h3 class="object-title">Desafios com Blocos</h3></a
-              >
-              <p class="object-desc">
-                Montagem de algoritmos por blocos, com aprendizagem ativa e foco
-                em sequência lógica.
-              </p>
-            </article>
-            <article class="object-card reveal">
-              <a
-                href="depuracao.html"
-                style="text-decoration: none; color: inherit"
-                ><div class="object-icon"><i class="fas fa-bug"></i></div
-              ></a>
-              <a
-                href="depuracao.html"
-                style="text-decoration: none; color: inherit"
-                ><h3 class="object-title">Labirinto de Depuração</h3></a
-              >
-              <p class="object-desc">
-                Identificação de erros e análise de código com foco em depuração
-                e entendimento de sintaxe.
-              </p>
-            </article>
-            <article class="object-card reveal delay-1">
-              <a
-                href="xadrez.html"
-                style="text-decoration: none; color: inherit"
-                ><div class="object-icon"><i class="fas fa-chess"></i></div
-              ></a>
-              <a
-                href="xadrez.html"
-                style="text-decoration: none; color: inherit"
-                ><h3 class="object-title">Xadrez Interativo</h3></a
-              >
-              <p class="object-desc">
-                Desafios estratégicos com interface própria, conectando
-                raciocínio, atenção e tomada de decisão.
-              </p>
-            </article>
-            <article class="object-card reveal delay-2">
-              <a
-                href="desafio_se_encadeado.html"
-                style="text-decoration: none; color: inherit"
-                ><div class="object-icon">
-                  <i class="fas fa-code-branch"></i></div
-              ></a>
-              <a
-                href="desafio_se_encadeado.html"
-                style="text-decoration: none; color: inherit"
-                ><h3 class="object-title">Desafio do Se Encadeado</h3></a
-              >
-              <p class="object-desc">
-                Questões progressivas para treinar decisões com várias
-                possibilidades, ordem das condições, análise de saídas e
-                identificação de erros lógicos.
-              </p>
-            </article>
-            <article class="object-card reveal">
-              <a
-                href="enquanto_passo_a_passo.html"
-                style="text-decoration: none; color: inherit"
-              >
-                <div class="object-icon">
-                  <i class="fas fa-sync-alt"></i>
-                </div>
-              </a>
+          <div class="object-group reveal">
+            <div class="object-group-header">
+              <div>
+                <div class="object-group-kicker"><i class="fas fa-seedling"></i> Introdução e prática guiada</div>
+                <h3 class="object-group-title">Primeiros passos com lógica de programação</h3>
+                <p class="object-group-desc">Atividades para revisar conceitos iniciais, sequência lógica, pseudocódigo e leitura de algoritmos com feedback imediato.</p>
+              </div>
+              <div class="object-group-count">4 objetos</div>
+            </div>
 
-              <a
-                href="enquanto_passo_a_passo.html"
-                style="text-decoration: none; color: inherit"
-              >
-                <h3 class="object-title">Simulador do Enquanto</h3>
-              </a>
+            <div class="objects-grid">
+              <article class="object-card reveal">
+                <a href="quiz1.html" style="text-decoration: none; color: inherit"><div class="object-icon"><i class="fas fa-brain"></i></div></a>
+                <a href="quiz1.html" style="text-decoration: none; color: inherit"><h3 class="object-title">Quiz Interativo</h3></a>
+                <p class="object-desc">Questões com feedback imediato, barra de progresso e reforço de conceitos de pseudocódigo.</p>
+              </article>
 
-              <p class="object-desc">
-                Acompanhe passo a passo a execução da estrutura
-                <strong>enquanto</strong>, observando condição, variáveis e
-                saída em exemplos progressivos.
-              </p>
-            </article>
-            <article class="object-card reveal delay-3">
-              <a
-                href="simulador_enquanto_multilinguagem.html"
-                style="text-decoration: none; color: inherit"
-              >
-                <div class="object-icon">
-                  <i class="fas fa-code"></i>
-                </div>
-              </a>
-              <a
-                href="simulador_enquanto_multilinguagem.html"
-                style="text-decoration: none; color: inherit"
-              >
-                <h3 class="object-title">Enquanto Multilinguagem</h3>
-              </a>
-              <p class="object-desc">
-                Compare a estrutura de repetição <strong>enquanto</strong> em
-                Visualg, Python, JavaScript, PHP e C, percebendo que a lógica
-                permanece a mesma mesmo quando a sintaxe muda.
-              </p>
-            </article>
-            <article class="object-card reveal">
-              <a
-                href="simulador_enquanto_teste_mesa.html"
-                style="text-decoration: none; color: inherit"
-              >
-                <div class="object-icon">
-                  <i class="fas fa-table"></i>
-                </div>
-              </a>
-              <a
-                href="simulador_enquanto_teste_mesa.html"
-                style="text-decoration: none; color: inherit"
-              >
-                <h3 class="object-title">
-                  Simulador de Enquanto com Teste de Mesa
-                </h3>
-              </a>
-              <p class="object-desc">
-                Versão com foco em <strong>teste de mesa</strong>, utilizando
-                tabelas para acompanhar os valores das variáveis durante a
-                execução do laço <strong>enquanto</strong>.
-              </p>
-            </article>
-            <article class="object-card reveal delay-3">
-              <a
-                href="simulador_acumuladores.html"
-                style="text-decoration: none; color: inherit"
-              >
-                <div class="object-icon">
-                  <i class="fas fa-calculator"></i>
-                </div>
-              </a>
+              <article class="object-card reveal delay-1">
+                <a href="fluxograma_interativo.html" style="text-decoration: none; color: inherit"><div class="object-icon"><i class="fas fa-project-diagram"></i></div></a>
+                <a href="fluxograma_interativo.html" style="text-decoration: none; color: inherit"><h3 class="object-title">Fluxograma Interativo</h3></a>
+                <p class="object-desc">Associação entre fluxograma e lógica algorítmica em uma experiência visual e comparativa.</p>
+              </article>
 
-              <a
-                href="simulador_acumuladores.html"
-                style="text-decoration: none; color: inherit"
-              >
-                <h3 class="object-title">Simulador de Acumuladores</h3>
-              </a>
+              <article class="object-card reveal delay-2">
+                <a href="objeto_aprendizagem_blocos.html" style="text-decoration: none; color: inherit"><div class="object-icon"><i class="fas fa-puzzle-piece"></i></div></a>
+                <a href="objeto_aprendizagem_blocos.html" style="text-decoration: none; color: inherit"><h3 class="object-title">Desafios com Blocos</h3></a>
+                <p class="object-desc">Montagem de algoritmos por blocos, com aprendizagem ativa e foco em sequência lógica.</p>
+              </article>
 
-              <p class="object-desc">
-                Acompanhe passo a passo como variáveis acumuladoras e contadoras
-                evoluem durante a execução do algoritmo, entendendo conceitos
-                como soma, média e contagem por meio de teste de mesa guiado.
-              </p>
-            </article>
-            <article class="object-card reveal delay-3">
-              <a
-                href="simulador_para_multilinguagem.html"
-                style="text-decoration: none; color: inherit"
-              >
-                <div class="object-icon">
-                  <i class="fas fa-repeat"></i>
-                </div>
-              </a>
+              <article class="object-card reveal delay-3">
+                <a href="depuracao.html" style="text-decoration: none; color: inherit"><div class="object-icon"><i class="fas fa-bug"></i></div></a>
+                <a href="depuracao.html" style="text-decoration: none; color: inherit"><h3 class="object-title">Labirinto de Depuração</h3></a>
+                <p class="object-desc">Identificação de erros e análise de código com foco em depuração e entendimento de sintaxe.</p>
+              </article>
+            </div>
+          </div>
 
-              <a
-                href="simulador_para_multilinguagem.html"
-                style="text-decoration: none; color: inherit"
-              >
-                <h3 class="object-title">Simulador do Para (Multilinguagem)</h3>
-              </a>
+          <div class="object-group reveal delay-1">
+            <div class="object-group-header">
+              <div>
+                <div class="object-group-kicker"><i class="fas fa-code-branch"></i> Estruturas condicionais</div>
+                <h3 class="object-group-title">Decisões, caminhos e condições</h3>
+                <p class="object-group-desc">Objetos para treinar tomada de decisão, análise de condições, ramificações e escolhas durante a execução do algoritmo.</p>
+              </div>
+              <div class="object-group-count">2 objetos</div>
+            </div>
 
-              <p class="object-desc">
-                Explore a estrutura de repetição <strong>para</strong> e compare
-                sua lógica em Visualg, Python, JavaScript, PHP e C, acompanhando
-                passo a passo a execução e entendendo como a contagem controlada
-                funciona em diferentes linguagens.
-              </p>
-            </article>
+            <div class="objects-grid">
+              <article class="object-card reveal">
+                <a href="robo.html" style="text-decoration: none; color: inherit"><div class="object-icon"><i class="fas fa-robot"></i></div></a>
+                <a href="robo.html" style="text-decoration: none; color: inherit"><h3 class="object-title">Robô com Condições</h3></a>
+                <p class="object-desc">Movimentação em níveis com foco em comandos, direção e raciocínio lógico aplicado.</p>
+              </article>
+
+              <article class="object-card reveal delay-1">
+                <a href="desafio_se_encadeado.html" style="text-decoration: none; color: inherit"><div class="object-icon"><i class="fas fa-code-branch"></i></div></a>
+                <a href="desafio_se_encadeado.html" style="text-decoration: none; color: inherit"><h3 class="object-title">Desafio do Se Encadeado</h3></a>
+                <p class="object-desc">Questões progressivas para treinar decisões com várias possibilidades, ordem das condições e identificação de erros lógicos.</p>
+              </article>
+            </div>
+          </div>
+
+          <div class="object-group reveal delay-2">
+            <div class="object-group-header">
+              <div>
+                <div class="object-group-kicker"><i class="fas fa-repeat"></i> Estruturas de repetição</div>
+                <h3 class="object-group-title">Enquanto, para, teste de mesa e acumuladores</h3>
+                <p class="object-group-desc">Simuladores para visualizar laços de repetição passo a passo, acompanhar variáveis e comparar a mesma lógica em diferentes linguagens.</p>
+              </div>
+              <div class="object-group-count">5 objetos</div>
+            </div>
+
+            <div class="objects-grid">
+              <article class="object-card reveal">
+                <a href="enquanto_passo_a_passo.html" style="text-decoration: none; color: inherit"><div class="object-icon"><i class="fas fa-sync-alt"></i></div></a>
+                <a href="enquanto_passo_a_passo.html" style="text-decoration: none; color: inherit"><h3 class="object-title">Simulador do Enquanto</h3></a>
+                <p class="object-desc">Acompanhe passo a passo a execução da estrutura <strong>enquanto</strong>, observando condição, variáveis e saída em exemplos progressivos.</p>
+              </article>
+
+              <article class="object-card reveal delay-1">
+                <a href="simulador_enquanto_multilinguagem.html" style="text-decoration: none; color: inherit"><div class="object-icon"><i class="fas fa-code"></i></div></a>
+                <a href="simulador_enquanto_multilinguagem.html" style="text-decoration: none; color: inherit"><h3 class="object-title">Enquanto Multilinguagem</h3></a>
+                <p class="object-desc">Compare a estrutura <strong>enquanto</strong> em Visualg, Python, JavaScript, PHP e C, percebendo que a lógica permanece a mesma.</p>
+              </article>
+
+              <article class="object-card reveal delay-2">
+                <a href="simulador_enquanto_teste_mesa.html" style="text-decoration: none; color: inherit"><div class="object-icon"><i class="fas fa-table"></i></div></a>
+                <a href="simulador_enquanto_teste_mesa.html" style="text-decoration: none; color: inherit"><h3 class="object-title">Simulador de Enquanto com Teste de Mesa</h3></a>
+                <p class="object-desc">Use tabelas para acompanhar os valores das variáveis durante a execução do laço <strong>enquanto</strong>.</p>
+              </article>
+
+              <article class="object-card reveal delay-3">
+                <a href="simulador_acumuladores.html" style="text-decoration: none; color: inherit"><div class="object-icon"><i class="fas fa-calculator"></i></div></a>
+                <a href="simulador_acumuladores.html" style="text-decoration: none; color: inherit"><h3 class="object-title">Simulador de Acumuladores</h3></a>
+                <p class="object-desc">Acompanhe como variáveis acumuladoras e contadoras evoluem durante a execução do algoritmo.</p>
+              </article>
+
+              <article class="object-card reveal">
+                <a href="simulador_para_multilinguagem.html" style="text-decoration: none; color: inherit"><div class="object-icon"><i class="fas fa-repeat"></i></div></a>
+                <a href="simulador_para_multilinguagem.html" style="text-decoration: none; color: inherit"><h3 class="object-title">Simulador do Para (Multilinguagem)</h3></a>
+                <p class="object-desc">Explore a estrutura <strong>para</strong> em Visualg, Python, JavaScript, PHP e C, acompanhando a contagem controlada passo a passo.</p>
+              </article>
+            </div>
+          </div>
+
+          <div class="object-group reveal delay-3">
+            <div class="object-group-header">
+              <div>
+                <div class="object-group-kicker"><i class="fas fa-gamepad"></i> Estratégia e raciocínio</div>
+                <h3 class="object-group-title">Desafios para atenção, análise e tomada de decisão</h3>
+                <p class="object-group-desc">Experiências que fortalecem raciocínio lógico, planejamento, estratégia e leitura cuidadosa de situações.</p>
+              </div>
+              <div class="object-group-count">1 objeto</div>
+            </div>
+
+            <div class="objects-grid">
+              <article class="object-card reveal">
+                <a href="xadrez.html" style="text-decoration: none; color: inherit"><div class="object-icon"><i class="fas fa-chess"></i></div></a>
+                <a href="xadrez.html" style="text-decoration: none; color: inherit"><h3 class="object-title">Xadrez Interativo</h3></a>
+                <p class="object-desc">Desafios estratégicos com interface própria, conectando raciocínio, atenção e tomada de decisão.</p>
+              </article>
+            </div>
           </div>
         </div>
       </section>
