@@ -1,0 +1,1432 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulador do Para: Multilinguagem | Prof. Cristhiano Vasconcellos</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <style>
+    :root {
+      --text: #0f172a;
+      --text-soft: #475569;
+      --text-muted: #64748b;
+      --border: rgba(15, 23, 42, 0.08);
+      --primary: #22c55e;
+      --primary-hover: #16a34a;
+      --primary-active: #15803d;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 18px 40px rgba(15, 23, 42, 0.08);
+      --radius-lg: 28px;
+      --radius-md: 22px;
+      --container: 1120px;
+      --transition: 220ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(34, 197, 94, 0.08), transparent 24%),
+        radial-gradient(circle at 90% 20%, rgba(14, 165, 233, 0.08), transparent 20%),
+        linear-gradient(180deg, #fcfefe 0%, #f8fafc 30%, #f4f8fb 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(circle at center, black 35%, transparent 85%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .page-wrap { padding: 20px 0 36px; position: relative; z-index: 1; }
+    .container { width: min(var(--container), calc(100% - 36px)); margin: 0 auto; position: relative; z-index: 1; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .back-link:hover { color: var(--text); }
+
+    .score-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid var(--border);
+      color: var(--text-soft);
+      box-shadow: var(--shadow-sm);
+      font-weight: 700;
+    }
+
+    .hero { margin-bottom: 16px; }
+    .hero h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1;
+      letter-spacing: -0.05em;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      color: var(--text-soft);
+      font-size: 1rem;
+      line-height: 1.65;
+      max-width: 880px;
+    }
+
+    .progress-wrap {
+      margin-bottom: 18px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      flex-wrap: wrap;
+    }
+
+    .progress {
+      width: 100%;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      border-radius: inherit;
+      transition: width var(--transition);
+    }
+
+    .activity-card {
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(34, 197, 94, .10);
+      color: var(--primary-active);
+      border: 1px solid rgba(34, 197, 94, .16);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: .9rem;
+      font-weight: 700;
+    }
+
+    .question-counter {
+      color: var(--text-muted);
+      font-size: .95rem;
+      font-weight: 700;
+    }
+
+    .question-title {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .code-block, .sim-card, .answers-card {
+      background: rgba(255,255,255,.78);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .code-block {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 18px;
+      font-family: "JetBrains Mono", monospace;
+      font-variant-ligatures: none;
+      font-feature-settings: "liga" 0;
+      font-size: 13px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      min-height: 300px;
+      text-align: left;
+    }
+
+    .sim-card, .answers-card { padding: 18px; }
+
+    .card-subtitle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      color: var(--text-soft);
+      font-weight: 700;
+      font-size: .95rem;
+    }
+
+    .trace-list {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .trace-item {
+      display: grid;
+      grid-template-columns: 112px 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: rgba(248,250,252,.9);
+      border: 1px solid rgba(15,23,42,.06);
+    }
+
+    .trace-step {
+      font-size: .82rem;
+      font-weight: 800;
+      color: var(--primary-active);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .trace-value {
+      color: var(--text);
+      font-weight: 600;
+      line-height: 1.55;
+    }
+
+    .hint-box, .orientation-note {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(34,197,94,.06);
+      border: 1px solid rgba(34,197,94,.16);
+      color: var(--text-soft);
+      line-height: 1.6;
+      font-size: .95rem;
+    }
+
+    .orientation-note {
+      margin-bottom: 12px;
+      background: rgba(248,250,252,.82);
+      border: 1px solid rgba(15,23,42,.06);
+    }
+
+    .answers { display: grid; gap: 12px; }
+
+    .answer-btn {
+      width: 100%;
+      border: 1px solid rgba(15,23,42,.08);
+      border-radius: 22px;
+      background: rgba(255,255,255,.98);
+      padding: 16px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      text-align: left;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 8px 24px rgba(15,23,42,.04);
+      color: var(--text);
+      font-size: 0.98rem;
+      font-weight: 600;
+    }
+
+    .answer-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 32px rgba(15,23,42,.08);
+      border-color: rgba(34,197,94,.45);
+    }
+
+    .answer-btn:disabled { cursor: default; opacity: 1; }
+    .answer-btn.correct {
+      border-color: rgba(34,197,94,.45);
+      background: rgba(34,197,94,.07);
+    }
+
+    .answer-btn.wrong {
+      border-color: rgba(220,38,38,.28);
+      background: rgba(220,38,38,.05);
+    }
+
+    .answer-pill {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34,197,94,.12);
+      color: var(--primary-active);
+      font-weight: 800;
+      flex: 0 0 auto;
+    }
+
+    .answer-text { flex: 1; padding-top: 4px; line-height: 1.55; }
+
+    .feedback-area {
+      min-height: 28px;
+      margin-top: 16px;
+      text-align: center;
+      font-size: 1rem;
+      color: var(--text-soft);
+      line-height: 1.6;
+    }
+
+    .correct-text { color: #15803d; font-weight: 700; }
+    .error-text { color: var(--danger); font-weight: 700; }
+
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      padding: 14px 22px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.96rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      color: #052e16;
+      box-shadow: 0 14px 28px rgba(34,197,94,.22);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,.9);
+      color: var(--text-soft);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn:hover:not(:disabled) { transform: translateY(-2px); }
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none;
+    }
+
+    .microcopy {
+      color: var(--text-muted);
+      font-size: .9rem;
+      text-align: center;
+      margin-top: 12px;
+      line-height: 1.6;
+    }
+
+    .language-switcher {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .language-tabs {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 6px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.86);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .language-btn {
+      border: 0;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      color: var(--text-soft);
+      background: transparent;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .language-btn:hover {
+      color: var(--text);
+      background: rgba(34,197,94,.07);
+    }
+
+    .language-btn.active {
+      color: #052e16;
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      box-shadow: 0 10px 22px rgba(34,197,94,.18);
+    }
+
+    .language-note {
+      flex: 1;
+      min-width: 240px;
+      color: var(--text-muted);
+      font-size: .92rem;
+      line-height: 1.55;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: rgba(248,250,252,.82);
+      border: 1px solid rgba(15,23,42,.06);
+    }
+
+    .end-screen {
+      min-height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0;
+    }
+
+    .end-card {
+      width: min(760px, 100%);
+      background: rgba(255,255,255,.94);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      border-radius: 32px;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .end-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34,197,94,.12);
+      color: var(--primary-active);
+      font-size: 1.8rem;
+      margin-bottom: 14px;
+    }
+
+    .end-card h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+      margin-bottom: 10px;
+    }
+
+    .end-card p {
+      color: var(--text-soft);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .end-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .end-stat {
+      background: rgba(255,255,255,.84);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .end-stat strong {
+      display: block;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.6rem;
+      margin-bottom: 4px;
+    }
+
+    .end-stat span {
+      color: var(--text-muted);
+      font-size: .9rem;
+    }
+
+    .end-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 16px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .end-secondary {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .end-secondary a {
+      font-size: .9rem;
+      color: #64748b;
+      transition: .2s;
+    }
+
+    .end-secondary a:hover { color: #0f172a; }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .container { width: min(var(--container), calc(100% - 20px)); }
+      .page-wrap { padding-top: 14px; }
+      .activity-card { padding: 16px; border-radius: 22px; }
+      .code-block, .sim-card, .answers-card, .answer-btn { border-radius: 18px; }
+      .end-stats { grid-template-columns: 1fr; }
+      .trace-item { grid-template-columns: 1fr; }
+      .language-tabs { border-radius: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-wrap">
+    <div class="container" id="app">
+      <div class="topbar">
+        <a class="back-link" href="objetos.html"><i class="fas fa-arrow-left"></i> Voltar aos objetos</a>
+        <div id="score" class="score-chip"><i class="fas fa-star"></i> Pontos: 0</div>
+      </div>
+
+      <section class="hero">
+        <h1>Simulador do Para: Multilinguagem</h1>
+        <p>Leia o algoritmo, acompanhe a contagem passo a passo e compare como a estrutura <strong>para</strong> aparece em Visualg, Python, JavaScript, PHP e C. O objetivo é perceber que a lógica de repetição controlada permanece a mesma, mesmo quando a sintaxe muda.</p>
+      </section>
+
+      <section class="progress-wrap">
+        <div class="progress-label">
+          <span id="progressText">Questão 1 de 10</span>
+          <span id="progressPercent">0% concluído</span>
+        </div>
+        <div class="progress"><div id="bar" class="progress-bar"></div></div>
+      </section>
+
+      <section class="activity-card">
+        <div class="card-header">
+          <div class="section-tag"><i class="fas fa-repeat"></i> Repetição controlada</div>
+          <div id="questionCounter" class="question-counter">Questão 1</div>
+        </div>
+
+        <div id="tituloQuestao" class="question-title"></div>
+
+        <div class="layout">
+          <div>
+            <div class="orientation-note">
+              <strong>Orientação:</strong> primeiro compreenda a lógica em <strong>Visualg</strong>. Depois, utilize as abas para comparar como a mesma ideia é escrita nas outras linguagens.
+            </div>
+
+            <div class="language-switcher">
+              <div class="language-tabs" aria-label="Alternar linguagem do código">
+                <button id="btnVisualg" class="language-btn active" type="button">
+                  <i class="fas fa-code"></i> Visualg
+                </button>
+                <button id="btnPython" class="language-btn" type="button">
+                  <i class="fab fa-python"></i> Python
+                </button>
+                <button id="btnJavaScript" class="language-btn" type="button">
+                  <i class="fab fa-js"></i> JavaScript
+                </button>
+                <button id="btnPHP" class="language-btn" type="button">
+                  <i class="fab fa-php"></i> PHP
+                </button>
+                <button id="btnC" class="language-btn" type="button">
+                  <b>&nbsp;C&nbsp;</b>
+                </button>
+              </div>
+              <div id="languageNote" class="language-note">
+                Visualg usa <strong>para ... de ... ate ... faca</strong> e fecha com <strong>fimpara</strong>.
+              </div>
+            </div>
+
+            <pre id="codigo" class="code-block"></pre>
+          </div>
+
+          <div>
+            <div class="sim-card">
+              <div class="card-subtitle"><i class="fas fa-shoe-prints"></i> Rastro da execução</div>
+              <div id="traceList" class="trace-list"></div>
+              <div id="hintBox" class="hint-box"></div>
+            </div>
+
+            <div class="answers-card" style="margin-top: 14px;">
+              <div class="card-subtitle"><i class="fas fa-check-circle"></i> Escolha sua resposta</div>
+              <div class="answers" id="answers"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="feedback" class="feedback-area">Selecione uma alternativa para responder.</div>
+
+        <div class="actions">
+          <button id="btnDica" class="btn btn-secondary" type="button">
+            <i class="fas fa-lightbulb"></i>
+            Mostrar dica
+          </button>
+
+          <button id="btnProximo" class="btn btn-primary" type="button" disabled>
+            <i class="fas fa-arrow-right"></i>
+            Próximo
+          </button>
+        </div>
+
+        <div class="microcopy">Dica geral: no PARA, a variável de controle normalmente já possui início, fim e passo definidos na própria estrutura.</div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const questoes = [
+      {
+        titulo: "Observe o algoritmo e marque a saída correta.",
+        codigo: `algoritmo "contagem"
+var
+   i: inteiro
+
+inicio
+
+   para i de 1 ate 3 faca
+      escreval(i)
+   fimpara
+
+fimalgoritmo`,
+        codigoPython: `for i in range(1, 4):
+    print(i)`,
+        codigoJS: `for (let i = 1; i <= 3; i++) {
+  console.log(i);
+}`,
+        codigoPHP: `<?php
+for ($i = 1; $i <= 3; $i++) {
+    echo $i . "\\n";
+}
+?>`,
+        codigoC: `#include <stdio.h>
+
+int main() {
+    int i;
+
+    for (i = 1; i <= 3; i++) {
+        printf("%d\\n", i);
+    }
+
+    return 0;
+}`,
+        rastros: [
+          ["início", "i começa valendo 1."],
+          ["1ª repetição", "A condição permite executar. O algoritmo escreve 1."],
+          ["2ª repetição", "i passa a 2 e o algoritmo escreve 2."],
+          ["3ª repetição", "i passa a 3 e o algoritmo escreve 3."],
+          ["fim", "Depois disso, i passaria de 3 e o laço termina."]
+        ],
+        dica: "O para vai de 1 até 3, incluindo o 3.",
+        opcoes: ["1, 2 e 3", "1, 2, 3 e 4", "2, 3 e 4"],
+        correta: 0,
+        explicacao: "O laço percorre os valores 1, 2 e 3. Portanto, esses são os valores exibidos."
+      },
+      {
+        titulo: "Quantas vezes o bloco do para será executado?",
+        codigo: `algoritmo "quantidade"
+var
+   i: inteiro
+
+inicio
+
+   para i de 1 ate 5 faca
+      escreval("Oi")
+   fimpara
+
+fimalgoritmo`,
+        codigoPython: `for i in range(1, 6):
+    print("Oi")`,
+        codigoJS: `for (let i = 1; i <= 5; i++) {
+  console.log("Oi");
+}`,
+        codigoPHP: `<?php
+for ($i = 1; $i <= 5; $i++) {
+    echo "Oi\\n";
+}
+?>`,
+        codigoC: `#include <stdio.h>
+
+int main() {
+    int i;
+
+    for (i = 1; i <= 5; i++) {
+        printf("Oi\\n");
+    }
+
+    return 0;
+}`,
+        rastros: [
+          ["valores de i", "i assume 1, 2, 3, 4 e 5."],
+          ["execução", "Para cada valor de i, o comando escreval é executado uma vez."],
+          ["resultado", "A palavra Oi aparece 5 vezes."]
+        ],
+        dica: "Conte os valores inteiros de 1 até 5.",
+        opcoes: ["4 vezes", "5 vezes", "6 vezes"],
+        correta: 1,
+        explicacao: "O bloco executa uma vez para cada valor de i: 1, 2, 3, 4 e 5. Total: 5 vezes."
+      },
+      {
+        titulo: "Agora o laço começa em 0. Qual será a saída?",
+        codigo: `algoritmo "zero_a_tres"
+var
+   i: inteiro
+
+inicio
+
+   para i de 0 ate 3 faca
+      escreval(i)
+   fimpara
+
+fimalgoritmo`,
+        codigoPython: `for i in range(0, 4):
+    print(i)`,
+        codigoJS: `for (let i = 0; i <= 3; i++) {
+  console.log(i);
+}`,
+        codigoPHP: `<?php
+for ($i = 0; $i <= 3; $i++) {
+    echo $i . "\\n";
+}
+?>`,
+        codigoC: `#include <stdio.h>
+
+int main() {
+    int i;
+
+    for (i = 0; i <= 3; i++) {
+        printf("%d\\n", i);
+    }
+
+    return 0;
+}`,
+        rastros: [
+          ["início", "i começa em 0."],
+          ["valores", "O laço passa por 0, 1, 2 e 3."],
+          ["fim", "Quando i passa de 3, o laço termina."]
+        ],
+        dica: "O zero também é um valor válido da contagem.",
+        opcoes: ["1, 2 e 3", "0, 1, 2 e 3", "0, 1, 2, 3 e 4"],
+        correta: 1,
+        explicacao: "Como a contagem começa em 0 e vai até 3, os valores exibidos são 0, 1, 2 e 3."
+      },
+      {
+        titulo: "Qual será o valor da soma ao final do algoritmo?",
+        codigo: `algoritmo "soma"
+var
+   i, soma: inteiro
+
+inicio
+   soma <- 0
+
+   para i de 1 ate 4 faca
+      soma <- soma + i
+   fimpara
+
+   escreval(soma)
+
+fimalgoritmo`,
+        codigoPython: `soma = 0
+
+for i in range(1, 5):
+    soma = soma + i
+
+print(soma)`,
+        codigoJS: `let soma = 0;
+
+for (let i = 1; i <= 4; i++) {
+  soma = soma + i;
+}
+
+console.log(soma);`,
+        codigoPHP: `<?php
+$soma = 0;
+
+for ($i = 1; $i <= 4; $i++) {
+    $soma = $soma + $i;
+}
+
+echo $soma . "\\n";
+?>`,
+        codigoC: `#include <stdio.h>
+
+int main() {
+    int i;
+    int soma = 0;
+
+    for (i = 1; i <= 4; i++) {
+        soma = soma + i;
+    }
+
+    printf("%d\\n", soma);
+    return 0;
+}`,
+        rastros: [
+          ["início", "soma começa em 0."],
+          ["i = 1", "soma recebe 0 + 1 = 1."],
+          ["i = 2", "soma recebe 1 + 2 = 3."],
+          ["i = 3", "soma recebe 3 + 3 = 6."],
+          ["i = 4", "soma recebe 6 + 4 = 10."]
+        ],
+        dica: "Some os valores de 1 até 4.",
+        opcoes: ["6", "10", "11"],
+        correta: 1,
+        explicacao: "A soma acumulada é 1 + 2 + 3 + 4, totalizando 10."
+      },
+      {
+        titulo: "Observe o passo 2. Quais valores serão exibidos?",
+        codigo: `algoritmo "pares"
+var
+   i: inteiro
+
+inicio
+
+   para i de 2 ate 8 passo 2 faca
+      escreval(i)
+   fimpara
+
+fimalgoritmo`,
+        codigoPython: `for i in range(2, 9, 2):
+    print(i)`,
+        codigoJS: `for (let i = 2; i <= 8; i += 2) {
+  console.log(i);
+}`,
+        codigoPHP: `<?php
+for ($i = 2; $i <= 8; $i += 2) {
+    echo $i . "\\n";
+}
+?>`,
+        codigoC: `#include <stdio.h>
+
+int main() {
+    int i;
+
+    for (i = 2; i <= 8; i += 2) {
+        printf("%d\\n", i);
+    }
+
+    return 0;
+}`,
+        rastros: [
+          ["início", "i começa em 2."],
+          ["passo", "A cada repetição, i aumenta de 2 em 2."],
+          ["valores", "i assume 2, 4, 6 e 8."],
+          ["fim", "Depois de 8, i passaria para 10 e o laço terminaria."]
+        ],
+        dica: "O passo 2 pula de dois em dois.",
+        opcoes: ["2, 4, 6 e 8", "2, 3, 4, 5, 6, 7 e 8", "4, 6 e 8"],
+        correta: 0,
+        explicacao: "Com passo 2, o laço exibe 2, 4, 6 e 8."
+      },
+      {
+        titulo: "Laço decrescente: qual será a saída?",
+        codigo: `algoritmo "regressiva"
+var
+   i: inteiro
+
+inicio
+
+   para i de 5 ate 1 passo -1 faca
+      escreval(i)
+   fimpara
+
+fimalgoritmo`,
+        codigoPython: `for i in range(5, 0, -1):
+    print(i)`,
+        codigoJS: `for (let i = 5; i >= 1; i--) {
+  console.log(i);
+}`,
+        codigoPHP: `<?php
+for ($i = 5; $i >= 1; $i--) {
+    echo $i . "\\n";
+}
+?>`,
+        codigoC: `#include <stdio.h>
+
+int main() {
+    int i;
+
+    for (i = 5; i >= 1; i--) {
+        printf("%d\\n", i);
+    }
+
+    return 0;
+}`,
+        rastros: [
+          ["início", "i começa em 5."],
+          ["passo", "O passo é -1, então i diminui a cada repetição."],
+          ["valores", "i assume 5, 4, 3, 2 e 1."],
+          ["fim", "Depois de 1, i passaria para 0 e o laço terminaria."]
+        ],
+        dica: "Como o passo é negativo, a contagem desce.",
+        opcoes: ["1, 2, 3, 4 e 5", "5, 4, 3, 2 e 1", "5, 3 e 1"],
+        correta: 1,
+        explicacao: "O laço começa em 5 e diminui até 1, exibindo 5, 4, 3, 2 e 1."
+      },
+      {
+        titulo: "Qual será o valor final do contador de pares?",
+        codigo: `algoritmo "conta_pares"
+var
+   i, cont: inteiro
+
+inicio
+   cont <- 0
+
+   para i de 1 ate 5 faca
+      se (i mod 2 = 0) entao
+         cont <- cont + 1
+      fimse
+   fimpara
+
+   escreval(cont)
+
+fimalgoritmo`,
+        codigoPython: `cont = 0
+
+for i in range(1, 6):
+    if i % 2 == 0:
+        cont = cont + 1
+
+print(cont)`,
+        codigoJS: `let cont = 0;
+
+for (let i = 1; i <= 5; i++) {
+  if (i % 2 === 0) {
+    cont = cont + 1;
+  }
+}
+
+console.log(cont);`,
+        codigoPHP: `<?php
+$cont = 0;
+
+for ($i = 1; $i <= 5; $i++) {
+    if ($i % 2 == 0) {
+        $cont = $cont + 1;
+    }
+}
+
+echo $cont . "\\n";
+?>`,
+        codigoC: `#include <stdio.h>
+
+int main() {
+    int i;
+    int cont = 0;
+
+    for (i = 1; i <= 5; i++) {
+        if (i % 2 == 0) {
+            cont = cont + 1;
+        }
+    }
+
+    printf("%d\\n", cont);
+    return 0;
+}`,
+        rastros: [
+          ["i = 1", "Não é par. cont continua 0."],
+          ["i = 2", "É par. cont passa a 1."],
+          ["i = 3", "Não é par. cont continua 1."],
+          ["i = 4", "É par. cont passa a 2."],
+          ["i = 5", "Não é par. cont continua 2."]
+        ],
+        dica: "Entre 1 e 5, os pares são 2 e 4.",
+        opcoes: ["2", "3", "5"],
+        correta: 0,
+        explicacao: "Os valores pares entre 1 e 5 são 2 e 4. Portanto, o contador termina em 2."
+      },
+      {
+        titulo: "Qual será o resultado da média?",
+        codigo: `algoritmo "media"
+var
+   i, soma: inteiro
+   media: real
+
+inicio
+   soma <- 0
+
+   para i de 1 ate 3 faca
+      soma <- soma + i
+   fimpara
+
+   media <- soma / 3
+   escreval(media)
+
+fimalgoritmo`,
+        codigoPython: `soma = 0
+
+for i in range(1, 4):
+    soma = soma + i
+
+media = soma / 3
+print(media)`,
+        codigoJS: `let soma = 0;
+
+for (let i = 1; i <= 3; i++) {
+  soma = soma + i;
+}
+
+let media = soma / 3;
+console.log(media);`,
+        codigoPHP: `<?php
+$soma = 0;
+
+for ($i = 1; $i <= 3; $i++) {
+    $soma = $soma + $i;
+}
+
+$media = $soma / 3;
+echo $media . "\\n";
+?>`,
+        codigoC: `#include <stdio.h>
+
+int main() {
+    int i;
+    int soma = 0;
+    float media;
+
+    for (i = 1; i <= 3; i++) {
+        soma = soma + i;
+    }
+
+    media = soma / 3.0;
+    printf("%.1f\\n", media);
+    return 0;
+}`,
+        rastros: [
+          ["soma", "Os valores somados são 1, 2 e 3."],
+          ["total", "soma termina valendo 6."],
+          ["média", "media recebe 6 dividido por 3."],
+          ["resultado", "O valor final é 2."]
+        ],
+        dica: "Primeiro faça a soma. Depois divida pela quantidade.",
+        opcoes: ["2", "3", "6"],
+        correta: 0,
+        explicacao: "A soma é 1 + 2 + 3 = 6. A média é 6 / 3 = 2."
+      },
+      {
+        titulo: "Cuidado com o limite: qual alternativa está correta?",
+        codigo: `algoritmo "limite"
+var
+   i: inteiro
+
+inicio
+
+   para i de 1 ate 1 faca
+      escreval(i)
+   fimpara
+
+fimalgoritmo`,
+        codigoPython: `for i in range(1, 2):
+    print(i)`,
+        codigoJS: `for (let i = 1; i <= 1; i++) {
+  console.log(i);
+}`,
+        codigoPHP: `<?php
+for ($i = 1; $i <= 1; $i++) {
+    echo $i . "\\n";
+}
+?>`,
+        codigoC: `#include <stdio.h>
+
+int main() {
+    int i;
+
+    for (i = 1; i <= 1; i++) {
+        printf("%d\\n", i);
+    }
+
+    return 0;
+}`,
+        rastros: [
+          ["início", "i começa em 1."],
+          ["teste", "Como i já é igual ao limite, o bloco executa."],
+          ["execução", "O algoritmo escreve 1 uma única vez."],
+          ["fim", "Depois disso, i passaria para 2 e o laço terminaria."]
+        ],
+        dica: "Quando o início é igual ao fim, ainda há uma repetição.",
+        opcoes: ["Não executa nenhuma vez", "Executa uma vez", "Executa duas vezes"],
+        correta: 1,
+        explicacao: "Como i começa em 1 e o limite também é 1, o bloco executa uma única vez."
+      },
+      {
+        titulo: "Desafio final: qual será o valor exibido?",
+        codigo: `algoritmo "produto"
+var
+   i, produto: inteiro
+
+inicio
+   produto <- 1
+
+   para i de 1 ate 4 faca
+      produto <- produto * 2
+   fimpara
+
+   escreval(produto)
+
+fimalgoritmo`,
+        codigoPython: `produto = 1
+
+for i in range(1, 5):
+    produto = produto * 2
+
+print(produto)`,
+        codigoJS: `let produto = 1;
+
+for (let i = 1; i <= 4; i++) {
+  produto = produto * 2;
+}
+
+console.log(produto);`,
+        codigoPHP: `<?php
+$produto = 1;
+
+for ($i = 1; $i <= 4; $i++) {
+    $produto = $produto * 2;
+}
+
+echo $produto . "\\n";
+?>`,
+        codigoC: `#include <stdio.h>
+
+int main() {
+    int i;
+    int produto = 1;
+
+    for (i = 1; i <= 4; i++) {
+        produto = produto * 2;
+    }
+
+    printf("%d\\n", produto);
+    return 0;
+}`,
+        rastros: [
+          ["início", "produto começa em 1."],
+          ["1ª repetição", "produto passa para 2."],
+          ["2ª repetição", "produto passa para 4."],
+          ["3ª repetição", "produto passa para 8."],
+          ["4ª repetição", "produto passa para 16."]
+        ],
+        dica: "O produto dobra quatro vezes.",
+        opcoes: ["8", "16", "32"],
+        correta: 1,
+        explicacao: "O produto começa em 1 e dobra quatro vezes: 2, 4, 8 e 16."
+      }
+    ];
+
+    let atual = 0;
+    let pontos = 0;
+    let erros = 0;
+    let respondeu = false;
+    let jaRegistrou = false;
+    let dicaVisivel = false;
+    let linguagemAtual = "visualg";
+
+    const NOME_ATIVIDADE = "Simulador do Para: Multilinguagem";
+    const URL_WEBAPP = "https://script.google.com/macros/s/AKfycbzoeygTm-R27yb8QOcdH0s7fViv6vGPQ5MtDuCgHBt3RhvFVQKlGxf3A7yQUR3RfRqFcw/exec";
+
+    const tituloQuestao = document.getElementById("tituloQuestao");
+    const codigo = document.getElementById("codigo");
+    const btnVisualg = document.getElementById("btnVisualg");
+    const btnPython = document.getElementById("btnPython");
+    const btnJavaScript = document.getElementById("btnJavaScript");
+    const btnPHP = document.getElementById("btnPHP");
+    const btnC = document.getElementById("btnC");
+    const languageNote = document.getElementById("languageNote");
+    const traceList = document.getElementById("traceList");
+    const hintBox = document.getElementById("hintBox");
+    const answers = document.getElementById("answers");
+    const feedback = document.getElementById("feedback");
+    const score = document.getElementById("score");
+    const bar = document.getElementById("bar");
+    const btnProximo = document.getElementById("btnProximo");
+    const btnDica = document.getElementById("btnDica");
+    const progressText = document.getElementById("progressText");
+    const progressPercent = document.getElementById("progressPercent");
+    const questionCounter = document.getElementById("questionCounter");
+    const app = document.getElementById("app");
+
+    function obterNomeAluno() {
+      let nome = sessionStorage.getItem("nomeAluno");
+      if (!nome) {
+        nome = prompt("Digite seu nome completo para registrar sua atividade:");
+        if (nome && nome.trim() !== "") {
+          nome = nome.trim();
+          sessionStorage.setItem("nomeAluno", nome);
+        } else {
+          nome = "Anônimo";
+        }
+      }
+      return nome;
+    }
+
+    async function registrarResultado(nome, atividade, acertos, total, erros) {
+      const dados = { nome, atividade, acertos, total, erros };
+      try {
+        await fetch(URL_WEBAPP, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dados),
+        });
+        console.log("✅ Registrado:", dados);
+      } catch (erro) {
+        console.error("❌ Erro ao registrar:", erro);
+      }
+    }
+
+    function atualizarUI() {
+      score.innerHTML = `<i class="fas fa-star"></i> Pontos: ${pontos}`;
+      questionCounter.innerText = `Questão ${Math.min(atual + 1, questoes.length)}`;
+      progressText.innerText = `Questão ${Math.min(atual + 1, questoes.length)} de ${questoes.length}`;
+      const percent = ((atual + (respondeu ? 1 : 0)) / questoes.length) * 100;
+      bar.style.width = `${percent}%`;
+      progressPercent.innerText = `${Math.round(percent)}% concluído`;
+    }
+
+    function renderizarRastros(rastros) {
+      traceList.innerHTML = rastros.map(([etapa, texto]) => `
+        <div class="trace-item">
+          <div class="trace-step">${etapa}</div>
+          <div class="trace-value">${texto}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderizarOpcoes(opcoes) {
+      answers.innerHTML = "";
+      const letras = ["A", "B", "C", "D"];
+      opcoes.forEach((opcao, indice) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "answer-btn";
+        btn.innerHTML = `
+          <span class="answer-pill">${letras[indice]}</span>
+          <span class="answer-text">${opcao}</span>
+        `;
+        btn.onclick = () => responder(indice);
+        answers.appendChild(btn);
+      });
+    }
+
+    function atualizarCodigo() {
+      const q = questoes[atual];
+      [btnVisualg, btnPython, btnJavaScript, btnPHP, btnC].forEach((btn) => btn.classList.remove("active"));
+
+      if (linguagemAtual === "python") {
+        codigo.textContent = q.codigoPython;
+        btnPython.classList.add("active");
+        languageNote.innerHTML = 'Python usa <strong>for</strong> com <strong>range</strong>. Atenção: no range, o valor final geralmente não entra.';
+      } else if (linguagemAtual === "javascript") {
+        codigo.textContent = q.codigoJS;
+        btnJavaScript.classList.add("active");
+        languageNote.innerHTML = 'JavaScript usa <strong>for (início; condição; incremento)</strong>, com chaves <strong>{ }</strong>.';
+      } else if (linguagemAtual === "php") {
+        codigo.textContent = q.codigoPHP;
+        btnPHP.classList.add("active");
+        languageNote.innerHTML = 'PHP usa variáveis com <strong>$</strong> e estrutura <strong>for (início; condição; incremento)</strong>.';
+      } else if (linguagemAtual === "c") {
+        codigo.textContent = q.codigoC;
+        btnC.classList.add("active");
+        languageNote.innerHTML = 'C usa <strong>for (início; condição; incremento)</strong>, <strong>printf</strong> para exibir valores e uma estrutura com <strong>main</strong>.';
+      } else {
+        codigo.textContent = q.codigo;
+        btnVisualg.classList.add("active");
+        languageNote.innerHTML = 'Visualg usa <strong>para ... de ... ate ... faca</strong> e fecha com <strong>fimpara</strong>.';
+      }
+    }
+
+    function alternarLinguagem(novaLinguagem) {
+      linguagemAtual = novaLinguagem;
+      atualizarCodigo();
+    }
+
+    function carregar() {
+      const q = questoes[atual];
+      respondeu = false;
+      dicaVisivel = false;
+      tituloQuestao.innerText = q.titulo;
+      atualizarCodigo();
+      renderizarRastros(q.rastros);
+      renderizarOpcoes(q.opcoes);
+      hintBox.innerHTML = "A dica específica desta questão está oculta. Tente resolver primeiro e só abra se realmente precisar.";
+      feedback.innerHTML = "Selecione uma alternativa para responder.";
+      btnProximo.disabled = true;
+      btnDica.disabled = false;
+      btnDica.innerHTML = `<i class="fas fa-lightbulb"></i> Mostrar dica`;
+      atualizarUI();
+    }
+
+    function responder(indice) {
+      if (respondeu) return;
+      respondeu = true;
+      const q = questoes[atual];
+      const botoes = Array.from(document.querySelectorAll(".answer-btn"));
+      botoes.forEach(btn => btn.disabled = true);
+
+      if (indice === q.correta) {
+        pontos++;
+        botoes[indice].classList.add("correct");
+        feedback.innerHTML = `<span class="correct-text">✔ Correto!</span> ${q.explicacao}`;
+      } else {
+        erros++;
+        botoes[indice].classList.add("wrong");
+        botoes[q.correta].classList.add("correct");
+        feedback.innerHTML = `<span class="error-text">✖ Errado.</span> ${q.explicacao}`;
+      }
+
+      btnProximo.disabled = false;
+      atualizarUI();
+    }
+
+    function mostrarDica() {
+      const q = questoes[atual];
+      dicaVisivel = !dicaVisivel;
+      if (dicaVisivel) {
+        hintBox.innerHTML = `<strong>Dica:</strong> ${q.dica}`;
+        btnDica.innerHTML = `<i class="fas fa-eye-slash"></i> Ocultar dica`;
+      } else {
+        hintBox.innerHTML = "A dica específica desta questão está oculta. Tente resolver primeiro e só abra se realmente precisar.";
+        btnDica.innerHTML = `<i class="fas fa-lightbulb"></i> Mostrar dica`;
+      }
+    }
+
+    function mostrarFinal() {
+      app.innerHTML = `
+        <section class="end-screen">
+          <div class="end-card">
+            <div class="end-icon"><i class="fas fa-repeat"></i></div>
+            <h1>Simulador concluído!</h1>
+            <p>Você finalizou a atividade sobre <strong>estrutura de repetição para</strong>. Esse objeto foi pensado para comparar repetições controladas em Visualg, Python, JavaScript, PHP e C.</p>
+
+            <div class="end-stats">
+              <div class="end-stat">
+                <strong>${pontos}</strong>
+                <span>Acertos</span>
+              </div>
+              <div class="end-stat">
+                <strong>${erros}</strong>
+                <span>Erros</span>
+              </div>
+              <div class="end-stat">
+                <strong>${questoes.length}</strong>
+                <span>Questões</span>
+              </div>
+            </div>
+
+            <div class="end-actions">
+              <a class="btn btn-primary" href="objetos.html"><i class="fas fa-cubes"></i> Explorar objetos</a>
+            </div>
+
+            <div class="end-secondary">
+              <a href="index.html">Voltar ao início</a>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function proxima() {
+      if (!respondeu) return;
+      atual++;
+      if (atual >= questoes.length) {
+        if (!jaRegistrou) {
+          jaRegistrou = true;
+          const nome = obterNomeAluno();
+          registrarResultado(nome, NOME_ATIVIDADE, pontos, questoes.length, erros);
+        }
+        mostrarFinal();
+        return;
+      }
+      carregar();
+    }
+
+    btnProximo.onclick = proxima;
+    btnDica.onclick = mostrarDica;
+    btnVisualg.onclick = () => alternarLinguagem("visualg");
+    btnPython.onclick = () => alternarLinguagem("python");
+    btnJavaScript.onclick = () => alternarLinguagem("javascript");
+    btnPHP.onclick = () => alternarLinguagem("php");
+    btnC.onclick = () => alternarLinguagem("c");
+
+    carregar();
+  </script>
+</body>
+</html>
