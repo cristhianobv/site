@@ -1,0 +1,912 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulador Visual do Enquanto | Prof. Cristhiano Vasconcellos</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <style>
+    :root {
+      --text: #0f172a;
+      --text-soft: #475569;
+      --text-muted: #64748b;
+      --border: rgba(15, 23, 42, 0.08);
+      --primary: #22c55e;
+      --primary-hover: #16a34a;
+      --primary-active: #15803d;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 18px 40px rgba(15, 23, 42, 0.08);
+      --radius-lg: 28px;
+      --radius-md: 22px;
+      --container: 1120px;
+      --transition: 220ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(34, 197, 94, 0.08), transparent 24%),
+        radial-gradient(circle at 90% 20%, rgba(14, 165, 233, 0.08), transparent 20%),
+        linear-gradient(180deg, #fcfefe 0%, #f8fafc 30%, #f4f8fb 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(circle at center, black 35%, transparent 85%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page-wrap {
+      padding: 20px 0 36px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .container {
+      width: min(var(--container), calc(100% - 36px));
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .back-link:hover {
+      color: var(--text);
+    }
+
+    .example-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid var(--border);
+      color: var(--text-soft);
+      box-shadow: var(--shadow-sm);
+      font-weight: 700;
+    }
+
+    .hero {
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1;
+      letter-spacing: -0.05em;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      color: var(--text-soft);
+      font-size: 1rem;
+      line-height: 1.65;
+      max-width: 880px;
+    }
+
+    .progress-wrap {
+      margin-bottom: 18px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      flex-wrap: wrap;
+    }
+
+    .progress {
+      width: 100%;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 25%;
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      border-radius: inherit;
+      transition: width var(--transition);
+    }
+
+    .activity-card {
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(34, 197, 94, .10);
+      color: var(--primary-active);
+      border: 1px solid rgba(34, 197, 94, .16);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: .9rem;
+      font-weight: 700;
+    }
+
+    .example-counter {
+      color: var(--text-muted);
+      font-size: .95rem;
+      font-weight: 700;
+    }
+
+    .example-title {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.45rem;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+    }
+
+    .example-description {
+      color: var(--text-soft);
+      line-height: 1.65;
+      margin-bottom: 16px;
+      max-width: 920px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .code-block,
+    .sim-card {
+      background: rgba(255,255,255,.78);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .code-block {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 18px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 13px;
+      line-height: 1.75;
+      white-space: pre;
+      overflow-x: auto;
+      min-height: 315px;
+      text-align: left;
+    }
+
+    .code-line {
+      display: block;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .code-line.active {
+      background: rgba(34, 197, 94, 0.18);
+      color: #bbf7d0;
+      outline: 1px solid rgba(34, 197, 94, 0.28);
+    }
+
+    .sim-card {
+      padding: 18px;
+    }
+
+    .card-subtitle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      color: var(--text-soft);
+      font-weight: 700;
+      font-size: .95rem;
+    }
+
+    .state-list {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .state-item {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: rgba(248,250,252,.9);
+      border: 1px solid rgba(15,23,42,.06);
+    }
+
+    .state-label {
+      font-size: .82rem;
+      font-weight: 800;
+      color: var(--primary-active);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .state-value {
+      color: var(--text);
+      font-weight: 600;
+      line-height: 1.55;
+    }
+
+    .output {
+      min-height: 58px;
+      background: rgba(248,250,252,.9);
+      border: 1px dashed rgba(15,23,42,.16);
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-family: "JetBrains Mono", monospace;
+      line-height: 1.6;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    .hint-box {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(34,197,94,.06);
+      border: 1px solid rgba(34,197,94,.16);
+      color: var(--text-soft);
+      line-height: 1.6;
+      font-size: .95rem;
+    }
+
+    .alert-box {
+      display: none;
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #9a3412;
+      line-height: 1.6;
+      font-size: .95rem;
+    }
+
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      padding: 14px 22px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.96rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      color: #052e16;
+      box-shadow: 0 14px 28px rgba(34,197,94,.22);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,.9);
+      color: var(--text-soft);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none;
+    }
+
+    .microcopy {
+      color: var(--text-muted);
+      font-size: .9rem;
+      text-align: center;
+      margin-top: 12px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        width: min(var(--container), calc(100% - 20px));
+      }
+
+      .activity-card {
+        padding: 16px;
+        border-radius: 22px;
+      }
+
+      .state-item {
+        grid-template-columns: 1fr;
+      }
+
+      .code-block,
+      .sim-card {
+        border-radius: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page-wrap">
+    <div class="container">
+
+      <div class="topbar">
+        <a class="back-link" href="objetos.html">
+          <i class="fas fa-arrow-left"></i>
+          Voltar aos objetos
+        </a>
+
+        <div id="exampleChip" class="example-chip">
+          <i class="fas fa-repeat"></i>
+          Exemplo 1 de 4
+        </div>
+      </div>
+
+      <section class="hero">
+        <h1>Simulador Visual do Enquanto</h1>
+        <p>
+          Acompanhe passo a passo como uma estrutura de repetição testa uma condição,
+          executa comandos, atualiza variáveis e decide se continua repetindo ou se encerra.
+        </p>
+      </section>
+
+      <section class="progress-wrap">
+        <div class="progress-label">
+          <span id="progressText">Exemplo 1 de 4</span>
+          <span id="progressPercent">25% do percurso</span>
+        </div>
+        <div class="progress">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+      </section>
+
+      <section class="activity-card">
+        <div class="card-header">
+          <div class="section-tag">
+            <i class="fas fa-shoe-prints"></i>
+            Execução passo a passo
+          </div>
+
+          <div id="exampleCounter" class="example-counter">
+            Exemplo 1
+          </div>
+        </div>
+
+        <h2 id="titulo" class="example-title"></h2>
+        <p id="descricao" class="example-description"></p>
+
+        <div class="layout">
+          <div>
+            <pre id="codigo" class="code-block"></pre>
+          </div>
+
+          <div>
+            <div class="sim-card">
+              <div class="card-subtitle">
+                <i class="fas fa-microchip"></i>
+                Estado da execução
+              </div>
+
+              <div class="state-list">
+                <div class="state-item">
+                  <div class="state-label">Variáveis</div>
+                  <div id="variaveis" class="state-value">-</div>
+                </div>
+
+                <div class="state-item">
+                  <div class="state-label">Condição</div>
+                  <div id="condicao" class="state-value">-</div>
+                </div>
+
+                <div class="state-item">
+                  <div class="state-label">Passo atual</div>
+                  <div id="passoAtual" class="state-value">Clique em “Próximo passo”.</div>
+                </div>
+              </div>
+
+              <div class="card-subtitle">
+                <i class="fas fa-terminal"></i>
+                Saída
+              </div>
+
+              <div id="saida" class="output"></div>
+
+              <div id="hintBox" class="hint-box"></div>
+              <div id="alerta" class="alert-box"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="btnPasso" class="btn btn-primary" type="button" onclick="proximoPasso()">
+            <i class="fas fa-forward-step"></i>
+            Próximo passo
+          </button>
+
+          <button class="btn btn-secondary" type="button" onclick="reiniciar()">
+            <i class="fas fa-rotate-left"></i>
+            Reiniciar exemplo
+          </button>
+
+          <button id="btnProximoExemplo" class="btn btn-secondary" type="button" onclick="proximoExemplo()">
+            <i class="fas fa-arrow-right"></i>
+            Ir para o próximo exemplo
+          </button>
+        </div>
+
+        <div class="microcopy">
+          Dica: no <strong>enquanto</strong>, a condição é testada antes de executar o bloco.
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const exemplos = [
+      {
+        titulo: "Exemplo 1: contador de 1 até 5",
+        descricao: "Este primeiro exemplo mostra a ideia básica do enquanto: testar a condição, executar o bloco, atualizar a variável e voltar para testar novamente.",
+        codigo: [
+          'algoritmo "contador"',
+          'var',
+          '   contador: inteiro',
+          '',
+          'inicio',
+          '   contador <- 1',
+          '',
+          '   enquanto (contador <= 5) faca',
+          '      escreval(contador)',
+          '      contador <- contador + 1',
+          '   fimenquanto',
+          '',
+          'fimalgoritmo'
+        ],
+        dica: "Observe que o contador aumenta dentro do enquanto. Sem essa atualização, a repetição poderia não terminar.",
+        criarEstado: () => ({
+          fase: 0,
+          contador: undefined,
+          condicao: "-",
+          saida: "",
+          linha: -1,
+          finalizado: false
+        }),
+        passo: (e) => {
+          if (e.fase === 0) {
+            e.contador = 1;
+            e.linha = 5;
+            e.passoTexto = "A variável contador recebe o valor inicial 1.";
+            e.fase = 1;
+          } else if (e.fase === 1) {
+            e.linha = 7;
+            const ok = e.contador <= 5;
+            e.condicao = ok ? "contador <= 5 é verdadeiro" : "contador <= 5 é falso";
+            e.passoTexto = ok ? "A condição é verdadeira, então o bloco será executado." : "A condição é falsa, então o enquanto termina.";
+            e.fase = ok ? 2 : 4;
+          } else if (e.fase === 2) {
+            e.linha = 8;
+            e.saida += e.contador + " ";
+            e.passoTexto = "O algoritmo escreve o valor atual do contador.";
+            e.fase = 3;
+          } else if (e.fase === 3) {
+            e.linha = 9;
+            e.contador++;
+            e.passoTexto = "O contador aumenta 1. Depois o algoritmo volta para testar a condição.";
+            e.fase = 1;
+          } else {
+            e.linha = 10;
+            e.passoTexto = "Fim da repetição.";
+            e.finalizado = true;
+          }
+        },
+        variaveis: (e) => `contador = ${e.contador ?? "-"}`
+      },
+
+      {
+        titulo: "Exemplo 2: contagem regressiva",
+        descricao: "Agora a variável começa em 5 e diminui a cada repetição. Isso ajuda a perceber que atualizar a variável não significa sempre somar.",
+        codigo: [
+          'algoritmo "regressiva"',
+          'var',
+          '   numero: inteiro',
+          '',
+          'inicio',
+          '   numero <- 5',
+          '',
+          '   enquanto (numero >= 1) faca',
+          '      escreval(numero)',
+          '      numero <- numero - 1',
+          '   fimenquanto',
+          '',
+          'fimalgoritmo'
+        ],
+        dica: "Como a condição usa numero >= 1, a variável precisa diminuir para que em algum momento a condição fique falsa.",
+        criarEstado: () => ({
+          fase: 0,
+          numero: undefined,
+          condicao: "-",
+          saida: "",
+          linha: -1,
+          finalizado: false
+        }),
+        passo: (e) => {
+          if (e.fase === 0) {
+            e.numero = 5;
+            e.linha = 5;
+            e.passoTexto = "A variável numero recebe o valor inicial 5.";
+            e.fase = 1;
+          } else if (e.fase === 1) {
+            e.linha = 7;
+            const ok = e.numero >= 1;
+            e.condicao = ok ? "numero >= 1 é verdadeiro" : "numero >= 1 é falso";
+            e.passoTexto = ok ? "A condição é verdadeira, então o bloco será executado." : "A condição é falsa, então a repetição termina.";
+            e.fase = ok ? 2 : 4;
+          } else if (e.fase === 2) {
+            e.linha = 8;
+            e.saida += e.numero + " ";
+            e.passoTexto = "O algoritmo escreve o valor atual de numero.";
+            e.fase = 3;
+          } else if (e.fase === 3) {
+            e.linha = 9;
+            e.numero--;
+            e.passoTexto = "A variável numero diminui 1. Depois o algoritmo volta para testar a condição.";
+            e.fase = 1;
+          } else {
+            e.linha = 10;
+            e.passoTexto = "Fim da repetição.";
+            e.finalizado = true;
+          }
+        },
+        variaveis: (e) => `numero = ${e.numero ?? "-"}`
+      },
+
+      {
+        titulo: "Exemplo 3: acumulador com soma",
+        descricao: "Este exemplo avança um pouco mais: além do contador, existe uma variável soma que acumula valores durante a repetição.",
+        codigo: [
+          'algoritmo "soma_com_enquanto"',
+          'var',
+          '   contador, soma: inteiro',
+          '',
+          'inicio',
+          '   contador <- 1',
+          '   soma <- 0',
+          '',
+          '   enquanto (contador <= 4) faca',
+          '      soma <- soma + contador',
+          '      contador <- contador + 1',
+          '   fimenquanto',
+          '',
+          '   escreval(soma)',
+          '',
+          'fimalgoritmo'
+        ],
+        dica: "A variável soma guarda o total acumulado. Ela não substitui o contador; as duas variáveis trabalham juntas.",
+        criarEstado: () => ({
+          fase: 0,
+          contador: undefined,
+          soma: undefined,
+          condicao: "-",
+          saida: "",
+          linha: -1,
+          finalizado: false
+        }),
+        passo: (e) => {
+          if (e.fase === 0) {
+            e.contador = 1;
+            e.linha = 5;
+            e.passoTexto = "A variável contador recebe o valor inicial 1.";
+            e.fase = 0.5;
+          } else if (e.fase === 0.5) {
+            e.soma = 0;
+            e.linha = 6;
+            e.passoTexto = "A variável soma começa em 0.";
+            e.fase = 1;
+          } else if (e.fase === 1) {
+            e.linha = 8;
+            const ok = e.contador <= 4;
+            e.condicao = ok ? "contador <= 4 é verdadeiro" : "contador <= 4 é falso";
+            e.passoTexto = ok ? "A condição é verdadeira. O algoritmo entra no bloco." : "A condição é falsa. O enquanto termina.";
+            e.fase = ok ? 2 : 4;
+          } else if (e.fase === 2) {
+            e.linha = 9;
+            e.soma += e.contador;
+            e.passoTexto = "A soma recebe ela mesma mais o valor do contador.";
+            e.fase = 3;
+          } else if (e.fase === 3) {
+            e.linha = 10;
+            e.contador++;
+            e.passoTexto = "O contador aumenta 1 para avançar a repetição.";
+            e.fase = 1;
+          } else if (e.fase === 4) {
+            e.linha = 13;
+            e.saida = String(e.soma);
+            e.passoTexto = "Depois do enquanto, o algoritmo escreve o valor final da soma.";
+            e.fase = 5;
+          } else {
+            e.linha = 15;
+            e.passoTexto = "Fim do algoritmo.";
+            e.finalizado = true;
+          }
+        },
+        variaveis: (e) => `contador = ${e.contador ?? "-"} | soma = ${e.soma ?? "-"}`
+      },
+
+      {
+        titulo: "Exemplo 4: cuidado com loop infinito",
+        descricao: "Este exemplo mostra um erro comum: esquecer de atualizar a variável dentro do enquanto. Assim, a condição pode continuar verdadeira indefinidamente.",
+        codigo: [
+          'algoritmo "loop_infinito"',
+          'var',
+          '   contador: inteiro',
+          '',
+          'inicio',
+          '   contador <- 1',
+          '',
+          '   enquanto (contador <= 5) faca',
+          '      escreval(contador)',
+          '      // faltou atualizar o contador',
+          '   fimenquanto',
+          '',
+          'fimalgoritmo'
+        ],
+        dica: "Como contador continua valendo 1, a condição contador <= 5 nunca deixa de ser verdadeira.",
+        criarEstado: () => ({
+          fase: 0,
+          contador: undefined,
+          condicao: "-",
+          saida: "",
+          linha: -1,
+          finalizado: false,
+          ciclos: 0
+        }),
+        passo: (e) => {
+          if (e.fase === 0) {
+            e.contador = 1;
+            e.linha = 5;
+            e.passoTexto = "A variável contador recebe o valor inicial 1.";
+            e.fase = 1;
+          } else if (e.fase === 1) {
+            e.linha = 7;
+            e.condicao = "contador <= 5 é verdadeiro";
+            e.passoTexto = "A condição é verdadeira, então o bloco será executado.";
+            e.fase = 2;
+          } else if (e.fase === 2) {
+            e.linha = 8;
+            e.saida += e.contador + " ";
+            e.passoTexto = "O algoritmo escreve contador. Mas repare: contador continua valendo 1.";
+            e.fase = 3;
+          } else if (e.fase === 3) {
+            e.linha = 9;
+            e.ciclos++;
+            e.passoTexto = "Aqui deveria existir uma atualização, como contador <- contador + 1.";
+            e.fase = 1;
+
+            if (e.ciclos >= 3) {
+              e.finalizado = true;
+              e.alerta = "Atenção: a simulação foi interrompida para evitar um loop infinito. Como o contador não muda, a condição continua verdadeira.";
+            }
+          }
+        },
+        variaveis: (e) => `contador = ${e.contador ?? "-"}`
+      }
+    ];
+
+    let indiceAtual = 0;
+    let estado = null;
+
+    const titulo = document.getElementById("titulo");
+    const descricao = document.getElementById("descricao");
+    const codigo = document.getElementById("codigo");
+    const variaveis = document.getElementById("variaveis");
+    const condicao = document.getElementById("condicao");
+    const passoAtual = document.getElementById("passoAtual");
+    const saida = document.getElementById("saida");
+    const hintBox = document.getElementById("hintBox");
+    const alerta = document.getElementById("alerta");
+    const exampleChip = document.getElementById("exampleChip");
+    const exampleCounter = document.getElementById("exampleCounter");
+    const progressText = document.getElementById("progressText");
+    const progressPercent = document.getElementById("progressPercent");
+    const progressBar = document.getElementById("progressBar");
+    const btnPasso = document.getElementById("btnPasso");
+    const btnProximoExemplo = document.getElementById("btnProximoExemplo");
+
+    function renderCodigo(linhas) {
+      codigo.innerHTML = linhas
+        .map((linha, i) => `<span class="code-line" id="linha-${i}">${escapeHtml(linha)}</span>`)
+        .join("\n");
+    }
+
+    function escapeHtml(texto) {
+      return texto
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;");
+    }
+
+    function carregarExemplo() {
+      const exemplo = exemplos[indiceAtual];
+      estado = exemplo.criarEstado();
+
+      titulo.innerText = exemplo.titulo;
+      descricao.innerText = exemplo.descricao;
+      hintBox.innerHTML = `<strong>Observe:</strong> ${exemplo.dica}`;
+
+      renderCodigo(exemplo.codigo);
+      atualizarBarra();
+      atualizarTela();
+
+      alerta.style.display = "none";
+      alerta.innerText = "";
+
+      btnPasso.disabled = false;
+
+      if (indiceAtual === exemplos.length - 1) {
+        btnProximoExemplo.innerHTML = `<i class="fas fa-check"></i> Finalizar percurso`;
+      } else {
+        btnProximoExemplo.innerHTML = `<i class="fas fa-arrow-right"></i> Ir para o próximo exemplo`;
+      }
+    }
+
+    function atualizarBarra() {
+      const atual = indiceAtual + 1;
+      const total = exemplos.length;
+      const percent = (atual / total) * 100;
+
+      exampleChip.innerHTML = `<i class="fas fa-repeat"></i> Exemplo ${atual} de ${total}`;
+      exampleCounter.innerText = `Exemplo ${atual}`;
+      progressText.innerText = `Exemplo ${atual} de ${total}`;
+      progressPercent.innerText = `${Math.round(percent)}% do percurso`;
+      progressBar.style.width = `${percent}%`;
+    }
+
+    function limparDestaque() {
+      document.querySelectorAll(".code-line").forEach((linha) => {
+        linha.classList.remove("active");
+      });
+    }
+
+    function atualizarTela() {
+      const exemplo = exemplos[indiceAtual];
+
+      limparDestaque();
+
+      if (estado.linha >= 0) {
+        const linha = document.getElementById(`linha-${estado.linha}`);
+        if (linha) linha.classList.add("active");
+      }
+
+      variaveis.innerText = exemplo.variaveis(estado);
+      condicao.innerText = estado.condicao || "-";
+      passoAtual.innerText = estado.passoTexto || "Clique em “Próximo passo”.";
+      saida.innerText = estado.saida || "";
+
+      if (estado.alerta) {
+        alerta.style.display = "block";
+        alerta.innerText = estado.alerta;
+      }
+
+      if (estado.finalizado) {
+        btnPasso.disabled = true;
+      }
+    }
+
+    function proximoPasso() {
+      if (estado.finalizado) return;
+
+      const exemplo = exemplos[indiceAtual];
+      exemplo.passo(estado);
+      atualizarTela();
+    }
+
+    function reiniciar() {
+      carregarExemplo();
+    }
+
+    function proximoExemplo() {
+      if (indiceAtual < exemplos.length - 1) {
+        indiceAtual++;
+        carregarExemplo();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        indiceAtual = 0;
+        carregarExemplo();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+
+    carregarExemplo();
+  </script>
+</body>
+</html>
