@@ -1,0 +1,1141 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulador de Acumuladores | Prof. Cristhiano Vasconcellos</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <style>
+    :root {
+      --text: #0f172a;
+      --text-soft: #475569;
+      --text-muted: #64748b;
+      --border: rgba(15, 23, 42, 0.08);
+      --primary: #22c55e;
+      --primary-hover: #16a34a;
+      --primary-active: #15803d;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 18px 40px rgba(15, 23, 42, 0.08);
+      --radius-lg: 28px;
+      --radius-md: 22px;
+      --container: 1120px;
+      --transition: 220ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(34, 197, 94, 0.08), transparent 24%),
+        radial-gradient(circle at 90% 20%, rgba(14, 165, 233, 0.08), transparent 20%),
+        linear-gradient(180deg, #fcfefe 0%, #f8fafc 30%, #f4f8fb 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(circle at center, black 35%, transparent 85%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .page-wrap { padding: 20px 0 36px; position: relative; z-index: 1; }
+    .container { width: min(var(--container), calc(100% - 36px)); margin: 0 auto; position: relative; z-index: 1; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .back-link:hover { color: var(--text); }
+
+    .score-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid var(--border);
+      color: var(--text-soft);
+      box-shadow: var(--shadow-sm);
+      font-weight: 700;
+    }
+
+    .hero { margin-bottom: 16px; }
+    .hero h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1;
+      letter-spacing: -0.05em;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      color: var(--text-soft);
+      font-size: 1rem;
+      line-height: 1.65;
+      max-width: 860px;
+    }
+
+    .progress-wrap {
+      margin-bottom: 18px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      flex-wrap: wrap;
+    }
+
+    .progress {
+      width: 100%;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      border-radius: inherit;
+      transition: width var(--transition);
+    }
+
+    .activity-card {
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(34, 197, 94, .10);
+      color: var(--primary-active);
+      border: 1px solid rgba(34, 197, 94, .16);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: .9rem;
+      font-weight: 700;
+    }
+
+    .question-counter {
+      color: var(--text-muted);
+      font-size: .95rem;
+      font-weight: 700;
+    }
+
+    .question-title {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.02fr 0.98fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .code-block, .table-card, .answers-card {
+      background: rgba(255,255,255,.78);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .code-block {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 18px;
+      font-family: "JetBrains Mono", monospace;
+      font-variant-ligatures: none;
+      font-feature-settings: "liga" 0;
+      font-size: 13px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      min-height: 330px;
+      text-align: left;
+    }
+
+    .table-card, .answers-card { padding: 18px; }
+
+    .card-subtitle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      color: var(--text-soft);
+      font-weight: 700;
+      font-size: .95rem;
+    }
+
+    .mesa-table-wrap {
+      overflow-x: auto;
+      border-radius: 18px;
+      border: 1px solid rgba(15,23,42,.06);
+      margin-bottom: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 440px;
+      background: rgba(255,255,255,.92);
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(15,23,42,.06);
+      text-align: left;
+      font-size: .92rem;
+      line-height: 1.45;
+    }
+
+    th {
+      color: var(--primary-active);
+      background: rgba(34,197,94,.08);
+      font-weight: 800;
+      font-size: .82rem;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    td strong {
+      color: var(--text);
+      font-family: "JetBrains Mono", monospace;
+      font-size: .88rem;
+    }
+
+    .empty-cell {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 74px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(217, 119, 6, .08);
+      border: 1px dashed rgba(217, 119, 6, .35);
+      color: var(--warning);
+      font-weight: 800;
+      font-family: "JetBrains Mono", monospace;
+    }
+
+    .concept-box {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(34,197,94,.06);
+      border: 1px solid rgba(34,197,94,.16);
+      color: var(--text-soft);
+      line-height: 1.6;
+      font-size: .95rem;
+    }
+
+    .answers { display: grid; gap: 12px; }
+
+    .answer-btn {
+      width: 100%;
+      border: 1px solid rgba(15,23,42,.08);
+      border-radius: 22px;
+      background: rgba(255,255,255,.98);
+      padding: 16px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      text-align: left;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 8px 24px rgba(15,23,42,.04);
+      color: var(--text);
+      font-size: 0.98rem;
+      font-weight: 600;
+    }
+
+    .answer-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 32px rgba(15,23,42,.08);
+      border-color: rgba(34,197,94,.45);
+    }
+
+    .answer-btn:disabled { cursor: default; opacity: 1; }
+
+    .answer-btn.correct {
+      border-color: rgba(34,197,94,.45);
+      background: rgba(34,197,94,.07);
+    }
+
+    .answer-btn.wrong {
+      border-color: rgba(220,38,38,.28);
+      background: rgba(220,38,38,.05);
+    }
+
+    .answer-pill {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34,197,94,.12);
+      color: var(--primary-active);
+      font-weight: 800;
+      flex: 0 0 auto;
+    }
+
+    .answer-text { flex: 1; padding-top: 4px; line-height: 1.55; }
+
+    .feedback-area {
+      min-height: 28px;
+      margin-top: 16px;
+      text-align: center;
+      font-size: 1rem;
+      color: var(--text-soft);
+      line-height: 1.6;
+    }
+
+    .correct-text { color: #15803d; font-weight: 700; }
+    .error-text { color: var(--danger); font-weight: 700; }
+
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      padding: 14px 22px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.96rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      color: #052e16;
+      box-shadow: 0 14px 28px rgba(34,197,94,.22);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,.9);
+      color: var(--text-soft);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn:hover:not(:disabled) { transform: translateY(-2px); }
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none;
+    }
+
+    .microcopy {
+      color: var(--text-muted);
+      font-size: .9rem;
+      text-align: center;
+      margin-top: 12px;
+      line-height: 1.6;
+    }
+
+    .end-screen {
+      min-height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0;
+    }
+
+    .end-card {
+      width: min(760px, 100%);
+      background: rgba(255,255,255,.94);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      border-radius: 32px;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .end-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34,197,94,.12);
+      color: var(--primary-active);
+      font-size: 1.8rem;
+      margin-bottom: 14px;
+    }
+
+    .end-card h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+      margin-bottom: 10px;
+    }
+
+    .end-card p {
+      color: var(--text-soft);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .end-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .end-stat {
+      background: rgba(255,255,255,.84);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .end-stat strong {
+      display: block;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.6rem;
+      margin-bottom: 4px;
+    }
+
+    .end-stat span {
+      color: var(--text-muted);
+      font-size: .9rem;
+    }
+
+    .end-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 16px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .end-secondary {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .end-secondary a {
+      font-size: .9rem;
+      color: #64748b;
+      transition: .2s;
+    }
+
+    .end-secondary a:hover { color: #0f172a; }
+
+    @media (max-width: 920px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .container { width: min(var(--container), calc(100% - 20px)); }
+      .page-wrap { padding-top: 14px; }
+      .activity-card { padding: 16px; border-radius: 22px; }
+      .code-block, .table-card, .answers-card, .answer-btn { border-radius: 18px; }
+      .end-stats { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-wrap">
+    <div class="container" id="app">
+      <div class="topbar">
+        <a class="back-link" href="objetos.html"><i class="fas fa-arrow-left"></i> Voltar aos objetos</a>
+        <div id="score" class="score-chip"><i class="fas fa-star"></i> Pontos: 0</div>
+      </div>
+
+      <section class="hero">
+        <h1>Simulador de Acumuladores</h1>
+        <p>Leia o algoritmo, acompanhe a tabela de execução e descubra como variáveis acumuladoras e contadoras mudam a cada repetição. O foco é entender o passo a passo de operações como soma, contagem e média.</p>
+      </section>
+
+      <section class="progress-wrap">
+        <div class="progress-label">
+          <span id="progressText">Questão 1 de 10</span>
+          <span id="progressPercent">0% concluído</span>
+        </div>
+        <div class="progress"><div id="bar" class="progress-bar"></div></div>
+      </section>
+
+      <section class="activity-card">
+        <div class="card-header">
+          <div class="section-tag"><i class="fas fa-calculator"></i> Acumuladores e contadores</div>
+          <div id="questionCounter" class="question-counter">Questão 1</div>
+        </div>
+
+        <div id="tituloQuestao" class="question-title"></div>
+
+        <div class="layout">
+          <div>
+            <pre id="codigo" class="code-block"></pre>
+          </div>
+
+          <div>
+            <div class="table-card">
+              <div class="card-subtitle"><i class="fas fa-table"></i> Teste de mesa guiado</div>
+              <div class="mesa-table-wrap">
+                <table>
+                  <thead id="tableHead"></thead>
+                  <tbody id="tableBody"></tbody>
+                </table>
+              </div>
+              <div id="conceptBox" class="concept-box"></div>
+            </div>
+
+            <div class="answers-card" style="margin-top: 14px;">
+              <div class="card-subtitle"><i class="fas fa-check-circle"></i> Escolha sua resposta</div>
+              <div class="answers" id="answers"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="feedback" class="feedback-area">Selecione uma alternativa para responder.</div>
+
+        <div class="actions">
+          <button id="btnDica" class="btn btn-secondary" type="button">
+            <i class="fas fa-lightbulb"></i>
+            Mostrar dica
+          </button>
+
+          <button id="btnProximo" class="btn btn-primary" type="button" disabled>
+            <i class="fas fa-arrow-right"></i>
+            Próximo
+          </button>
+        </div>
+
+        <div class="microcopy">Dica geral: acumulador guarda um resultado parcial; contador normalmente controla ou conta repetições.</div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const questoes = [
+      {
+        titulo: "Observe o acumulador soma. Qual valor será exibido no final?",
+        codigo: `algoritmo "soma_1_a_3"
+var
+   i, soma: inteiro
+
+inicio
+   i <- 1
+   soma <- 0
+
+   enquanto (i <= 3) faca
+      soma <- soma + i
+      i <- i + 1
+   fimenquanto
+
+   escreval(soma)
+
+fimalgoritmo`,
+        colunas: ["Repetição", "i antes", "soma antes", "operação", "soma depois"],
+        linhas: [
+          ["1ª", "1", "0", "0 + 1", "1"],
+          ["2ª", "2", "1", "1 + 2", "3"],
+          ["3ª", "3", "3", "3 + 3", "?"]
+        ],
+        conceito: "A variável soma acumula os valores de i. Ela não volta para zero dentro do laço.",
+        dica: "Some os valores 1, 2 e 3.",
+        opcoes: ["3", "6", "7"],
+        correta: 1,
+        explicacao: "A soma acumula 1 + 2 + 3. Portanto, o valor final exibido é 6."
+      },
+      {
+        titulo: "Agora o acumulador soma apenas números pares. Qual é o resultado final?",
+        codigo: `algoritmo "soma_pares"
+var
+   i, soma: inteiro
+
+inicio
+   i <- 2
+   soma <- 0
+
+   enquanto (i <= 6) faca
+      soma <- soma + i
+      i <- i + 2
+   fimenquanto
+
+   escreval(soma)
+
+fimalgoritmo`,
+        colunas: ["Repetição", "i", "soma antes", "soma depois", "próximo i"],
+        linhas: [
+          ["1ª", "2", "0", "2", "4"],
+          ["2ª", "4", "2", "6", "6"],
+          ["3ª", "6", "6", "?", "8"]
+        ],
+        conceito: "O contador i aumenta de 2 em 2. O acumulador soma guarda 2, depois 2 + 4, depois 2 + 4 + 6.",
+        dica: "Some 2 + 4 + 6.",
+        opcoes: ["10", "12", "14"],
+        correta: 1,
+        explicacao: "O acumulador soma recebe 2 + 4 + 6, totalizando 12."
+      },
+      {
+        titulo: "Neste algoritmo existe um contador de valores positivos. Quantos positivos foram contados?",
+        codigo: `algoritmo "conta_positivos"
+var
+   contador: inteiro
+
+inicio
+   contador <- 0
+
+   // valores analisados: 5, -2, 8, 0
+
+   se (5 > 0) entao
+      contador <- contador + 1
+   fimse
+
+   se (-2 > 0) entao
+      contador <- contador + 1
+   fimse
+
+   se (8 > 0) entao
+      contador <- contador + 1
+   fimse
+
+   se (0 > 0) entao
+      contador <- contador + 1
+   fimse
+
+   escreval(contador)
+
+fimalgoritmo`,
+        colunas: ["Valor", "é > 0?", "contador antes", "contador depois"],
+        linhas: [
+          ["5", "sim", "0", "1"],
+          ["-2", "não", "1", "1"],
+          ["8", "sim", "1", "?"],
+          ["0", "não", "?", "?"]
+        ],
+        conceito: "Contador é uma variável que aumenta quando uma condição acontece.",
+        dica: "Só 5 e 8 são maiores que zero. O zero não é maior que zero.",
+        opcoes: ["2", "3", "4"],
+        correta: 0,
+        explicacao: "Apenas 5 e 8 são positivos. O contador termina com valor 2."
+      },
+      {
+        titulo: "Qual será a média calculada ao final do algoritmo?",
+        codigo: `algoritmo "media"
+var
+   i, soma: inteiro
+   media: real
+
+inicio
+   i <- 1
+   soma <- 0
+
+   enquanto (i <= 3) faca
+      soma <- soma + i
+      i <- i + 1
+   fimenquanto
+
+   media <- soma / 3
+   escreval(media)
+
+fimalgoritmo`,
+        colunas: ["Repetição", "i", "soma antes", "soma depois"],
+        linhas: [
+          ["1ª", "1", "0", "1"],
+          ["2ª", "2", "1", "3"],
+          ["3ª", "3", "3", "6"],
+          ["após o laço", "-", "soma = 6", "media = ?"]
+        ],
+        conceito: "Para calcular média, primeiro acumulamos a soma e depois dividimos pela quantidade de valores.",
+        dica: "A soma final é 6. Depois divida por 3.",
+        opcoes: ["2", "3", "6"],
+        correta: 0,
+        explicacao: "A soma final é 6. Como são 3 valores, a média é 6 / 3 = 2."
+      },
+      {
+        titulo: "Cuidado: o acumulador começa com 10. Qual valor será exibido?",
+        codigo: `algoritmo "soma_com_valor_inicial"
+var
+   i, soma: inteiro
+
+inicio
+   i <- 1
+   soma <- 10
+
+   enquanto (i <= 2) faca
+      soma <- soma + i
+      i <- i + 1
+   fimenquanto
+
+   escreval(soma)
+
+fimalgoritmo`,
+        colunas: ["Repetição", "i", "soma antes", "operação", "soma depois"],
+        linhas: [
+          ["1ª", "1", "10", "10 + 1", "11"],
+          ["2ª", "2", "11", "11 + 2", "?"]
+        ],
+        conceito: "O acumulador não precisa começar sempre em zero. Ele começa no valor definido pelo algoritmo.",
+        dica: "Comece em 10, depois some 1 e depois 2.",
+        opcoes: ["3", "12", "13"],
+        correta: 2,
+        explicacao: "A soma começa em 10. Depois recebe +1 e +2, chegando a 13."
+      },
+      {
+        titulo: "Qual é o erro lógico do algoritmo abaixo?",
+        codigo: `algoritmo "erro_acumulador"
+var
+   i, soma: inteiro
+
+inicio
+   i <- 1
+
+   enquanto (i <= 3) faca
+      soma <- 0
+      soma <- soma + i
+      i <- i + 1
+   fimenquanto
+
+   escreval(soma)
+
+fimalgoritmo`,
+        colunas: ["Repetição", "i", "soma recebe 0?", "soma depois"],
+        linhas: [
+          ["1ª", "1", "sim", "1"],
+          ["2ª", "2", "sim", "2"],
+          ["3ª", "3", "sim", "?"]
+        ],
+        conceito: "Um acumulador geralmente deve ser inicializado antes do laço, não reiniciado a cada repetição.",
+        dica: "Observe que soma recebe 0 dentro do enquanto.",
+        opcoes: [
+          "O acumulador é zerado a cada repetição",
+          "O contador i nunca muda",
+          "O algoritmo não possui variável"
+        ],
+        correta: 0,
+        explicacao: "Como soma recebe 0 dentro do laço, ela perde o valor acumulado nas repetições anteriores."
+      },
+      {
+        titulo: "O algoritmo conta quantos números são maiores ou iguais a 7. Qual será o resultado?",
+        codigo: `algoritmo "conta_aprovados"
+var
+   cont: inteiro
+
+inicio
+   cont <- 0
+
+   // notas analisadas: 8, 4, 7, 10
+
+   se (8 >= 7) entao
+      cont <- cont + 1
+   fimse
+
+   se (4 >= 7) entao
+      cont <- cont + 1
+   fimse
+
+   se (7 >= 7) entao
+      cont <- cont + 1
+   fimse
+
+   se (10 >= 7) entao
+      cont <- cont + 1
+   fimse
+
+   escreval(cont)
+
+fimalgoritmo`,
+        colunas: ["Nota", ">= 7?", "cont antes", "cont depois"],
+        linhas: [
+          ["8", "sim", "0", "1"],
+          ["4", "não", "1", "1"],
+          ["7", "sim", "1", "2"],
+          ["10", "sim", "2", "?"]
+        ],
+        conceito: "Aqui cont é um contador condicional: só aumenta quando a nota atende à condição.",
+        dica: "As notas 8, 7 e 10 entram na contagem.",
+        opcoes: ["2", "3", "4"],
+        correta: 1,
+        explicacao: "As notas 8, 7 e 10 são maiores ou iguais a 7. Logo, o contador termina em 3."
+      },
+      {
+        titulo: "Qual valor final será exibido pelo acumulador produto?",
+        codigo: `algoritmo "produto"
+var
+   i, produto: inteiro
+
+inicio
+   i <- 1
+   produto <- 1
+
+   enquanto (i <= 3) faca
+      produto <- produto * 2
+      i <- i + 1
+   fimenquanto
+
+   escreval(produto)
+
+fimalgoritmo`,
+        colunas: ["Repetição", "produto antes", "operação", "produto depois"],
+        linhas: [
+          ["1ª", "1", "1 * 2", "2"],
+          ["2ª", "2", "2 * 2", "4"],
+          ["3ª", "4", "4 * 2", "?"]
+        ],
+        conceito: "Nem todo acumulador soma. Alguns acumulam por multiplicação.",
+        dica: "O produto dobra três vezes.",
+        opcoes: ["6", "8", "16"],
+        correta: 1,
+        explicacao: "O produto começa em 1 e dobra três vezes: 2, 4 e 8."
+      },
+      {
+        titulo: "Qual valor será exibido depois de somar apenas os ímpares?",
+        codigo: `algoritmo "soma_impares"
+var
+   i, soma: inteiro
+
+inicio
+   i <- 1
+   soma <- 0
+
+   enquanto (i <= 5) faca
+      soma <- soma + i
+      i <- i + 2
+   fimenquanto
+
+   escreval(soma)
+
+fimalgoritmo`,
+        colunas: ["Repetição", "i", "soma antes", "soma depois", "próximo i"],
+        linhas: [
+          ["1ª", "1", "0", "1", "3"],
+          ["2ª", "3", "1", "4", "5"],
+          ["3ª", "5", "4", "?", "7"]
+        ],
+        conceito: "Como i aumenta de 2 em 2 começando em 1, os valores somados são 1, 3 e 5.",
+        dica: "Some 1 + 3 + 5.",
+        opcoes: ["8", "9", "10"],
+        correta: 1,
+        explicacao: "A soma dos ímpares 1, 3 e 5 é 9."
+      },
+      {
+        titulo: "Desafio final: qual é a média dos valores acumulados?",
+        codigo: `algoritmo "media_final"
+var
+   i, soma, contador: inteiro
+   media: real
+
+inicio
+   i <- 2
+   soma <- 0
+   contador <- 0
+
+   enquanto (i <= 6) faca
+      soma <- soma + i
+      contador <- contador + 1
+      i <- i + 2
+   fimenquanto
+
+   media <- soma / contador
+   escreval(media)
+
+fimalgoritmo`,
+        colunas: ["Repetição", "i", "soma depois", "contador depois"],
+        linhas: [
+          ["1ª", "2", "2", "1"],
+          ["2ª", "4", "6", "2"],
+          ["3ª", "6", "12", "3"],
+          ["após o laço", "-", "soma = 12", "contador = 3"]
+        ],
+        conceito: "A média usa dois elementos: acumulador de soma e contador de quantidade.",
+        dica: "A soma é 12 e o contador é 3. Divida 12 por 3.",
+        opcoes: ["3", "4", "6"],
+        correta: 1,
+        explicacao: "A média é soma / contador, ou seja, 12 / 3 = 4."
+      }
+    ];
+
+    let atual = 0;
+    let pontos = 0;
+    let erros = 0;
+    let respondeu = false;
+    let jaRegistrou = false;
+    let dicaVisivel = false;
+
+    const NOME_ATIVIDADE = "Simulador de Acumuladores";
+    const URL_WEBAPP = "https://script.google.com/macros/s/AKfycbzoeygTm-R27yb8QOcdH0s7fViv6vGPQ5MtDuCgHBt3RhvFVQKlGxf3A7yQUR3RfRqFcw/exec";
+
+    const tituloQuestao = document.getElementById("tituloQuestao");
+    const codigo = document.getElementById("codigo");
+    const tableHead = document.getElementById("tableHead");
+    const tableBody = document.getElementById("tableBody");
+    const conceptBox = document.getElementById("conceptBox");
+    const answers = document.getElementById("answers");
+    const feedback = document.getElementById("feedback");
+    const score = document.getElementById("score");
+    const bar = document.getElementById("bar");
+    const btnProximo = document.getElementById("btnProximo");
+    const btnDica = document.getElementById("btnDica");
+    const progressText = document.getElementById("progressText");
+    const progressPercent = document.getElementById("progressPercent");
+    const questionCounter = document.getElementById("questionCounter");
+    const app = document.getElementById("app");
+
+    function obterNomeAluno() {
+      let nome = sessionStorage.getItem("nomeAluno");
+      if (!nome) {
+        nome = prompt("Digite seu nome completo para registrar sua atividade:");
+        if (nome && nome.trim() !== "") {
+          nome = nome.trim();
+          sessionStorage.setItem("nomeAluno", nome);
+        } else {
+          nome = "Anônimo";
+        }
+      }
+      return nome;
+    }
+
+    async function registrarResultado(nome, atividade, acertos, total, erros) {
+      const dados = { nome, atividade, acertos, total, erros };
+      try {
+        await fetch(URL_WEBAPP, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dados),
+        });
+        console.log("✅ Registrado:", dados);
+      } catch (erro) {
+        console.error("❌ Erro ao registrar:", erro);
+      }
+    }
+
+    function atualizarUI() {
+      score.innerHTML = `<i class="fas fa-star"></i> Pontos: ${pontos}`;
+      questionCounter.innerText = `Questão ${Math.min(atual + 1, questoes.length)}`;
+      progressText.innerText = `Questão ${Math.min(atual + 1, questoes.length)} de ${questoes.length}`;
+      const percent = ((atual + (respondeu ? 1 : 0)) / questoes.length) * 100;
+      bar.style.width = `${percent}%`;
+      progressPercent.innerText = `${Math.round(percent)}% concluído`;
+    }
+
+    function valorCelula(valor) {
+      if (valor === "?") {
+        return `<span class="empty-cell">?</span>`;
+      }
+      return `<strong>${valor}</strong>`;
+    }
+
+    function renderizarTabela(q) {
+      tableHead.innerHTML = `
+        <tr>
+          ${q.colunas.map(col => `<th>${col}</th>`).join("")}
+        </tr>
+      `;
+
+      tableBody.innerHTML = q.linhas.map(linha => `
+        <tr>
+          ${linha.map(celula => `<td>${valorCelula(celula)}</td>`).join("")}
+        </tr>
+      `).join("");
+    }
+
+    function renderizarOpcoes(opcoes) {
+      answers.innerHTML = "";
+      const letras = ["A", "B", "C", "D"];
+      opcoes.forEach((opcao, indice) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "answer-btn";
+        btn.innerHTML = `
+          <span class="answer-pill">${letras[indice]}</span>
+          <span class="answer-text">${opcao}</span>
+        `;
+        btn.onclick = () => responder(indice);
+        answers.appendChild(btn);
+      });
+    }
+
+    function carregar() {
+      const q = questoes[atual];
+      respondeu = false;
+      dicaVisivel = false;
+      tituloQuestao.innerText = q.titulo;
+      codigo.textContent = q.codigo;
+      renderizarTabela(q);
+      renderizarOpcoes(q.opcoes);
+      conceptBox.innerHTML = q.conceito;
+      feedback.innerHTML = "Selecione uma alternativa para responder.";
+      btnProximo.disabled = true;
+      btnDica.disabled = false;
+      btnDica.innerHTML = `<i class="fas fa-lightbulb"></i> Mostrar dica`;
+      atualizarUI();
+    }
+
+    function responder(indice) {
+      if (respondeu) return;
+      respondeu = true;
+
+      const q = questoes[atual];
+      const botoes = Array.from(document.querySelectorAll(".answer-btn"));
+      botoes.forEach(btn => btn.disabled = true);
+
+      if (indice === q.correta) {
+        pontos++;
+        botoes[indice].classList.add("correct");
+        feedback.innerHTML = `<span class="correct-text">✔ Correto!</span> ${q.explicacao}`;
+      } else {
+        erros++;
+        botoes[indice].classList.add("wrong");
+        botoes[q.correta].classList.add("correct");
+        feedback.innerHTML = `<span class="error-text">✖ Errado.</span> ${q.explicacao}`;
+      }
+
+      btnProximo.disabled = false;
+      atualizarUI();
+    }
+
+    function mostrarDica() {
+      const q = questoes[atual];
+      dicaVisivel = !dicaVisivel;
+
+      if (dicaVisivel) {
+        conceptBox.innerHTML = `<strong>Dica:</strong> ${q.dica}`;
+        btnDica.innerHTML = `<i class="fas fa-eye-slash"></i> Ocultar dica`;
+      } else {
+        conceptBox.innerHTML = q.conceito;
+        btnDica.innerHTML = `<i class="fas fa-lightbulb"></i> Mostrar dica`;
+      }
+    }
+
+    function mostrarFinal() {
+      app.innerHTML = `
+        <section class="end-screen">
+          <div class="end-card">
+            <div class="end-icon"><i class="fas fa-calculator"></i></div>
+            <h1>Simulador concluído!</h1>
+            <p>Você finalizou a atividade sobre <strong>acumuladores e contadores</strong>. Esse objeto foi pensado para fortalecer o teste de mesa, a leitura de variáveis e a compreensão de soma, contagem e média passo a passo.</p>
+
+            <div class="end-stats">
+              <div class="end-stat">
+                <strong>${pontos}</strong>
+                <span>Acertos</span>
+              </div>
+              <div class="end-stat">
+                <strong>${erros}</strong>
+                <span>Erros</span>
+              </div>
+              <div class="end-stat">
+                <strong>${questoes.length}</strong>
+                <span>Questões</span>
+              </div>
+            </div>
+
+            <div class="end-actions">
+              <a class="btn btn-primary" href="objetos.html"><i class="fas fa-cubes"></i> Explorar objetos</a>
+            </div>
+
+            <div class="end-secondary">
+              <a href="index.html">Voltar ao início</a>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function proxima() {
+      if (!respondeu) return;
+      atual++;
+
+      if (atual >= questoes.length) {
+        if (!jaRegistrou) {
+          jaRegistrou = true;
+          const nome = obterNomeAluno();
+          registrarResultado(nome, NOME_ATIVIDADE, pontos, questoes.length, erros);
+        }
+        mostrarFinal();
+        return;
+      }
+
+      carregar();
+    }
+
+    btnProximo.onclick = proxima;
+    btnDica.onclick = mostrarDica;
+
+    carregar();
+  </script>
+</body>
+</html>
