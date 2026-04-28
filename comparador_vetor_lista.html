@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Comparador: Vetor Dinâmico x Lista Encadeada | Prof. Cristhiano Vasconcellos</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+    <style>
+      :root {
+        --text: #0f172a;
+        --text-soft: #475569;
+        --text-muted: #64748b;
+        --border: rgba(15, 23, 42, 0.08);
+        --primary: #22c55e;
+        --primary-hover: #16a34a;
+        --primary-active: #15803d;
+        --danger: #dc2626;
+        --warning: #f59e0b;
+        --info: #0ea5e9;
+        --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.05);
+        --shadow-md: 0 18px 40px rgba(15, 23, 42, 0.08);
+        --radius-lg: 28px;
+        --radius-md: 22px;
+        --container: 1120px;
+        --transition: 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
+      body {
+        font-family: "Inter", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(34, 197, 94, 0.08), transparent 24%),
+          radial-gradient(circle at 90% 20%, rgba(14, 165, 233, 0.08), transparent 20%),
+          linear-gradient(180deg, #fcfefe 0%, #f8fafc 30%, #f4f8fb 100%);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+        background-size: 44px 44px;
+        mask-image: radial-gradient(circle at center, black 35%, transparent 85%);
+        pointer-events: none;
+        z-index: 0;
+      }
+      a { color: inherit; text-decoration: none; }
+      .container { width: min(var(--container), calc(100% - 36px)); margin: 0 auto; position: relative; z-index: 1; }
+      .page-wrap { padding: 20px 0 36px; }
+      .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+      .back-link { display: inline-flex; align-items: center; gap: 8px; color: var(--text-soft); font-weight: 600; transition: var(--transition); }
+      .back-link:hover { color: var(--text); }
+      .score-chip { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 999px; background: rgba(255,255,255,.82); border: 1px solid var(--border); color: var(--text-soft); box-shadow: var(--shadow-sm); font-weight: 700; }
+
+      .hero { margin-bottom: 16px; }
+      .hero h1 { font-family: "Space Grotesk", sans-serif; font-size: clamp(2rem, 4vw, 3rem); line-height: 1; letter-spacing: -0.05em; margin-bottom: 8px; }
+      .hero p { color: var(--text-soft); font-size: 1rem; line-height: 1.65; max-width: 880px; }
+
+      .progress-wrap { margin-bottom: 18px; background: rgba(255,255,255,.82); border: 1px solid var(--border); border-radius: 20px; padding: 14px 16px; box-shadow: var(--shadow-sm); }
+      .progress-label { display:flex; justify-content:space-between; gap:12px; margin-bottom:8px; color:var(--text-muted); font-size:.9rem; flex-wrap:wrap; }
+      .progress { width:100%; height:12px; background:#e2e8f0; border-radius:999px; overflow:hidden; }
+      .progress-bar { height:100%; width:0%; background:linear-gradient(135deg,var(--primary) 0%,#34d399 100%); border-radius:inherit; transition:width var(--transition); }
+
+      .activity-card, .side-card, .quiz-card { background: rgba(255,255,255,.92); border: 1px solid var(--border); box-shadow: var(--shadow-md); border-radius: var(--radius-lg); padding: 22px; }
+      .card-header { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:16px; flex-wrap:wrap; }
+      .section-tag { display:inline-flex; align-items:center; gap:8px; background:rgba(34,197,94,.1); color:var(--primary-active); border:1px solid rgba(34,197,94,.16); border-radius:999px; padding:10px 14px; font-size:.9rem; font-weight:700; }
+      .step-counter { color:var(--text-muted); font-size:.95rem; font-weight:700; }
+      .explain { color: var(--text-soft); line-height: 1.7; margin-bottom: 16px; }
+      .highlight { color: var(--primary-active); font-weight: 800; }
+
+      .comparison-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+      .structure-panel { background:rgba(248,250,252,.78); border:1px dashed rgba(15,23,42,.14); border-radius:var(--radius-md); padding:18px; min-height:345px; overflow-x:auto; }
+      .panel-title { display:flex; align-items:center; gap:10px; font-family:"Space Grotesk",sans-serif; font-size:1.1rem; margin-bottom:12px; }
+      .panel-title i { color:var(--primary-active); }
+      .visual-row { display:flex; align-items:center; gap:10px; min-width:420px; padding:18px 2px; }
+      .cell { width:72px; min-width:72px; min-height:78px; border-radius:18px; border:1px solid rgba(15,23,42,.1); background:#fff; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; align-items:center; justify-content:center; transition:var(--transition); position:relative; }
+      .cell .value { font-family:"Space Grotesk",sans-serif; font-size:1.35rem; font-weight:800; }
+      .cell .index { color:var(--text-muted); font-size:.78rem; margin-top:4px; }
+      .cell.active { border-color:rgba(14,165,233,.5); box-shadow:0 18px 34px rgba(14,165,233,.14); animation:pulse 850ms ease-in-out; }
+      .cell.moved { border-color:rgba(245,158,11,.5); background:rgba(245,158,11,.08); animation:shift 900ms ease-in-out; }
+      .cell.added { border-color:rgba(34,197,94,.45); background:rgba(34,197,94,.08); animation:pop 520ms ease-out; }
+      .node { width:92px; min-width:92px; border-radius:22px; border:1px solid rgba(34,197,94,.22); background:#fff; box-shadow:var(--shadow-sm); overflow:hidden; transition:var(--transition); }
+      .node .node-data { text-align:center; padding:14px 8px 10px; font-family:"Space Grotesk",sans-serif; font-size:1.45rem; font-weight:800; }
+      .node .node-next { text-align:center; padding:8px; border-top:1px solid rgba(15,23,42,.08); background:rgba(34,197,94,.08); color:var(--primary-active); font-size:.78rem; font-weight:800; }
+      .node.active { border-color:rgba(14,165,233,.55); box-shadow:0 18px 36px rgba(14,165,233,.15); animation:pulse 850ms ease-in-out; }
+      .node.added { animation:pop 520ms ease-out; background:rgba(34,197,94,.06); }
+      .node.unlink { border-color:rgba(220,38,38,.35); background:rgba(220,38,38,.05); opacity:.45; animation:fadeOut 900ms ease-in-out; }
+      .arrow { color:var(--primary-active); min-width:24px; text-align:center; animation:slideArrow 1.4s ease-in-out infinite; }
+      .null-node { min-width:76px; min-height:64px; border-radius:18px; border:1px solid var(--border); background:rgba(255,255,255,.85); display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-weight:800; box-shadow:var(--shadow-sm); }
+      .operation-box { margin-top:14px; display:grid; gap:10px; }
+      .op-line { padding:12px 14px; border-radius:18px; background:#fff; border:1px solid var(--border); color:var(--text-soft); line-height:1.5; }
+      .op-line strong { color:var(--text); }
+      .op-line.good strong { color:var(--primary-active); }
+      .op-line.warn strong { color:#b45309; }
+
+      @keyframes pop { from{opacity:0; transform:translateY(18px) scale(.92)} to{opacity:1; transform:translateY(0) scale(1)} }
+      @keyframes pulse { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+      @keyframes shift { 0%,100%{transform:translateX(0)} 50%{transform:translateX(18px)} }
+      @keyframes fadeOut { 0%{opacity:1; transform:scale(1)} 100%{opacity:.45; transform:scale(.94)} }
+      @keyframes slideArrow { 0%,100%{transform:translateX(0); opacity:.65} 50%{transform:translateX(5px); opacity:1} }
+
+      .controls { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+      .btn { display:inline-flex; align-items:center; justify-content:center; gap:10px; border:none; cursor:pointer; transition:var(--transition); padding:13px 18px; border-radius:999px; font-weight:800; font-size:.94rem; }
+      .btn-primary { background:linear-gradient(135deg,var(--primary) 0%,#34d399 100%); color:#052e16; box-shadow:0 14px 28px rgba(34,197,94,.22); }
+      .btn-secondary { background:rgba(255,255,255,.95); color:var(--text-soft); border:1px solid var(--border); box-shadow:var(--shadow-sm); }
+      .btn:hover:not(:disabled) { transform:translateY(-2px); }
+      .btn:disabled { opacity:.55; cursor:not-allowed; transform:none!important; box-shadow:none; }
+
+      .code-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:18px; }
+      .code-card { background:rgba(255,255,255,.92); border:1px solid var(--border); box-shadow:var(--shadow-sm); border-radius:var(--radius-lg); padding:18px; }
+      .code-title { font-weight:800; color:var(--text-soft); margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+      .code-block { background:#0f172a; color:#e2e8f0; border-radius:var(--radius-md); padding:18px; font-family:"JetBrains Mono",monospace; font-size:13px; line-height:1.65; white-space:pre-wrap; overflow-x:auto; min-height:180px; text-align:left; font-variant-ligatures:none; font-feature-settings:"liga" 0; }
+
+      .scenario-tabs { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+      .scenario-tab { border:1px solid var(--border); background:#fff; box-shadow:var(--shadow-sm); padding:11px 14px; border-radius:999px; cursor:pointer; font-weight:800; color:var(--text-soft); transition:var(--transition); }
+      .scenario-tab.active { border-color:rgba(34,197,94,.35); background:rgba(34,197,94,.1); color:var(--primary-active); }
+      .summary-box { margin-top:18px; padding:16px; border-radius:var(--radius-md); background:rgba(34,197,94,.07); border:1px solid rgba(34,197,94,.16); color:var(--text-soft); line-height:1.65; }
+      .summary-box strong { color:var(--primary-active); }
+
+      .quiz-card { margin-top:18px; display:none; }
+      .question-title { font-size:1.05rem; line-height:1.7; color:var(--text); margin-bottom:16px; font-weight:700; }
+      .answers { display:grid; gap:12px; }
+      .answer-btn { width:100%; border:1px solid rgba(15,23,42,.08); border-radius:22px; background:rgba(255,255,255,.98); padding:16px 18px; display:flex; align-items:flex-start; gap:12px; text-align:left; cursor:pointer; transition:var(--transition); box-shadow:0 8px 24px rgba(15,23,42,.04); color:var(--text); font-size:.98rem; font-weight:600; }
+      .answer-btn:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 18px 32px rgba(15,23,42,.08); border-color:rgba(34,197,94,.45); }
+      .answer-btn:disabled { cursor:default; opacity:1; }
+      .answer-btn.correct { border-color:rgba(34,197,94,.45); background:rgba(34,197,94,.07); }
+      .answer-btn.wrong { border-color:rgba(220,38,38,.28); background:rgba(220,38,38,.05); }
+      .answer-pill { width:36px; height:36px; border-radius:999px; display:inline-flex; align-items:center; justify-content:center; background:rgba(34,197,94,.12); color:var(--primary-active); font-weight:800; flex:0 0 auto; }
+      .feedback-area { min-height:26px; margin-top:16px; text-align:center; font-size:1rem; color:var(--text-soft); line-height:1.6; }
+      .correct-text { color:#15803d; font-weight:700; }
+      .error-text { color:var(--danger); font-weight:700; }
+      .microcopy { color:var(--text-muted); font-size:.9rem; text-align:center; margin-top:12px; }
+
+      .end-screen { min-height:70vh; display:flex; align-items:center; justify-content:center; padding:10px 0; }
+      .end-card { width:min(760px,100%); background:rgba(255,255,255,.94); border:1px solid var(--border); box-shadow:var(--shadow-md); border-radius:32px; padding:32px; text-align:center; }
+      .end-icon { width:72px; height:72px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; background:rgba(34,197,94,.12); color:var(--primary-active); font-size:1.8rem; margin-bottom:14px; }
+      .end-card h1 { font-family:"Space Grotesk",sans-serif; font-size:clamp(2rem,4vw,3rem); line-height:1.02; letter-spacing:-.04em; margin-bottom:10px; }
+      .end-card p { color:var(--text-soft); line-height:1.7; margin-bottom:20px; }
+      .end-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-bottom:20px; }
+      .end-stat { background:rgba(255,255,255,.84); border:1px solid var(--border); border-radius:20px; padding:16px; }
+      .end-stat strong { display:block; font-family:"Space Grotesk",sans-serif; font-size:1.6rem; margin-bottom:4px; }
+      .end-stat span { color:var(--text-muted); font-size:.9rem; }
+      .end-actions { display:flex; justify-content:center; margin-top:16px; flex-wrap:wrap; gap:12px; }
+      .end-secondary { text-align:center; margin-top:10px; }
+      .end-secondary a { font-size:.9rem; color:#64748b; text-decoration:none; transition:.2s; }
+      .end-secondary a:hover { color:#0f172a; }
+
+      @media (max-width: 900px) { .comparison-grid, .code-grid { grid-template-columns:1fr; } }
+      @media (max-width: 640px) {
+        .container { width:min(var(--container), calc(100% - 20px)); }
+        .page-wrap { padding-top:14px; }
+        .activity-card, .side-card, .quiz-card, .code-card { padding:16px; border-radius:22px; }
+        .code-block, .answer-btn { border-radius:18px; }
+        .end-stats { grid-template-columns:1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page-wrap">
+      <div class="container" id="app">
+        <div class="topbar">
+          <a class="back-link" href="objetos.html"><i class="fas fa-arrow-left"></i> Voltar aos objetos</a>
+          <div id="score" class="score-chip"><i class="fas fa-star"></i> Pontos: 0</div>
+        </div>
+
+        <section class="hero">
+          <h1>Vetor Dinâmico x Lista Encadeada</h1>
+          <p>
+            Compare as duas estruturas em situações práticas: acesso por posição, inserção no meio e remoção. Observe o que muda na memória e escolha quando cada estrutura é mais adequada.
+          </p>
+        </section>
+
+        <section class="progress-wrap">
+          <div class="progress-label">
+            <span id="progressText">Cenário 1 de 3</span>
+            <span id="progressPercent">0% concluído</span>
+          </div>
+          <div class="progress"><div id="bar" class="progress-bar"></div></div>
+        </section>
+
+        <article class="activity-card" id="simulador">
+          <div class="card-header">
+            <div class="section-tag"><i class="fas fa-scale-balanced"></i> Comparação interativa</div>
+            <div id="stepCounter" class="step-counter">Cenário 1</div>
+          </div>
+
+          <div class="scenario-tabs" id="scenarioTabs"></div>
+          <p class="explain" id="scenarioExplain"></p>
+
+          <section class="comparison-grid">
+            <div class="structure-panel">
+              <div class="panel-title"><i class="fas fa-table-cells"></i> Vetor dinâmico</div>
+              <div class="visual-row" id="arrayVisual"></div>
+              <div class="operation-box" id="arrayNotes"></div>
+            </div>
+
+            <div class="structure-panel">
+              <div class="panel-title"><i class="fas fa-link"></i> Lista encadeada</div>
+              <div class="visual-row" id="listVisual"></div>
+              <div class="operation-box" id="listNotes"></div>
+            </div>
+          </section>
+
+          <div class="summary-box" id="summaryBox"></div>
+
+          <div class="controls">
+            <button id="btnAnterior" class="btn btn-secondary" type="button"><i class="fas fa-arrow-left"></i> Voltar</button>
+            <button id="btnProximo" class="btn btn-primary" type="button">Próximo cenário <i class="fas fa-arrow-right"></i></button>
+            <button id="btnQuiz" class="btn btn-secondary" type="button"><i class="fas fa-circle-question"></i> Ir para o quiz</button>
+          </div>
+          <div class="microcopy">Dica: vetor favorece acesso direto. Lista favorece mudanças com ponteiros.</div>
+        </article>
+
+        <section class="code-grid" id="codeGrid">
+          <div class="code-card">
+            <div class="code-title"><i class="fas fa-table-cells"></i> Ideia em vetor</div>
+            <pre id="arrayCode" class="code-block"></pre>
+          </div>
+          <div class="code-card">
+            <div class="code-title"><i class="fas fa-link"></i> Ideia em lista</div>
+            <pre id="listCode" class="code-block"></pre>
+          </div>
+        </section>
+
+        <article class="quiz-card" id="quizCard">
+          <div class="card-header">
+            <div class="section-tag"><i class="fas fa-circle-question"></i> Quiz final</div>
+            <div id="questionCounter" class="step-counter">Questão 1</div>
+          </div>
+          <div id="tituloQuestao" class="question-title"></div>
+          <div class="answers">
+            <button id="op1" class="answer-btn" type="button"><span class="answer-pill">A</span><span class="answer-text"></span></button>
+            <button id="op2" class="answer-btn" type="button"><span class="answer-pill">B</span><span class="answer-text"></span></button>
+            <button id="op3" class="answer-btn" type="button"><span class="answer-pill">C</span><span class="answer-text"></span></button>
+          </div>
+          <div id="feedback" class="feedback-area">Selecione uma alternativa para responder.</div>
+          <div class="controls" style="justify-content:center">
+            <button id="btnQuizProximo" class="btn btn-primary" type="button" disabled><i class="fas fa-arrow-right"></i> Próxima</button>
+          </div>
+        </article>
+      </div>
+    </main>
+
+    <script>
+      const cenarios = [
+        {
+          titulo: "Acessar uma posição específica",
+          texto: 'Situação: queremos acessar o elemento da posição 2. No <span class="highlight">vetor</span>, o acesso é direto. Na <span class="highlight">lista</span>, precisamos caminhar nó por nó até chegar lá.',
+          array: { valores: [10, 20, 30, 40], ativos: [2], movidos: [], adicionados: [], notas: [
+            ['good', 'Acesso direto: vetor[2]'],
+            ['good', 'Poucos passos quando sabemos o índice'],
+            ['warn', 'Vantagem do vetor neste cenário']
+          ]},
+          lista: { valores: [10, 20, 30, 40], ativos: [0,1,2], adicionados: [], removidos: [], notas: [
+            ['warn', 'Precisa começar no início'],
+            ['warn', 'Passa por 10, depois 20, até chegar em 30'],
+            ['good', 'Funciona, mas não é acesso direto']
+          ]},
+          resumo: '<strong>Melhor escolha:</strong> vetor dinâmico, quando a tarefa principal é acessar elementos por posição.',
+          arrayCode: `// Acesso direto no vetor
+int valor = vetor[2];
+printf("%d\\n", valor);`,
+          listCode: `// Na lista, é preciso percorrer
+No *atual = inicio;
+int pos = 0;
+
+while (atual != NULL && pos < 2) {
+    atual = atual->proximo;
+    pos++;
+}
+
+if (atual != NULL) {
+    printf("%d\\n", atual->valor);
+}`
+        },
+        {
+          titulo: "Inserir um elemento no meio",
+          texto: 'Situação: queremos inserir o valor 25 entre 20 e 30. No vetor, os elementos à direita precisam ser deslocados. Na lista, a ideia central é ajustar os ponteiros.',
+          array: { valores: [10, 20, 25, 30, 40], ativos: [2], movidos: [3,4], adicionados: [2], notas: [
+            ['warn', '30 e 40 precisam abrir espaço'],
+            ['warn', 'Pode exigir realloc se não houver capacidade'],
+            ['good', 'Depois de ajustar, o vetor continua sequencial']
+          ]},
+          lista: { valores: [10, 20, 25, 30, 40], ativos: [1,2], adicionados: [2], removidos: [], notas: [
+            ['good', 'Cria um novo nó para 25'],
+            ['good', '20 passa a apontar para 25'],
+            ['good', '25 aponta para 30']
+          ]},
+          resumo: '<strong>Melhor escolha:</strong> lista encadeada, quando há muitas inserções no meio da estrutura.',
+          arrayCode: `// Inserção no meio do vetor
+// É preciso deslocar elementos para a direita
+for (int i = qtd; i > pos; i--) {
+    vetor[i] = vetor[i - 1];
+}
+
+vetor[pos] = 25;
+qtd++;`,
+          listCode: `// Inserção no meio da lista
+No *novo = malloc(sizeof(No));
+novo->valor = 25;
+
+novo->proximo = anterior->proximo;
+anterior->proximo = novo;`
+        },
+        {
+          titulo: "Remover um elemento do meio",
+          texto: 'Situação: queremos remover o valor 30. No vetor, os elementos posteriores precisam voltar uma posição. Na lista, removemos o nó alterando o ponteiro do nó anterior.',
+          array: { valores: [10, 20, 40], ativos: [], movidos: [2], adicionados: [], notas: [
+            ['warn', '40 precisa ocupar o lugar do 30'],
+            ['warn', 'Em uma lista grande, muitos elementos podem ser deslocados'],
+            ['good', 'O vetor fica compacto após a remoção']
+          ]},
+          lista: { valores: [10, 20, 30, 40], ativos: [1], adicionados: [], removidos: [2], notas: [
+            ['good', '20 deixa de apontar para 30'],
+            ['good', '20 passa a apontar para 40'],
+            ['warn', 'Depois é necessário liberar o nó removido com free']
+          ]},
+          resumo: '<strong>Melhor escolha:</strong> lista encadeada, quando removemos elementos frequentemente no início ou no meio.',
+          arrayCode: `// Remoção no meio do vetor
+// Elementos à direita voltam uma posição
+for (int i = pos; i < qtd - 1; i++) {
+    vetor[i] = vetor[i + 1];
+}
+
+qtd--;`,
+          listCode: `// Remoção no meio da lista
+No *remover = anterior->proximo;
+
+anterior->proximo = remover->proximo;
+free(remover);`
+        }
+      ];
+
+      const questoes = [
+        {
+          titulo: "Quando o vetor dinâmico costuma ser mais vantajoso?",
+          opcoes: ["Quando preciso acessar rapidamente uma posição", "Quando removo muitos elementos do meio", "Quando nunca sei onde a estrutura começa"],
+          correta: 0,
+          explicacao: "O vetor permite acesso direto por índice, como vetor[2]."
+        },
+        {
+          titulo: "Por que a lista encadeada pode ser melhor para inserção no meio?",
+          opcoes: ["Porque não usa memória", "Porque basta ajustar ponteiros, depois de encontrar a posição", "Porque acessa qualquer índice diretamente"],
+          correta: 1,
+          explicacao: "A lista não precisa deslocar todos os elementos posteriores. Ela altera ligações entre nós."
+        },
+        {
+          titulo: "Qual é uma desvantagem da lista encadeada em relação ao vetor?",
+          opcoes: ["Precisa percorrer nó por nó para chegar a uma posição", "Nunca pode crescer", "Só armazena números repetidos"],
+          correta: 0,
+          explicacao: "A lista não possui acesso direto por índice; normalmente percorremos a partir do início."
+        },
+        {
+          titulo: "Em uma remoção no meio de um vetor, geralmente precisamos:",
+          opcoes: ["Deslocar elementos posteriores", "Alterar apenas um ponteiro chamado proximo", "Criar obrigatoriamente uma struct"],
+          correta: 0,
+          explicacao: "Após remover uma posição do vetor, os elementos da direita costumam voltar uma posição."
+        }
+      ];
+
+      let cenarioAtual = 0;
+      let quizAtual = 0;
+      let pontos = 0;
+      let erros = 0;
+      let respondeu = false;
+      let jaRegistrou = false;
+
+      const NOME_ATIVIDADE = "Comparador Vetor e Lista Encadeada";
+      const URL_WEBAPP = "https://script.google.com/macros/s/AKfycbzoeygTm-R27yb8QOcdH0s7fViv6vGPQ5MtDuCgHBt3RhvFVQKlGxf3A7yQUR3RfRqFcw/exec";
+
+      const app = document.getElementById("app");
+      const score = document.getElementById("score");
+      const bar = document.getElementById("bar");
+      const progressText = document.getElementById("progressText");
+      const progressPercent = document.getElementById("progressPercent");
+      const stepCounter = document.getElementById("stepCounter");
+      const scenarioTabs = document.getElementById("scenarioTabs");
+      const scenarioExplain = document.getElementById("scenarioExplain");
+      const arrayVisual = document.getElementById("arrayVisual");
+      const listVisual = document.getElementById("listVisual");
+      const arrayNotes = document.getElementById("arrayNotes");
+      const listNotes = document.getElementById("listNotes");
+      const summaryBox = document.getElementById("summaryBox");
+      const arrayCode = document.getElementById("arrayCode");
+      const listCode = document.getElementById("listCode");
+      const btnAnterior = document.getElementById("btnAnterior");
+      const btnProximo = document.getElementById("btnProximo");
+      const btnQuiz = document.getElementById("btnQuiz");
+      const simulador = document.getElementById("simulador");
+      const codeGrid = document.getElementById("codeGrid");
+      const quizCard = document.getElementById("quizCard");
+      const tituloQuestao = document.getElementById("tituloQuestao");
+      const feedback = document.getElementById("feedback");
+      const questionCounter = document.getElementById("questionCounter");
+      const btnQuizProximo = document.getElementById("btnQuizProximo");
+      const botoes = [document.getElementById("op1"), document.getElementById("op2"), document.getElementById("op3")];
+
+      function renderTabs() {
+        scenarioTabs.innerHTML = "";
+        cenarios.forEach((c, i) => {
+          const btn = document.createElement("button");
+          btn.className = "scenario-tab" + (i === cenarioAtual ? " active" : "");
+          btn.type = "button";
+          btn.innerHTML = `${i + 1}. ${c.titulo}`;
+          btn.onclick = () => { cenarioAtual = i; renderCenario(); };
+          scenarioTabs.appendChild(btn);
+        });
+      }
+
+      function renderArray(data) {
+        arrayVisual.innerHTML = "";
+        data.valores.forEach((valor, i) => {
+          const cell = document.createElement("div");
+          const classes = ["cell"];
+          if (data.ativos.includes(i)) classes.push("active");
+          if (data.movidos.includes(i)) classes.push("moved");
+          if (data.adicionados.includes(i)) classes.push("added");
+          cell.className = classes.join(" ");
+          cell.innerHTML = `<span class="value">${valor}</span><span class="index">índice ${i}</span>`;
+          arrayVisual.appendChild(cell);
+        });
+      }
+
+      function renderList(data) {
+        listVisual.innerHTML = `<div class="null-node">inicio</div><div class="arrow"><i class="fas fa-arrow-right"></i></div>`;
+        data.valores.forEach((valor, i) => {
+          const node = document.createElement("div");
+          const classes = ["node"];
+          if (data.ativos.includes(i)) classes.push("active");
+          if (data.adicionados.includes(i)) classes.push("added");
+          if (data.removidos.includes(i)) classes.push("unlink");
+          node.className = classes.join(" ");
+          node.innerHTML = `<div class="node-data">${valor}</div><div class="node-next">proximo</div>`;
+          listVisual.appendChild(node);
+          const arrow = document.createElement("div");
+          arrow.className = "arrow";
+          arrow.innerHTML = `<i class="fas fa-arrow-right"></i>`;
+          listVisual.appendChild(arrow);
+        });
+        const end = document.createElement("div");
+        end.className = "null-node";
+        end.textContent = "NULL";
+        listVisual.appendChild(end);
+      }
+
+      function renderNotes(container, notes) {
+        container.innerHTML = "";
+        notes.forEach(([tipo, texto]) => {
+          const div = document.createElement("div");
+          div.className = `op-line ${tipo}`;
+          div.innerHTML = `<strong>${tipo === "good" ? "Vantagem:" : "Atenção:"}</strong> ${texto}`;
+          container.appendChild(div);
+        });
+      }
+
+      function renderCenario() {
+        const c = cenarios[cenarioAtual];
+        renderTabs();
+        scenarioExplain.innerHTML = c.texto;
+        stepCounter.innerText = `Cenário ${cenarioAtual + 1}`;
+        renderArray(c.array);
+        renderList(c.lista);
+        renderNotes(arrayNotes, c.array.notas);
+        renderNotes(listNotes, c.lista.notas);
+        summaryBox.innerHTML = c.resumo;
+        arrayCode.innerText = c.arrayCode;
+        listCode.innerText = c.listCode;
+        btnAnterior.disabled = cenarioAtual === 0;
+        btnProximo.innerHTML = cenarioAtual === cenarios.length - 1 ? 'Responder quiz <i class="fas fa-circle-question"></i>' : 'Próximo cenário <i class="fas fa-arrow-right"></i>';
+        atualizarProgresso();
+      }
+
+      function atualizarProgresso() {
+        const emQuiz = quizCard.style.display === "block";
+        const total = cenarios.length + questoes.length;
+        const feitas = emQuiz ? cenarios.length + quizAtual + (respondeu ? 1 : 0) : cenarioAtual;
+        const percent = Math.min(100, (feitas / total) * 100);
+        bar.style.width = percent + "%";
+        progressText.innerText = emQuiz ? `Quiz: questão ${quizAtual + 1} de ${questoes.length}` : `Cenário ${cenarioAtual + 1} de ${cenarios.length}`;
+        progressPercent.innerText = `${Math.round(percent)}% concluído`;
+        score.innerHTML = `<i class="fas fa-star"></i> Pontos: ${pontos}`;
+      }
+
+      function abrirQuiz() {
+        simulador.style.display = "none";
+        codeGrid.style.display = "none";
+        quizCard.style.display = "block";
+        quizAtual = 0;
+        carregarQuestao();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function carregarQuestao() {
+        const q = questoes[quizAtual];
+        respondeu = false;
+        tituloQuestao.innerText = q.titulo;
+        feedback.innerHTML = "Selecione uma alternativa para responder.";
+        questionCounter.innerText = `Questão ${quizAtual + 1}`;
+        btnQuizProximo.disabled = true;
+        btnQuizProximo.innerHTML = quizAtual === questoes.length - 1 ? '<i class="fas fa-flag-checkered"></i> Finalizar' : '<i class="fas fa-arrow-right"></i> Próxima';
+        botoes.forEach((btn, i) => {
+          btn.disabled = false;
+          btn.classList.remove("correct", "wrong");
+          btn.querySelector(".answer-text").innerText = q.opcoes[i];
+        });
+        atualizarProgresso();
+      }
+
+      function responder(indice) {
+        if (respondeu) return;
+        respondeu = true;
+        const q = questoes[quizAtual];
+        botoes.forEach((btn) => (btn.disabled = true));
+        if (indice === q.correta) {
+          pontos++;
+          botoes[indice].classList.add("correct");
+          feedback.innerHTML = `<span class="correct-text">✔ Correto!</span> ${q.explicacao}`;
+        } else {
+          erros++;
+          botoes[indice].classList.add("wrong");
+          botoes[q.correta].classList.add("correct");
+          feedback.innerHTML = `<span class="error-text">✖ Errado.</span> ${q.explicacao}`;
+        }
+        btnQuizProximo.disabled = false;
+        atualizarProgresso();
+      }
+
+      function proximaQuestao() {
+        if (!respondeu) return;
+        quizAtual++;
+        if (quizAtual >= questoes.length) finalizar();
+        else carregarQuestao();
+      }
+
+      function obterNomeAluno() {
+        let nome = sessionStorage.getItem("nomeAluno");
+        if (!nome) {
+          nome = prompt("Digite seu nome completo para registrar sua atividade:");
+          if (nome && nome.trim() !== "") sessionStorage.setItem("nomeAluno", nome.trim());
+          else nome = "Anônimo";
+        }
+        return nome;
+      }
+
+      async function registrarResultado(nome, atividade, acertos, total, erros) {
+        const dados = { nome, atividade, acertos, total, erros };
+        try {
+          await fetch(URL_WEBAPP, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados),
+          });
+          console.log("✅ Registrado:", dados);
+        } catch (erro) {
+          console.error("❌ Erro ao registrar:", erro);
+        }
+      }
+
+      function finalizar() {
+        if (!jaRegistrou) {
+          jaRegistrou = true;
+          const nome = obterNomeAluno();
+          registrarResultado(nome, NOME_ATIVIDADE, pontos, questoes.length, erros);
+        }
+        app.innerHTML = `
+          <section class="end-screen">
+            <div class="end-card">
+              <div class="end-icon"><i class="fas fa-scale-balanced"></i></div>
+              <h1>Comparação concluída!</h1>
+              <p>Você analisou situações em que <strong>vetores dinâmicos</strong> e <strong>listas encadeadas</strong> podem ser mais adequados.</p>
+              <div class="end-stats">
+                <div class="end-stat"><strong>${pontos}</strong><span>Acertos</span></div>
+                <div class="end-stat"><strong>${erros}</strong><span>Erros</span></div>
+                <div class="end-stat"><strong>${questoes.length}</strong><span>Questões</span></div>
+              </div>
+              <div class="end-actions">
+                <a class="btn btn-primary" href="objetos.html"><i class="fas fa-cubes"></i> Explorar objetos</a>
+                <button class="btn btn-secondary" onclick="location.reload()"><i class="fas fa-rotate-right"></i> Refazer</button>
+              </div>
+              <div class="end-secondary"><a href="index.html">Voltar ao início</a></div>
+            </div>
+          </section>`;
+      }
+
+      btnAnterior.onclick = () => { if (cenarioAtual > 0) { cenarioAtual--; renderCenario(); } };
+      btnProximo.onclick = () => { if (cenarioAtual === cenarios.length - 1) abrirQuiz(); else { cenarioAtual++; renderCenario(); } };
+      btnQuiz.onclick = abrirQuiz;
+      botoes[0].onclick = () => responder(0);
+      botoes[1].onclick = () => responder(1);
+      botoes[2].onclick = () => responder(2);
+      btnQuizProximo.onclick = proximaQuestao;
+
+      renderCenario();
+    </script>
+  </body>
+</html>
