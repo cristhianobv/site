@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Percorrendo Lista Encadeada | Prof. Cristhiano Vasconcellos</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+
+    <style>
+      :root {
+        --text: #0f172a;
+        --text-soft: #475569;
+        --text-muted: #64748b;
+        --border: rgba(15, 23, 42, 0.08);
+        --primary: #22c55e;
+        --primary-hover: #16a34a;
+        --primary-active: #15803d;
+        --danger: #dc2626;
+        --warning: #f59e0b;
+        --info: #0ea5e9;
+        --code: #0f172a;
+        --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.05);
+        --shadow-md: 0 18px 40px rgba(15, 23, 42, 0.08);
+        --radius-lg: 28px;
+        --radius-md: 22px;
+        --container: 1160px;
+        --transition: 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
+
+      body {
+        font-family: "Inter", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(34, 197, 94, 0.08), transparent 24%),
+          radial-gradient(circle at 90% 20%, rgba(14, 165, 233, 0.08), transparent 20%),
+          linear-gradient(180deg, #fcfefe 0%, #f8fafc 30%, #f4f8fb 100%);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+        background-size: 44px 44px;
+        mask-image: radial-gradient(circle at center, black 35%, transparent 85%);
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      a { color: inherit; text-decoration: none; }
+      .container { width: min(var(--container), calc(100% - 36px)); margin: 0 auto; position: relative; z-index: 1; }
+      .page-wrap { padding: 20px 0 36px; }
+
+      .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+      .back-link { display: inline-flex; align-items: center; gap: 8px; color: var(--text-soft); font-weight: 600; transition: var(--transition); }
+      .back-link:hover { color: var(--text); }
+      .score-chip { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 999px; background: rgba(255, 255, 255, 0.82); border: 1px solid var(--border); color: var(--text-soft); box-shadow: var(--shadow-sm); font-weight: 700; }
+
+      .hero { margin-bottom: 16px; display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: end; }
+      .hero h1 { font-family: "Space Grotesk", sans-serif; font-size: clamp(2rem, 4vw, 3.15rem); line-height: 1; letter-spacing: -0.05em; margin-bottom: 8px; }
+      .hero p { color: var(--text-soft); font-size: 1rem; line-height: 1.65; max-width: 830px; }
+      .hero-badge { display: inline-flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 999px; color: var(--primary-active); background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.16); font-weight: 800; white-space: nowrap; box-shadow: var(--shadow-sm); }
+
+      .progress-wrap { margin-bottom: 18px; background: rgba(255, 255, 255, 0.82); border: 1px solid var(--border); border-radius: 20px; padding: 14px 16px; box-shadow: var(--shadow-sm); }
+      .progress-label { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; color: var(--text-muted); font-size: 0.9rem; flex-wrap: wrap; }
+      .progress { width: 100%; height: 12px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+      .progress-bar { height: 100%; width: 0%; background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%); border-radius: inherit; transition: width var(--transition); }
+
+      .grid { display: grid; grid-template-columns: 1.16fr 0.84fr; gap: 18px; align-items: start; }
+      .activity-card, .side-card, .quiz-card { background: rgba(255, 255, 255, 0.92); border: 1px solid var(--border); box-shadow: var(--shadow-md); border-radius: var(--radius-lg); padding: 22px; }
+      .card-header { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 16px; flex-wrap: wrap; }
+      .section-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(34, 197, 94, 0.1); color: var(--primary-active); border: 1px solid rgba(34, 197, 94, 0.16); border-radius: 999px; padding: 10px 14px; font-size: 0.9rem; font-weight: 700; }
+      .step-counter { color: var(--text-muted); font-size: 0.95rem; font-weight: 700; }
+      .explain { color: var(--text-soft); line-height: 1.7; margin-bottom: 16px; }
+      .highlight { color: var(--primary-active); font-weight: 800; }
+      .blue { color: #0369a1; font-weight: 800; }
+      .danger { color: var(--danger); font-weight: 800; }
+
+      .memory-board { min-height: 330px; border-radius: var(--radius-md); border: 1px dashed rgba(15, 23, 42, 0.14); background: rgba(248, 250, 252, 0.8); padding: 18px; overflow-x: auto; position: relative; }
+      .legend-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+      .mini-chip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.82); color: var(--text-soft); border-radius: 999px; padding: 8px 10px; font-size: 0.82rem; font-weight: 700; }
+      .dot { width: 10px; height: 10px; border-radius: 999px; display: inline-block; background: var(--primary); }
+      .dot.info { background: var(--info); }
+      .dot.warning { background: var(--warning); }
+
+      .list-stage { display: grid; grid-template-columns: 1fr; gap: 12px; min-width: 690px; }
+      .pointer-rail { position: relative; height: 72px; }
+      .pointer-token { position: absolute; left: var(--pointer-left, 0px); top: 4px; transform: translateX(-8px); transition: left 520ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 260ms ease; display: grid; place-items: center; min-width: 98px; }
+      .pointer-bubble { display: inline-flex; align-items: center; gap: 8px; background: #eff6ff; color: #0369a1; border: 1px solid rgba(14, 165, 233, 0.25); border-radius: 999px; padding: 9px 12px; font-weight: 900; box-shadow: var(--shadow-sm); }
+      .pointer-arrow-down { color: #0369a1; font-size: 1.35rem; animation: bob 900ms ease-in-out infinite; }
+
+      @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+
+      .list-area { display: flex; align-items: stretch; gap: 10px; min-width: 690px; padding: 4px 2px 10px; }
+      .head-pointer, .null-node { min-width: 92px; min-height: 86px; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; align-items: center; background: #fff; box-shadow: var(--shadow-sm); font-weight: 800; color: var(--text-soft); }
+      .head-pointer strong { color: var(--info); font-size: 1.12rem; }
+      .node { width: 132px; min-width: 132px; border-radius: 24px; border: 1px solid rgba(34, 197, 94, 0.22); background: rgba(255, 255, 255, 0.98); box-shadow: var(--shadow-sm); overflow: hidden; transform: translateY(0); transition: var(--transition); position: relative; }
+      .node.current { border-color: rgba(14, 165, 233, 0.65); box-shadow: 0 18px 36px rgba(14, 165, 233, 0.16); transform: translateY(-6px); }
+      .node.visited { border-color: rgba(34, 197, 94, 0.45); background: rgba(34, 197, 94, 0.04); }
+      .node-data { padding: 14px 10px 10px; text-align: center; }
+      .node-label { color: var(--text-muted); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+      .node-value { font-family: "Space Grotesk", sans-serif; font-size: 2rem; font-weight: 700; color: var(--text); line-height: 1.1; }
+      .node-next { border-top: 1px solid rgba(15, 23, 42, 0.08); background: rgba(34, 197, 94, 0.08); padding: 9px; text-align: center; color: var(--primary-active); font-size: 0.82rem; font-weight: 800; }
+      .arrow { color: var(--primary-active); font-size: 1.45rem; min-width: 26px; display: flex; align-items: center; justify-content: center; animation: slideArrow 1.4s ease-in-out infinite; }
+      .null-node { color: var(--text-muted); background: rgba(255, 255, 255, 0.8); }
+      .null-node.current-null { border-color: rgba(245, 158, 11, 0.55); background: rgba(245, 158, 11, 0.08); color: #92400e; box-shadow: 0 18px 36px rgba(245, 158, 11, 0.12); }
+      @keyframes slideArrow { 0%, 100% { transform: translateX(0); opacity: 0.65; } 50% { transform: translateX(5px); opacity: 1; } }
+
+      .output-panel { margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .runtime-box { border: 1px solid var(--border); border-radius: 20px; background: rgba(255,255,255,0.82); padding: 14px; }
+      .runtime-box h3 { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+      .runtime-value { min-height: 32px; font-family: "JetBrains Mono", monospace; color: var(--text); line-height: 1.55; font-weight: 700; }
+      .printed-list { display: flex; gap: 7px; flex-wrap: wrap; }
+      .printed-item { background: rgba(34, 197, 94, 0.1); color: var(--primary-active); border: 1px solid rgba(34, 197, 94, 0.16); border-radius: 999px; padding: 5px 9px; font-weight: 900; }
+
+      .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+      .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; border: none; cursor: pointer; transition: var(--transition); padding: 13px 18px; border-radius: 999px; font-weight: 800; font-size: 0.94rem; }
+      .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%); color: #052e16; box-shadow: 0 14px 28px rgba(34, 197, 94, 0.22); }
+      .btn-secondary { background: rgba(255, 255, 255, 0.95); color: var(--text-soft); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+      .btn-warning { background: rgba(245, 158, 11, 0.12); color: #92400e; border: 1px solid rgba(245, 158, 11, 0.25); box-shadow: var(--shadow-sm); }
+      .btn:hover:not(:disabled) { transform: translateY(-2px); }
+      .btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none !important; box-shadow: none; }
+
+      .code-block { background: #0f172a; color: #e2e8f0; border-radius: var(--radius-md); padding: 18px; font-family: "JetBrains Mono", monospace; font-size: 13px; line-height: 1.7; white-space: pre-wrap; overflow-x: auto; min-height: 278px; text-align: left; font-variant-ligatures: none; font-feature-settings: "liga" 0; }
+      .code-line { display: block; border-radius: 10px; padding: 0 8px; margin: 1px 0; }
+      .code-line.active { background: rgba(34, 197, 94, 0.18); color: #dcfce7; box-shadow: inset 3px 0 0 #22c55e; }
+      .code-line.warn { background: rgba(245, 158, 11, 0.15); color: #fffbeb; box-shadow: inset 3px 0 0 #f59e0b; }
+
+      .concept-list { display: grid; gap: 10px; margin-top: 12px; }
+      .concept { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border-radius: 18px; border: 1px solid var(--border); background: rgba(248, 250, 252, 0.74); color: var(--text-soft); line-height: 1.45; }
+      .concept i { color: var(--primary-active); margin-top: 2px; }
+
+      .quiz-card { margin-top: 18px; display: none; }
+      .question-title { font-size: 1.05rem; line-height: 1.7; color: var(--text); margin-bottom: 16px; font-weight: 700; }
+      .answers { display: grid; gap: 12px; }
+      .answer-btn { width: 100%; border: 1px solid rgba(15, 23, 42, 0.08); border-radius: 22px; background: rgba(255, 255, 255, 0.98); padding: 16px 18px; display: flex; align-items: flex-start; gap: 12px; text-align: left; cursor: pointer; transition: var(--transition); box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04); color: var(--text); font-size: 0.98rem; font-weight: 600; }
+      .answer-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 18px 32px rgba(15, 23, 42, 0.08); border-color: rgba(34, 197, 94, 0.45); }
+      .answer-btn:disabled { cursor: default; opacity: 1; }
+      .answer-btn.correct { border-color: rgba(34, 197, 94, 0.45); background: rgba(34, 197, 94, 0.07); }
+      .answer-btn.wrong { border-color: rgba(220, 38, 38, 0.28); background: rgba(220, 38, 38, 0.05); }
+      .answer-pill { width: 36px; height: 36px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; background: rgba(34, 197, 94, 0.12); color: var(--primary-active); font-weight: 800; flex: 0 0 auto; }
+      .feedback-area { min-height: 26px; margin-top: 16px; text-align: center; font-size: 1rem; color: var(--text-soft); line-height: 1.6; }
+      .correct-text { color: #15803d; font-weight: 700; }
+      .error-text { color: var(--danger); font-weight: 700; }
+      .microcopy { color: var(--text-muted); font-size: 0.9rem; text-align: center; margin-top: 12px; }
+
+      .end-screen { min-height: 70vh; display: flex; align-items: center; justify-content: center; padding: 10px 0; }
+      .end-card { width: min(760px, 100%); background: rgba(255, 255, 255, 0.94); border: 1px solid var(--border); box-shadow: var(--shadow-md); border-radius: 32px; padding: 32px; text-align: center; }
+      .end-icon { width: 72px; height: 72px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: rgba(34, 197, 94, 0.12); color: var(--primary-active); font-size: 1.8rem; margin-bottom: 14px; }
+      .end-card h1 { font-family: "Space Grotesk", sans-serif; font-size: clamp(2rem, 4vw, 3rem); line-height: 1.02; letter-spacing: -0.04em; margin-bottom: 10px; }
+      .end-card p { color: var(--text-soft); line-height: 1.7; margin-bottom: 20px; }
+      .end-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px; }
+      .end-stat { background: rgba(255, 255, 255, 0.84); border: 1px solid var(--border); border-radius: 20px; padding: 16px; }
+      .end-stat strong { display: block; font-family: "Space Grotesk", sans-serif; font-size: 1.6rem; margin-bottom: 4px; }
+      .end-stat span { color: var(--text-muted); font-size: 0.9rem; }
+      .end-actions { display: flex; justify-content: center; margin-top: 16px; flex-wrap: wrap; gap: 12px; }
+      .end-secondary { text-align: center; margin-top: 10px; }
+      .end-secondary a { font-size: 0.9rem; color: #64748b; text-decoration: none; transition: 0.2s; }
+      .end-secondary a:hover { color: #0f172a; }
+
+      @media (max-width: 930px) {
+        .hero { grid-template-columns: 1fr; align-items: start; }
+        .grid { grid-template-columns: 1fr; }
+        .list-stage, .list-area { min-width: 650px; }
+      }
+      @media (max-width: 640px) {
+        .container { width: min(var(--container), calc(100% - 20px)); }
+        .page-wrap { padding-top: 14px; }
+        .activity-card, .side-card, .quiz-card { padding: 16px; border-radius: 22px; }
+        .code-block, .answer-btn { border-radius: 18px; }
+        .output-panel { grid-template-columns: 1fr; }
+        .end-stats { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page-wrap">
+      <div class="container" id="app">
+        <div class="topbar">
+          <a class="back-link" href="objetos.html"><i class="fas fa-arrow-left"></i> Voltar aos objetos</a>
+          <div id="score" class="score-chip"><i class="fas fa-star"></i> Pontos: 0</div>
+        </div>
+
+        <section class="hero">
+          <div>
+            <h1>Percorrendo uma Lista Encadeada</h1>
+            <p>
+              Acompanhe o ponteiro <strong>atual</strong> caminhando nó por nó até chegar em <strong>NULL</strong>. O foco deste objeto é entender por que usamos <strong>while (atual != NULL)</strong> para visitar todos os elementos da lista.
+            </p>
+          </div>
+          <div class="hero-badge"><i class="fas fa-route"></i> Ponteiro em movimento</div>
+        </section>
+
+        <section class="progress-wrap">
+          <div class="progress-label">
+            <span id="progressText">Passo 1 de 7</span>
+            <span id="progressPercent">0% concluído</span>
+          </div>
+          <div class="progress"><div id="bar" class="progress-bar"></div></div>
+        </section>
+
+        <section class="grid" id="mainGrid">
+          <article class="activity-card">
+            <div class="card-header">
+              <div class="section-tag"><i class="fas fa-link"></i> Simulação do percurso</div>
+              <div id="stepCounter" class="step-counter">Passo 1</div>
+            </div>
+
+            <p class="explain" id="stepExplain"></p>
+
+            <div class="memory-board">
+              <div class="legend-row">
+                <span class="mini-chip"><span class="dot info"></span> ponteiro atual</span>
+                <span class="mini-chip"><span class="dot"></span> nó já visitado</span>
+                <span class="mini-chip"><span class="dot warning"></span> fim da lista</span>
+              </div>
+
+              <div class="list-stage">
+                <div class="pointer-rail">
+                  <div class="pointer-token" id="pointerToken">
+                    <div class="pointer-bubble"><i class="fas fa-location-arrow"></i> atual</div>
+                    <div class="pointer-arrow-down"><i class="fas fa-caret-down"></i></div>
+                  </div>
+                </div>
+                <div class="list-area" id="listArea"></div>
+              </div>
+
+              <div class="output-panel">
+                <div class="runtime-box">
+                  <h3><i class="fas fa-terminal"></i> Saída do printf</h3>
+                  <div id="printed" class="runtime-value printed-list"></div>
+                </div>
+                <div class="runtime-box">
+                  <h3><i class="fas fa-brain"></i> Leitura mental</h3>
+                  <div id="mentalModel" class="runtime-value"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="controls">
+              <button id="btnAnterior" class="btn btn-secondary" type="button"><i class="fas fa-arrow-left"></i> Voltar</button>
+              <button id="btnProximo" class="btn btn-primary" type="button">Próximo passo <i class="fas fa-arrow-right"></i></button>
+              <button id="btnAuto" class="btn btn-warning" type="button"><i class="fas fa-play"></i> Animar sozinho</button>
+              <button id="btnReiniciar" class="btn btn-secondary" type="button"><i class="fas fa-rotate-right"></i> Reiniciar</button>
+            </div>
+
+            <div class="microcopy">Dica: o laço não usa índice. Ele usa o endereço guardado em <strong>proximo</strong>.</div>
+          </article>
+
+          <aside class="side-card">
+            <div class="card-header">
+              <div class="section-tag"><i class="fas fa-code"></i> Código em C</div>
+            </div>
+            <pre id="codeBlock" class="code-block"></pre>
+
+            <div class="concept-list">
+              <div class="concept"><i class="fas fa-location-dot"></i><span><strong>atual:</strong> ponteiro auxiliar usado para caminhar pela lista sem perder o endereço do início.</span></div>
+              <div class="concept"><i class="fas fa-not-equal"></i><span><strong>atual != NULL:</strong> significa “ainda estou apontando para um nó válido”.</span></div>
+              <div class="concept"><i class="fas fa-arrow-right"></i><span><strong>atual = atual-&gt;proximo:</strong> faz o ponteiro avançar para o próximo nó.</span></div>
+              <div class="concept"><i class="fas fa-triangle-exclamation"></i><span><strong>Cuidado:</strong> usar <code>atual-&gt;valor</code> quando <code>atual</code> é NULL causa acesso inválido.</span></div>
+            </div>
+          </aside>
+        </section>
+
+        <article class="quiz-card" id="quizCard">
+          <div class="card-header">
+            <div class="section-tag"><i class="fas fa-circle-question"></i> Quiz final</div>
+            <div id="questionCounter" class="step-counter">Questão 1</div>
+          </div>
+
+          <div id="tituloQuestao" class="question-title"></div>
+          <div class="answers">
+            <button id="op1" class="answer-btn" type="button"><span class="answer-pill">A</span><span class="answer-text"></span></button>
+            <button id="op2" class="answer-btn" type="button"><span class="answer-pill">B</span><span class="answer-text"></span></button>
+            <button id="op3" class="answer-btn" type="button"><span class="answer-pill">C</span><span class="answer-text"></span></button>
+          </div>
+          <div id="feedback" class="feedback-area">Selecione uma alternativa para responder.</div>
+          <div class="controls" style="justify-content:center">
+            <button id="btnQuizProximo" class="btn btn-primary" type="button" disabled><i class="fas fa-arrow-right"></i> Próxima</button>
+          </div>
+        </article>
+      </div>
+    </main>
+
+    <script>
+      const valores = [10, 20, 30];
+      const passos = [
+        {
+          titulo: "A lista já está montada",
+          texto: 'Temos uma lista com três nós. O ponteiro <span class="blue">inicio</span> aponta para o primeiro nó, e cada campo <span class="highlight">proximo</span> aponta para o nó seguinte.',
+          pointer: -1,
+          visited: [],
+          printed: [],
+          mental: 'Antes do laço, ainda não começamos a percorrer.',
+          activeLine: 0
+        },
+        {
+          titulo: "O ponteiro atual recebe inicio",
+          texto: 'Criamos um ponteiro auxiliar: <span class="blue">No *atual = inicio;</span>. Ele começa apontando para o primeiro nó. Assim, conseguimos caminhar sem perder o início da lista.',
+          pointer: 0,
+          visited: [],
+          printed: [],
+          mental: 'atual aponta para o nó que guarda 10.',
+          activeLine: 1
+        },
+        {
+          titulo: "Teste do while: atual != NULL",
+          texto: 'A condição é verdadeira, porque <span class="blue">atual</span> está apontando para um nó válido. Então o corpo do laço executa.',
+          pointer: 0,
+          visited: [],
+          printed: [],
+          mental: 'Existe um nó aqui. Posso acessar atual->valor com segurança.',
+          activeLine: 2
+        },
+        {
+          titulo: "Visitamos o primeiro nó",
+          texto: 'O comando <span class="highlight">printf</span> imprime o valor do nó atual. Depois, <span class="blue">atual = atual-&gt;proximo</span> faz o ponteiro andar para o próximo nó.',
+          pointer: 1,
+          visited: [0],
+          printed: [10],
+          mental: 'Imprimi 10 e avancei para o nó que guarda 20.',
+          activeLine: 4
+        },
+        {
+          titulo: "Visitamos o segundo nó",
+          texto: 'A condição continua verdadeira, porque <span class="blue">atual</span> ainda não é NULL. O valor 20 é impresso e o ponteiro avança novamente.',
+          pointer: 2,
+          visited: [0, 1],
+          printed: [10, 20],
+          mental: 'Imprimi 20 e avancei para o nó que guarda 30.',
+          activeLine: 4
+        },
+        {
+          titulo: "Visitamos o último nó",
+          texto: 'No último nó, o valor 30 é impresso. Depois disso, o comando <span class="blue">atual = atual-&gt;proximo</span> coloca NULL dentro de atual.',
+          pointer: 3,
+          visited: [0, 1, 2],
+          printed: [10, 20, 30],
+          mental: 'Imprimi 30. O próximo do último nó é NULL.',
+          activeLine: 4
+        },
+        {
+          titulo: "O laço termina",
+          texto: 'Agora <span class="danger">atual é NULL</span>. A condição <span class="blue">atual != NULL</span> fica falsa, então o while para. Não tentamos acessar atual-&gt;valor quando atual é NULL.',
+          pointer: 3,
+          visited: [0, 1, 2],
+          printed: [10, 20, 30],
+          mental: 'Fim da lista. Parar aqui evita acesso inválido à memória.',
+          activeLine: 2,
+          warn: true
+        }
+      ];
+
+      const questoes = [
+        {
+          titulo: "No código while (atual != NULL), o que essa condição quer dizer?",
+          opcoes: ["Enquanto atual guardar um valor maior que zero", "Enquanto atual apontar para um nó válido", "Enquanto a lista tiver exatamente três nós"],
+          correta: 1,
+          explicacao: "A condição verifica se o ponteiro atual ainda aponta para algum nó. Quando atual vira NULL, chegamos ao fim da lista."
+        },
+        {
+          titulo: "Por que usamos um ponteiro auxiliar chamado atual em vez de mover diretamente o inicio?",
+          opcoes: ["Para não perder o endereço do começo da lista", "Porque inicio não pode apontar para struct", "Porque malloc exige um ponteiro chamado atual"],
+          correta: 0,
+          explicacao: "Se movermos o início, perdemos a referência para o primeiro nó. O ponteiro atual permite percorrer sem destruir essa referência."
+        },
+        {
+          titulo: "Qual comando faz o ponteiro avançar de um nó para o próximo?",
+          opcoes: ["atual = NULL;", "atual = atual->proximo;", "atual.valor = proximo;"],
+          correta: 1,
+          explicacao: "O campo proximo guarda o endereço do próximo nó. Por isso atual = atual->proximo faz o ponteiro caminhar."
+        },
+        {
+          titulo: "O que pode acontecer se tentarmos acessar atual->valor quando atual é NULL?",
+          opcoes: ["O programa pode acessar memória inválida", "O C cria um novo nó automaticamente", "O valor impresso será sempre zero"],
+          correta: 0,
+          explicacao: "NULL não aponta para um nó válido. Acessar atual->valor nessa situação pode causar erro de execução, como segmentation fault."
+        }
+      ];
+
+      let passoAtual = 0;
+      let quizAtual = 0;
+      let pontos = 0;
+      let erros = 0;
+      let respondeu = false;
+      let autoTimer = null;
+      let jaRegistrou = false;
+
+      const NOME_ATIVIDADE = "Percorrendo Lista Encadeada";
+      const URL_WEBAPP = "https://script.google.com/macros/s/AKfycbzoeygTm-R27yb8QOcdH0s7fViv6vGPQ5MtDuCgHBt3RhvFVQKlGxf3A7yQUR3RfRqFcw/exec";
+
+      const app = document.getElementById("app");
+      const listArea = document.getElementById("listArea");
+      const pointerToken = document.getElementById("pointerToken");
+      const stepExplain = document.getElementById("stepExplain");
+      const stepCounter = document.getElementById("stepCounter");
+      const codeBlock = document.getElementById("codeBlock");
+      const printed = document.getElementById("printed");
+      const mentalModel = document.getElementById("mentalModel");
+      const btnAnterior = document.getElementById("btnAnterior");
+      const btnProximo = document.getElementById("btnProximo");
+      const btnReiniciar = document.getElementById("btnReiniciar");
+      const btnAuto = document.getElementById("btnAuto");
+      const bar = document.getElementById("bar");
+      const progressText = document.getElementById("progressText");
+      const progressPercent = document.getElementById("progressPercent");
+      const score = document.getElementById("score");
+      const quizCard = document.getElementById("quizCard");
+      const mainGrid = document.getElementById("mainGrid");
+      const tituloQuestao = document.getElementById("tituloQuestao");
+      const feedback = document.getElementById("feedback");
+      const questionCounter = document.getElementById("questionCounter");
+      const btnQuizProximo = document.getElementById("btnQuizProximo");
+      const botoes = [document.getElementById("op1"), document.getElementById("op2"), document.getElementById("op3")];
+
+      function renderLista(p) {
+        listArea.innerHTML = `<div class="head-pointer"><strong>inicio</strong><span>ponteiro</span></div>`;
+        valores.forEach((valor, i) => {
+          const visitado = p.visited.includes(i) ? "visited" : "";
+          const atual = p.pointer === i ? "current" : "";
+          listArea.innerHTML += `
+            <div class="arrow"><i class="fas fa-arrow-right"></i></div>
+            <div class="node ${visitado} ${atual}" id="node${i}">
+              <div class="node-data">
+                <div class="node-label">valor</div>
+                <div class="node-value">${valor}</div>
+              </div>
+              <div class="node-next">proximo</div>
+            </div>`;
+        });
+        listArea.innerHTML += `<div class="arrow"><i class="fas fa-arrow-right"></i></div><div class="null-node ${p.pointer === 3 ? "current-null" : ""}" id="nullNode">NULL</div>`;
+      }
+
+      function renderCodigo(activeLine, warn = false) {
+        const linhas = [
+          `No *atual = inicio;`,
+          ``,
+          `while (atual != NULL) {`,
+          `    printf("%d\\n", atual->valor);`,
+          `    atual = atual->proximo;`,
+          `}`
+        ];
+        codeBlock.innerHTML = linhas.map((linha, i) => {
+          const classe = i === activeLine ? `code-line ${warn ? "warn" : "active"}` : "code-line";
+          return `<span class="${classe}">${escapeHtml(linha) || "&nbsp;"}</span>`;
+        }).join("");
+      }
+
+      function escapeHtml(str) {
+        return str.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+      }
+
+      function posicionarPonteiro(p) {
+        const alvo = p.pointer === 3 ? document.getElementById("nullNode") : document.getElementById(`node${p.pointer}`);
+        if (!alvo || p.pointer === -1) {
+          pointerToken.style.opacity = "0";
+          return;
+        }
+        pointerToken.style.opacity = "1";
+        const board = document.querySelector(".memory-board");
+        const targetRect = alvo.getBoundingClientRect();
+        const boardRect = board.getBoundingClientRect();
+        const left = targetRect.left - boardRect.left + targetRect.width / 2 - 45;
+        pointerToken.style.setProperty("--pointer-left", `${left}px`);
+      }
+
+      function renderPasso() {
+        const p = passos[passoAtual];
+        stepExplain.innerHTML = `<strong>${p.titulo}.</strong> ${p.texto}`;
+        stepCounter.innerText = `Passo ${passoAtual + 1}`;
+        renderLista(p);
+        renderCodigo(p.activeLine, p.warn);
+        printed.innerHTML = p.printed.length
+          ? p.printed.map(v => `<span class="printed-item">${v}</span>`).join("")
+          : `<span style="color:#64748b;font-weight:600">Nada impresso ainda</span>`;
+        mentalModel.innerText = p.mental;
+        btnAnterior.disabled = passoAtual === 0;
+        btnProximo.innerHTML = passoAtual === passos.length - 1
+          ? 'Responder quiz <i class="fas fa-circle-question"></i>'
+          : 'Próximo passo <i class="fas fa-arrow-right"></i>';
+        atualizarProgresso();
+        requestAnimationFrame(() => posicionarPonteiro(p));
+      }
+
+      function atualizarProgresso() {
+        const totalEtapas = passos.length + questoes.length;
+        const emQuiz = quizCard.style.display === "block";
+        const feitas = emQuiz ? passos.length + quizAtual + (respondeu ? 1 : 0) : passoAtual;
+        const percent = Math.min(100, (feitas / totalEtapas) * 100);
+        bar.style.width = percent + "%";
+        progressText.innerText = emQuiz ? `Quiz: questão ${quizAtual + 1} de ${questoes.length}` : `Passo ${passoAtual + 1} de ${passos.length}`;
+        progressPercent.innerText = `${Math.round(percent)}% concluído`;
+        score.innerHTML = `<i class="fas fa-star"></i> Pontos: ${pontos}`;
+      }
+
+      function pararAuto() {
+        if (autoTimer) clearInterval(autoTimer);
+        autoTimer = null;
+        btnAuto.innerHTML = '<i class="fas fa-play"></i> Animar sozinho';
+      }
+
+      function iniciarAuto() {
+        if (autoTimer) { pararAuto(); return; }
+        btnAuto.innerHTML = '<i class="fas fa-pause"></i> Pausar animação';
+        autoTimer = setInterval(() => {
+          if (passoAtual >= passos.length - 1) { pararAuto(); return; }
+          passoAtual++;
+          renderPasso();
+        }, 1400);
+      }
+
+      function abrirQuiz() {
+        pararAuto();
+        mainGrid.style.display = "none";
+        quizCard.style.display = "block";
+        quizAtual = 0;
+        carregarQuestao();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function carregarQuestao() {
+        const q = questoes[quizAtual];
+        respondeu = false;
+        tituloQuestao.innerText = q.titulo;
+        feedback.innerHTML = "Selecione uma alternativa para responder.";
+        questionCounter.innerText = `Questão ${quizAtual + 1}`;
+        btnQuizProximo.disabled = true;
+        btnQuizProximo.innerHTML = quizAtual === questoes.length - 1
+          ? '<i class="fas fa-flag-checkered"></i> Finalizar'
+          : '<i class="fas fa-arrow-right"></i> Próxima';
+
+        botoes.forEach((btn, i) => {
+          btn.disabled = false;
+          btn.classList.remove("correct", "wrong");
+          btn.querySelector(".answer-text").innerText = q.opcoes[i];
+        });
+        atualizarProgresso();
+      }
+
+      function responder(indice) {
+        if (respondeu) return;
+        respondeu = true;
+        const q = questoes[quizAtual];
+        botoes.forEach((btn) => (btn.disabled = true));
+        if (indice === q.correta) {
+          pontos++;
+          botoes[indice].classList.add("correct");
+          feedback.innerHTML = `<span class="correct-text">✔ Correto!</span> ${q.explicacao}`;
+        } else {
+          erros++;
+          botoes[indice].classList.add("wrong");
+          botoes[q.correta].classList.add("correct");
+          feedback.innerHTML = `<span class="error-text">✖ Errado.</span> ${q.explicacao}`;
+        }
+        btnQuizProximo.disabled = false;
+        atualizarProgresso();
+      }
+
+      function proximaQuestao() {
+        if (!respondeu) return;
+        quizAtual++;
+        if (quizAtual >= questoes.length) {
+          finalizar();
+          return;
+        }
+        carregarQuestao();
+      }
+
+      function obterNomeAluno() {
+        let nome = sessionStorage.getItem("nomeAluno");
+        if (!nome) {
+          nome = prompt("Digite seu nome completo para registrar sua atividade:");
+          if (nome && nome.trim() !== "") sessionStorage.setItem("nomeAluno", nome.trim());
+          else nome = "Anônimo";
+        }
+        return nome;
+      }
+
+      async function registrarResultado(nome, atividade, acertos, total, erros) {
+        const dados = { nome, atividade, acertos, total, erros };
+        try {
+          await fetch(URL_WEBAPP, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados),
+          });
+          console.log("✅ Registrado:", dados);
+        } catch (erro) {
+          console.error("❌ Erro ao registrar:", erro);
+        }
+      }
+
+      function finalizar() {
+        if (!jaRegistrou) {
+          jaRegistrou = true;
+          const nome = obterNomeAluno();
+          registrarResultado(nome, NOME_ATIVIDADE, pontos, questoes.length, erros);
+        }
+        app.innerHTML = `
+          <section class="end-screen">
+            <div class="end-card">
+              <div class="end-icon"><i class="fas fa-route"></i></div>
+              <h1>Percurso concluído!</h1>
+              <p>Você acompanhou o ponteiro <strong>atual</strong> caminhando pela lista, entendeu o papel do <strong>NULL</strong> e respondeu ao quiz final.</p>
+              <div class="end-stats">
+                <div class="end-stat"><strong>${pontos}</strong><span>Acertos</span></div>
+                <div class="end-stat"><strong>${erros}</strong><span>Erros</span></div>
+                <div class="end-stat"><strong>${questoes.length}</strong><span>Questões</span></div>
+              </div>
+              <div class="end-actions">
+                <a class="btn btn-primary" href="objetos.html"><i class="fas fa-cubes"></i> Explorar objetos</a>
+                <button class="btn btn-secondary" onclick="location.reload()"><i class="fas fa-rotate-right"></i> Refazer</button>
+              </div>
+              <div class="end-secondary"><a href="index.html">Voltar ao início</a></div>
+            </div>
+          </section>`;
+      }
+
+      btnProximo.onclick = () => {
+        pararAuto();
+        if (passoAtual === passos.length - 1) abrirQuiz();
+        else { passoAtual++; renderPasso(); }
+      };
+      btnAnterior.onclick = () => { pararAuto(); if (passoAtual > 0) { passoAtual--; renderPasso(); } };
+      btnReiniciar.onclick = () => { pararAuto(); passoAtual = 0; renderPasso(); };
+      btnAuto.onclick = iniciarAuto;
+      botoes[0].onclick = () => responder(0);
+      botoes[1].onclick = () => responder(1);
+      botoes[2].onclick = () => responder(2);
+      btnQuizProximo.onclick = proximaQuestao;
+      window.addEventListener("resize", () => posicionarPonteiro(passos[passoAtual]));
+
+      renderPasso();
+    </script>
+  </body>
+</html>
