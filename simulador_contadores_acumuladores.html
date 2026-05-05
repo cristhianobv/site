@@ -1,0 +1,1414 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulador de Contadores e Acumuladores | Prof. Cristhiano Vasconcellos</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <style>
+    :root {
+      --text: #0f172a;
+      --text-soft: #475569;
+      --text-muted: #64748b;
+      --border: rgba(15, 23, 42, 0.08);
+      --primary: #22c55e;
+      --primary-hover: #16a34a;
+      --primary-active: #15803d;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --info: #0ea5e9;
+      --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 18px 40px rgba(15, 23, 42, 0.08);
+      --radius-lg: 28px;
+      --radius-md: 22px;
+      --container: 1120px;
+      --transition: 220ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(34, 197, 94, 0.08), transparent 24%),
+        radial-gradient(circle at 90% 20%, rgba(14, 165, 233, 0.08), transparent 20%),
+        linear-gradient(180deg, #fcfefe 0%, #f8fafc 30%, #f4f8fb 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(circle at center, black 35%, transparent 85%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .page-wrap { padding: 20px 0 36px; position: relative; z-index: 1; }
+    .container { width: min(var(--container), calc(100% - 36px)); margin: 0 auto; position: relative; z-index: 1; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .back-link:hover { color: var(--text); }
+
+    .score-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid var(--border);
+      color: var(--text-soft);
+      box-shadow: var(--shadow-sm);
+      font-weight: 700;
+    }
+
+    .hero { margin-bottom: 16px; }
+    .hero h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1;
+      letter-spacing: -0.05em;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      color: var(--text-soft);
+      font-size: 1rem;
+      line-height: 1.65;
+      max-width: 900px;
+    }
+
+    .progress-wrap {
+      margin-bottom: 18px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      flex-wrap: wrap;
+    }
+
+    .progress {
+      width: 100%;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      border-radius: inherit;
+      transition: width var(--transition);
+    }
+
+    .activity-card {
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(34, 197, 94, .10);
+      color: var(--primary-active);
+      border: 1px solid rgba(34, 197, 94, .16);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: .9rem;
+      font-weight: 700;
+    }
+
+    .step-counter {
+      color: var(--text-muted);
+      font-size: .95rem;
+      font-weight: 700;
+    }
+
+    .lesson-title {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.45rem;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+    }
+
+    .lesson-description {
+      color: var(--text-soft);
+      line-height: 1.65;
+      margin-bottom: 16px;
+      max-width: 920px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .code-block,
+    .sim-card,
+    .answers-card,
+    .drag-card {
+      background: rgba(255,255,255,.78);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .code-block {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 18px;
+      font-family: "JetBrains Mono", monospace;
+      font-variant-ligatures: none;
+      font-feature-settings: "liga" 0;
+      font-size: 13px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      min-height: 310px;
+      text-align: left;
+    }
+
+    .code-line {
+      display: block;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .code-line.active {
+      background: rgba(34, 197, 94, 0.18);
+      color: #bbf7d0;
+      outline: 1px solid rgba(34, 197, 94, 0.28);
+    }
+
+    .sim-card,
+    .answers-card,
+    .drag-card { padding: 18px; }
+
+    .card-subtitle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      color: var(--text-soft);
+      font-weight: 700;
+      font-size: .95rem;
+    }
+
+    .state-list {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .state-item {
+      display: grid;
+      grid-template-columns: 116px 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: rgba(248,250,252,.9);
+      border: 1px solid rgba(15,23,42,.06);
+    }
+
+    .state-label {
+      font-size: .82rem;
+      font-weight: 800;
+      color: var(--primary-active);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .state-value {
+      color: var(--text);
+      font-weight: 600;
+      line-height: 1.55;
+    }
+
+    .output {
+      min-height: 58px;
+      background: rgba(248,250,252,.9);
+      border: 1px dashed rgba(15,23,42,.16);
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-family: "JetBrains Mono", monospace;
+      line-height: 1.6;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    .hint-box {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(34,197,94,.06);
+      border: 1px solid rgba(34,197,94,.16);
+      color: var(--text-soft);
+      line-height: 1.6;
+      font-size: .95rem;
+    }
+
+    .answers { display: grid; gap: 12px; }
+
+    .answer-btn {
+      width: 100%;
+      border: 1px solid rgba(15,23,42,.08);
+      border-radius: 22px;
+      background: rgba(255,255,255,.98);
+      padding: 16px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      text-align: left;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 8px 24px rgba(15,23,42,.04);
+      color: var(--text);
+      font-size: 0.98rem;
+      font-weight: 600;
+    }
+
+    .answer-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 32px rgba(15,23,42,.08);
+      border-color: rgba(34,197,94,.45);
+    }
+
+    .answer-btn:disabled { cursor: default; opacity: 1; }
+    .answer-btn.correct { border-color: rgba(34,197,94,.45); background: rgba(34,197,94,.07); }
+    .answer-btn.wrong { border-color: rgba(220,38,38,.28); background: rgba(220,38,38,.05); }
+
+    .answer-pill {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34,197,94,.12);
+      color: var(--primary-active);
+      font-weight: 800;
+      flex: 0 0 auto;
+    }
+
+    .answer-text { flex: 1; padding-top: 4px; line-height: 1.55; }
+
+    .drag-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .block-bank,
+    .drop-area {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+      min-height: 250px;
+      border-radius: 20px;
+      padding: 12px;
+      background: rgba(248,250,252,.88);
+      border: 1px dashed rgba(15,23,42,.16);
+    }
+
+    .area-title {
+      color: var(--text-muted);
+      font-size: .82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-bottom: 2px;
+    }
+
+    .code-block-item,
+    .slot {
+      border-radius: 16px;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .code-block-item {
+      padding: 12px 14px;
+      background: rgba(255,255,255,.98);
+      border: 1px solid rgba(34,197,94,.20);
+      box-shadow: 0 8px 20px rgba(15,23,42,.04);
+      cursor: grab;
+      user-select: none;
+      transition: var(--transition);
+    }
+
+    .code-block-item:hover,
+    .code-block-item.selected {
+      transform: translateY(-2px);
+      border-color: rgba(34,197,94,.48);
+      box-shadow: 0 14px 26px rgba(34,197,94,.12);
+    }
+
+    .code-block-item.selected {
+      outline: 2px solid rgba(34,197,94,.28);
+      background: rgba(34,197,94,.07);
+    }
+
+    .slot {
+      padding: 8px;
+      background: rgba(255,255,255,.62);
+      border: 1px dashed rgba(15,23,42,.15);
+      color: var(--text-muted);
+      justify-content: center;
+    }
+
+    .slot.filled {
+      border-style: solid;
+      background: rgba(255,255,255,.96);
+      justify-content: stretch;
+      padding: 0;
+    }
+
+    .slot .code-block-item {
+      width: 100%;
+      margin: 0;
+    }
+
+    .feedback-area {
+      min-height: 30px;
+      margin-top: 16px;
+      text-align: center;
+      font-size: 1rem;
+      color: var(--text-soft);
+      line-height: 1.6;
+    }
+
+    .correct-text { color: #15803d; font-weight: 800; }
+    .error-text { color: var(--danger); font-weight: 800; }
+    .warning-text { color: var(--warning); font-weight: 800; }
+
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      padding: 14px 22px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.96rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      color: #052e16;
+      box-shadow: 0 14px 28px rgba(34,197,94,.22);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,.9);
+      color: var(--text-soft);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn:hover:not(:disabled) { transform: translateY(-2px); }
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none;
+    }
+
+    .microcopy {
+      color: var(--text-muted);
+      font-size: .9rem;
+      text-align: center;
+      margin-top: 12px;
+      line-height: 1.6;
+    }
+
+    .start-screen,
+    .end-screen {
+      min-height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0;
+    }
+
+    .start-card,
+    .end-card {
+      width: min(760px, 100%);
+      background: rgba(255,255,255,.94);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      border-radius: 32px;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .start-icon,
+    .end-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34,197,94,.12);
+      color: var(--primary-active);
+      font-size: 1.8rem;
+      margin-bottom: 14px;
+    }
+
+    .start-card h1,
+    .end-card h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+      margin-bottom: 10px;
+    }
+
+    .start-card p,
+    .end-card p {
+      color: var(--text-soft);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .name-field {
+      width: min(460px, 100%);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 15px 18px;
+      font-size: 1rem;
+      outline: none;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .name-field:focus {
+      border-color: rgba(34,197,94,.45);
+      box-shadow: 0 0 0 4px rgba(34,197,94,.12);
+    }
+
+    .end-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .end-stat {
+      background: rgba(255,255,255,.84);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .end-stat strong {
+      display: block;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.6rem;
+      margin-bottom: 4px;
+    }
+
+    .end-stat span {
+      color: var(--text-muted);
+      font-size: .9rem;
+    }
+
+    .end-secondary {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .end-secondary a {
+      font-size: .9rem;
+      color: #64748b;
+      transition: .2s;
+    }
+
+    .end-secondary a:hover { color: #0f172a; }
+
+    @media (max-width: 900px) {
+      .layout,
+      .drag-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .container { width: min(var(--container), calc(100% - 20px)); }
+      .page-wrap { padding-top: 14px; }
+      .activity-card { padding: 16px; border-radius: 22px; }
+      .code-block, .sim-card, .answers-card, .drag-card, .answer-btn { border-radius: 18px; }
+      .state-item { grid-template-columns: 1fr; }
+      .end-stats { grid-template-columns: 1fr; }
+      .start-card, .end-card { padding: 24px 18px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-wrap">
+    <div class="container" id="app"></div>
+  </main>
+
+  <script>
+    // =========================================================
+    // CONFIGURAÇÃO DA PLANILHA
+    // Cole abaixo a URL publicada do seu Apps Script.
+    // Exemplo: https://script.google.com/macros/s/SEU_ID/exec
+    // =========================================================
+    const URL_WEBAPP = "https://script.google.com/macros/s/AKfycbzoeygTm-R27yb8QOcdH0s7fViv6vGPQ5MtDuCgHBt3RhvFVQKlGxf3A7yQUR3RfRqFcw/exec";
+    const NOME_ATIVIDADE = "Simulador de Contadores e Acumuladores";
+
+    const app = document.getElementById("app");
+
+    let nomeAluno = "";
+    let etapaAtual = 0;
+    let pontos = 0;
+    let respondidas = 0;
+    let envioRealizado = false;
+
+    let simPasso = 0;
+    let simSoma = 0;
+    let simContador = 0;
+    let selectedBlockId = null;
+
+    const etapas = [
+      {
+        tipo: "simulacao",
+        tag: "Acumulador sem SE",
+        icone: "fa-plus",
+        titulo: "Somando todos os valores",
+        descricao: "Nesta primeira fase, o objetivo é entender o acumulador. A variável soma começa em zero e vai recebendo novos valores aos poucos.",
+        codigo: [
+          "algoritmo \"soma_tres_numeros\"",
+          "var",
+          "   n1, n2, n3, soma: inteiro",
+          "inicio",
+          "   leia(n1)",
+          "   leia(n2)",
+          "   leia(n3)",
+          "   soma <- 0",
+          "   soma <- soma + n1",
+          "   soma <- soma + n2",
+          "   soma <- soma + n3",
+          "   escreval(soma)",
+          "fimalgoritmo"
+        ],
+        numeros: [4, 7, 2],
+        modo: "acumulador-sem-se",
+        dica: "Acumulador guarda um total. Ele não conta quantidade; ele soma valores.",
+        perguntaFinal: "A soma final será 13, pois 4 + 7 + 2 = 13."
+      },
+      {
+        tipo: "quiz",
+        tag: "Previsão de saída",
+        icone: "fa-eye",
+        titulo: "Qual será o valor final da soma?",
+        descricao: "Observe a entrada e lembre que, neste momento, todos os números são somados. Ainda não existe condição com SE.",
+        codigo: [
+          "algoritmo \"soma\"",
+          "var",
+          "   n1, n2, n3, soma: inteiro",
+          "inicio",
+          "   leia(n1)   // entrada: 5",
+          "   leia(n2)   // entrada: 8",
+          "   leia(n3)   // entrada: 1",
+          "   soma <- 0",
+          "   soma <- soma + n1",
+          "   soma <- soma + n2",
+          "   soma <- soma + n3",
+          "   escreval(soma)",
+          "fimalgoritmo"
+        ],
+        pergunta: "Se as entradas forem 5, 8 e 1, qual valor será exibido?",
+        alternativas: [
+          { texto: "14", correta: true, comentario: "Correto. A soma recebe 5, depois soma 8 e depois soma 1. Resultado: 14." },
+          { texto: "13", correta: false, comentario: "Quase. Faltou considerar um dos números da entrada." },
+          { texto: "8", correta: false, comentario: "Esse é apenas um dos valores, não o total acumulado." }
+        ]
+      },
+      {
+        tipo: "drag",
+        tag: "Organização de código",
+        icone: "fa-grip-vertical",
+        titulo: "Monte o algoritmo de soma simples",
+        descricao: "Arraste os blocos para a ordem correta. Também é possível clicar em um bloco e depois clicar no espaço desejado.",
+        enunciado: "Organize o algoritmo para ler dois números, somar os dois e mostrar o resultado.",
+        blocos: [
+          { id: "a1", texto: "algoritmo \"soma_dois\"" },
+          { id: "a2", texto: "var\n   n1, n2, soma: inteiro" },
+          { id: "a3", texto: "inicio" },
+          { id: "a4", texto: "leia(n1)" },
+          { id: "a5", texto: "leia(n2)" },
+          { id: "a6", texto: "soma <- 0" },
+          { id: "a7", texto: "soma <- soma + n1" },
+          { id: "a8", texto: "soma <- soma + n2" },
+          { id: "a9", texto: "escreval(soma)" },
+          { id: "a10", texto: "fimalgoritmo" }
+        ],
+        ordem: ["a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10"],
+        dica: "Primeiro vem a estrutura do algoritmo. Depois as leituras. Depois inicializa a soma. Depois acumula. Por fim, mostra o resultado."
+      },
+      {
+        tipo: "simulacao",
+        tag: "Contador com SE",
+        icone: "fa-calculator",
+        titulo: "Contando apenas os positivos",
+        descricao: "Agora entra o SE. O contador só aumenta quando a condição for verdadeira.",
+        codigo: [
+          "algoritmo \"conta_positivos\"",
+          "var",
+          "   n1, n2, n3, contador: inteiro",
+          "inicio",
+          "   contador <- 0",
+          "   leia(n1)",
+          "   se (n1 > 0) entao",
+          "      contador <- contador + 1",
+          "   fimse",
+          "   leia(n2)",
+          "   se (n2 > 0) entao",
+          "      contador <- contador + 1",
+          "   fimse",
+          "   leia(n3)",
+          "   se (n3 > 0) entao",
+          "      contador <- contador + 1",
+          "   fimse",
+          "   escreval(contador)",
+          "fimalgoritmo"
+        ],
+        numeros: [-2, 9, 4],
+        modo: "contador-com-se",
+        dica: "Contador aumenta de 1 em 1. Ele serve para responder perguntas como: quantos são positivos? quantos são maiores que 10?",
+        perguntaFinal: "O contador final será 2, pois 9 e 4 são positivos."
+      },
+      {
+        tipo: "quiz",
+        tag: "Contagem com condição",
+        icone: "fa-check-circle",
+        titulo: "Quantos números serão contados?",
+        descricao: "Aqui a variável contador só aumenta quando o número for maior que 10.",
+        codigo: [
+          "contador <- 0",
+          "",
+          "se (n1 > 10) entao",
+          "   contador <- contador + 1",
+          "fimse",
+          "",
+          "se (n2 > 10) entao",
+          "   contador <- contador + 1",
+          "fimse",
+          "",
+          "se (n3 > 10) entao",
+          "   contador <- contador + 1",
+          "fimse",
+          "",
+          "escreval(contador)"
+        ],
+        pergunta: "Para as entradas n1 = 8, n2 = 12 e n3 = 30, qual será o valor final de contador?",
+        alternativas: [
+          { texto: "1", correta: false, comentario: "Apenas 12 já seria contado, mas 30 também é maior que 10." },
+          { texto: "2", correta: true, comentario: "Correto. 12 e 30 são maiores que 10. O 8 não conta." },
+          { texto: "50", correta: false, comentario: "Esse seria um raciocínio de soma. Aqui é contador, então aumenta de 1 em 1." }
+        ]
+      },
+      {
+        tipo: "drag",
+        tag: "Contador com SE",
+        icone: "fa-grip-vertical",
+        titulo: "Monte o trecho que conta positivos",
+        descricao: "Agora o aluno precisa organizar a inicialização do contador e a decisão que aumenta o contador.",
+        enunciado: "Organize o trecho para contar se um número é positivo.",
+        blocos: [
+          { id: "b1", texto: "contador <- 0" },
+          { id: "b2", texto: "leia(num)" },
+          { id: "b3", texto: "se (num > 0) entao" },
+          { id: "b4", texto: "contador <- contador + 1" },
+          { id: "b5", texto: "fimse" },
+          { id: "b6", texto: "escreval(contador)" }
+        ],
+        ordem: ["b1", "b2", "b3", "b4", "b5", "b6"],
+        dica: "O contador precisa começar em zero antes do teste. O incremento fica dentro do SE, porque só deve acontecer quando a condição for verdadeira."
+      },
+      {
+        tipo: "simulacao",
+        tag: "Acumulador com SE",
+        icone: "fa-filter",
+        titulo: "Somando apenas os menores que 20",
+        descricao: "Agora acumulador e condição trabalham juntos. A soma só muda quando o número atende à condição.",
+        codigo: [
+          "algoritmo \"soma_menores_que_20\"",
+          "var",
+          "   n1, n2, n3, soma: inteiro",
+          "inicio",
+          "   soma <- 0",
+          "   leia(n1)",
+          "   se (n1 < 20) entao",
+          "      soma <- soma + n1",
+          "   fimse",
+          "   leia(n2)",
+          "   se (n2 < 20) entao",
+          "      soma <- soma + n2",
+          "   fimse",
+          "   leia(n3)",
+          "   se (n3 < 20) entao",
+          "      soma <- soma + n3",
+          "   fimse",
+          "   escreval(soma)",
+          "fimalgoritmo"
+        ],
+        numeros: [5, 30, 10],
+        modo: "acumulador-com-se",
+        dica: "A diferença para o contador é que aqui não fazemos +1. Somamos o próprio valor do número.",
+        perguntaFinal: "A soma final será 15, pois 5 e 10 são menores que 20. O 30 é ignorado."
+      },
+      {
+        tipo: "quiz",
+        tag: "Contar ou somar?",
+        icone: "fa-code-branch",
+        titulo: "Identifique o tipo de variável",
+        descricao: "Este desafio ajuda a diferenciar contador e acumulador.",
+        codigo: [
+          "total <- 0",
+          "",
+          "se (preco < 100) entao",
+          "   total <- total + preco",
+          "fimse"
+        ],
+        pergunta: "Nesse trecho, a variável total está sendo usada como:",
+        alternativas: [
+          { texto: "Contador, porque aumenta de 1 em 1", correta: false, comentario: "Não aumenta de 1 em 1. Ela soma o valor da variável preco." },
+          { texto: "Acumulador, porque soma valores", correta: true, comentario: "Correto. total recebe total + preco, então está acumulando valores." },
+          { texto: "Variável de decisão, porque aparece dentro do SE", correta: false, comentario: "Estar dentro do SE não transforma a variável em decisão. Ela continua sendo um acumulador." }
+        ]
+      },
+      {
+        tipo: "drag",
+        tag: "Acumulador com SE",
+        icone: "fa-grip-vertical",
+        titulo: "Monte o trecho que soma valores abaixo de 20",
+        descricao: "Este exercício junta acumulador e decisão. É uma das partes mais importantes da aula.",
+        enunciado: "Organize o trecho para somar apenas um número caso ele seja menor que 20.",
+        blocos: [
+          { id: "c1", texto: "soma <- 0" },
+          { id: "c2", texto: "leia(num)" },
+          { id: "c3", texto: "se (num < 20) entao" },
+          { id: "c4", texto: "soma <- soma + num" },
+          { id: "c5", texto: "fimse" },
+          { id: "c6", texto: "escreval(soma)" }
+        ],
+        ordem: ["c1", "c2", "c3", "c4", "c5", "c6"],
+        dica: "A soma começa zerada. Depois lê o número. Se a condição for verdadeira, soma o próprio número."
+      }
+    ];
+
+    function embaralhar(array) {
+      const copia = [...array];
+      for (let i = copia.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copia[i], copia[j]] = [copia[j], copia[i]];
+      }
+      return copia;
+    }
+
+    function iniciarTela() {
+      nomeAluno = "";
+      etapaAtual = 0;
+      pontos = 0;
+      respondidas = 0;
+      envioRealizado = false;
+
+      app.innerHTML = `
+        <section class="start-screen">
+          <div class="start-card">
+            <div class="start-icon"><i class="fas fa-calculator"></i></div>
+            <h1>Simulador de Contadores e Acumuladores</h1>
+            <p>Você vai praticar soma simples, contador com <strong>se</strong>, acumulador com <strong>se</strong> e montagem de código em blocos.</p>
+            <div class="actions">
+              <button class="btn btn-primary" type="button" onclick="iniciarObjeto()">
+                <i class="fas fa-play"></i>
+                Começar atividade
+              </button>
+            </div>
+            <div class="microcopy">Dica: contador conta quantidades. Acumulador soma valores.</div>
+          </div>
+        </section>
+      `;
+    }
+
+    function iniciarObjeto() {
+      etapaAtual = 0;
+      pontos = 0;
+      respondidas = 0;
+      envioRealizado = false;
+      renderizarEtapa();
+    }
+
+    function estruturaBase(conteudo) {
+      const total = etapas.length;
+      const atual = etapaAtual + 1;
+      const percentual = Math.round((etapaAtual / total) * 100);
+
+      app.innerHTML = `
+        <div class="topbar">
+          <a class="back-link" href="objetos.html"><i class="fas fa-arrow-left"></i> Voltar aos objetos</a>
+          <div id="score" class="score-chip"><i class="fas fa-star"></i> Pontos: ${pontos}</div>
+        </div>
+
+        <section class="hero">
+          <h1>Simulador de Contadores e Acumuladores</h1>
+          <p>Pratique o raciocínio de algoritmos entendendo quando uma variável deve contar quantidades e quando deve acumular valores.</p>
+        </section>
+
+        <section class="progress-wrap">
+          <div class="progress-label">
+            <span>Etapa ${atual} de ${total}</span>
+            <span>${percentual}% concluído</span>
+          </div>
+          <div class="progress"><div class="progress-bar" style="width:${percentual}%"></div></div>
+        </section>
+
+        ${conteudo}
+      `;
+    }
+
+    function renderizarEtapa() {
+      const etapa = etapas[etapaAtual];
+      selectedBlockId = null;
+
+      if (etapa.tipo === "simulacao") renderizarSimulacao(etapa);
+      if (etapa.tipo === "quiz") renderizarQuiz(etapa);
+      if (etapa.tipo === "drag") renderizarDrag(etapa);
+    }
+
+    function linhasCodigo(codigo, linhaAtiva = -1) {
+      return codigo.map((linha, index) => {
+        const segura = linha
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;");
+        return `<span class="code-line ${index === linhaAtiva ? "active" : ""}">${segura || " "}</span>`;
+      }).join("");
+    }
+
+    function renderizarSimulacao(etapa) {
+      simPasso = 0;
+      simSoma = 0;
+      simContador = 0;
+
+      estruturaBase(`
+        <section class="activity-card">
+          <div class="card-header">
+            <div class="section-tag"><i class="fas ${etapa.icone}"></i> ${etapa.tag}</div>
+            <div class="step-counter">Simulação passo a passo</div>
+          </div>
+
+          <h2 class="lesson-title">${etapa.titulo}</h2>
+          <p class="lesson-description">${etapa.descricao}</p>
+
+          <div class="layout">
+            <pre id="codigo" class="code-block">${linhasCodigo(etapa.codigo)}</pre>
+
+            <div class="sim-card">
+              <div class="card-subtitle"><i class="fas fa-microchip"></i> Estado da execução</div>
+              <div class="state-list">
+                <div class="state-item">
+                  <div class="state-label">Entradas</div>
+                  <div class="state-value">${etapa.numeros.join(", ")}</div>
+                </div>
+                <div class="state-item">
+                  <div class="state-label">Variáveis</div>
+                  <div id="variaveis" class="state-value">soma = 0 | contador = 0</div>
+                </div>
+                <div class="state-item">
+                  <div class="state-label">Condição</div>
+                  <div id="condicao" class="state-value">Clique em “Próximo passo”.</div>
+                </div>
+              </div>
+
+              <div class="card-subtitle"><i class="fas fa-terminal"></i> Explicação</div>
+              <div id="saida" class="output">A execução ainda não começou.</div>
+              <div class="hint-box">${etapa.dica}</div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="btnPasso" class="btn btn-primary" type="button" onclick="proximoPassoSimulacao()">
+              <i class="fas fa-forward-step"></i>
+              Próximo passo
+            </button>
+            <button class="btn btn-secondary" type="button" onclick="renderizarEtapa()">
+              <i class="fas fa-rotate-left"></i>
+              Reiniciar etapa
+            </button>
+            <button id="btnProximo" class="btn btn-secondary" type="button" onclick="concluirEtapa(false)" disabled>
+              <i class="fas fa-arrow-right"></i>
+              Avançar
+            </button>
+          </div>
+
+          <div class="microcopy">Nesta etapa, o objetivo é observar a mudança das variáveis antes de responder exercícios.</div>
+        </section>
+      `);
+    }
+
+    function proximoPassoSimulacao() {
+      const etapa = etapas[etapaAtual];
+      const numero = etapa.numeros[simPasso];
+      const variaveis = document.getElementById("variaveis");
+      const condicao = document.getElementById("condicao");
+      const saida = document.getElementById("saida");
+      const codigo = document.getElementById("codigo");
+
+      if (simPasso >= etapa.numeros.length) {
+        saida.innerHTML = `<span class="correct-text">Final da execução.</span><br>${etapa.perguntaFinal}`;
+        document.getElementById("btnPasso").disabled = true;
+        document.getElementById("btnProximo").disabled = false;
+        return;
+      }
+
+      let explicacao = "";
+      let linhaAtiva = -1;
+
+      if (etapa.modo === "acumulador-sem-se") {
+        simSoma += numero;
+        explicacao = `soma recebeu soma + ${numero}. Agora soma = ${simSoma}.`;
+        condicao.innerHTML = "Não há SE nesta etapa. Todos os valores entram na soma.";
+        linhaAtiva = 8 + simPasso;
+      }
+
+      if (etapa.modo === "contador-com-se") {
+        const conta = numero > 0;
+        if (conta) simContador++;
+        explicacao = `${numero} > 0 é ${conta ? "VERDADEIRO" : "FALSO"}. ${conta ? "O contador aumenta 1." : "O contador não muda."}`;
+        condicao.innerHTML = `${numero} > 0 → <strong>${conta ? "verdadeiro" : "falso"}</strong>`;
+        linhaAtiva = conta ? 7 + (simPasso * 4) : 6 + (simPasso * 4);
+      }
+
+      if (etapa.modo === "acumulador-com-se") {
+        const soma = numero < 20;
+        if (soma) simSoma += numero;
+        explicacao = `${numero} < 20 é ${soma ? "VERDADEIRO" : "FALSO"}. ${soma ? `A soma recebe soma + ${numero}.` : "A soma não muda."}`;
+        condicao.innerHTML = `${numero} < 20 → <strong>${soma ? "verdadeiro" : "falso"}</strong>`;
+        linhaAtiva = soma ? 7 + (simPasso * 4) : 6 + (simPasso * 4);
+      }
+
+      variaveis.innerHTML = `soma = ${simSoma} | contador = ${simContador}`;
+      saida.innerHTML = `<strong>Número analisado:</strong> ${numero}<br>${explicacao}`;
+      codigo.innerHTML = linhasCodigo(etapa.codigo, linhaAtiva);
+      simPasso++;
+    }
+
+    function renderizarQuiz(etapa) {
+      const alternativas = embaralhar(etapa.alternativas);
+      estruturaBase(`
+        <section class="activity-card">
+          <div class="card-header">
+            <div class="section-tag"><i class="fas ${etapa.icone}"></i> ${etapa.tag}</div>
+            <div class="step-counter">Questão de interpretação</div>
+          </div>
+
+          <h2 class="lesson-title">${etapa.titulo}</h2>
+          <p class="lesson-description">${etapa.descricao}</p>
+
+          <div class="layout">
+            <pre class="code-block">${linhasCodigo(etapa.codigo)}</pre>
+
+            <div class="answers-card">
+              <div class="card-subtitle"><i class="fas fa-question-circle"></i> Responda</div>
+              <p class="lesson-description"><strong>${etapa.pergunta}</strong></p>
+              <div class="answers">
+                ${alternativas.map((alt, index) => `
+                  <button class="answer-btn" type="button" onclick="responderQuiz(this, ${alt.correta}, '${encodeURIComponent(alt.comentario)}')">
+                    <span class="answer-pill">${String.fromCharCode(65 + index)}</span>
+                    <span class="answer-text">${alt.texto}</span>
+                  </button>
+                `).join("")}
+              </div>
+              <div id="feedback" class="feedback-area">Selecione uma alternativa.</div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="btnProximo" class="btn btn-primary" type="button" onclick="concluirEtapa(false)" disabled>
+              <i class="fas fa-arrow-right"></i>
+              Próximo
+            </button>
+          </div>
+          <div class="microcopy">Leia com calma: contador geralmente usa +1; acumulador soma um valor variável.</div>
+        </section>
+      `);
+    }
+
+    function responderQuiz(botao, correta, comentarioCodificado) {
+      const botoes = document.querySelectorAll(".answer-btn");
+      const feedback = document.getElementById("feedback");
+      const comentario = decodeURIComponent(comentarioCodificado);
+
+      botoes.forEach(btn => btn.disabled = true);
+
+      if (correta) {
+        botao.classList.add("correct");
+        feedback.innerHTML = `<span class="correct-text">Correto!</span> ${comentario}`;
+        pontos++;
+      } else {
+        botao.classList.add("wrong");
+        feedback.innerHTML = `<span class="error-text">Ainda não.</span> ${comentario}`;
+        botoes.forEach(btn => {
+          if (btn.getAttribute("onclick").includes("true")) btn.classList.add("correct");
+        });
+      }
+
+      respondidas++;
+      atualizarScore();
+      document.getElementById("btnProximo").disabled = false;
+    }
+
+    function renderizarDrag(etapa) {
+      const blocosEmbaralhados = embaralhar(etapa.blocos);
+      estruturaBase(`
+        <section class="activity-card">
+          <div class="card-header">
+            <div class="section-tag"><i class="fas ${etapa.icone}"></i> ${etapa.tag}</div>
+            <div class="step-counter">Arraste e organize</div>
+          </div>
+
+          <h2 class="lesson-title">${etapa.titulo}</h2>
+          <p class="lesson-description">${etapa.descricao}</p>
+
+          <div class="drag-card">
+            <div class="card-subtitle"><i class="fas fa-list-ol"></i> ${etapa.enunciado}</div>
+            <div class="hint-box" style="margin-bottom: 14px;">${etapa.dica}</div>
+
+            <div class="drag-grid">
+              <div class="block-bank" id="blockBank" ondragover="allowDrop(event)" ondrop="dropInBank(event)">
+                <div class="area-title">Blocos disponíveis</div>
+                ${blocosEmbaralhados.map(bloco => blocoHTML(bloco)).join("")}
+              </div>
+
+              <div class="drop-area" id="dropArea">
+                <div class="area-title">Código em ordem</div>
+                ${etapa.ordem.map((_, index) => `
+                  <div class="slot" data-index="${index}" ondragover="allowDrop(event)" ondrop="dropInSlot(event, ${index})" onclick="clickSlot(${index})">
+                    Solte aqui a linha ${index + 1}
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+
+            <div id="feedback" class="feedback-area">Arraste os blocos ou clique em um bloco e depois no espaço desejado.</div>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-secondary" type="button" onclick="renderizarEtapa()">
+              <i class="fas fa-rotate-left"></i>
+              Reiniciar montagem
+            </button>
+            <button class="btn btn-primary" type="button" onclick="verificarDrag()">
+              <i class="fas fa-check"></i>
+              Verificar ordem
+            </button>
+            <button id="btnProximo" class="btn btn-secondary" type="button" onclick="concluirEtapa(false)" disabled>
+              <i class="fas fa-arrow-right"></i>
+              Próximo
+            </button>
+          </div>
+          <div class="microcopy">Para estudantes iniciantes: montar o código ajuda a perceber a ordem lógica do algoritmo.</div>
+        </section>
+      `);
+    }
+
+    function blocoHTML(bloco) {
+      const textoSeguro = bloco.texto
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;");
+
+      return `
+        <div class="code-block-item" id="${bloco.id}" draggable="true" onclick="selecionarBloco('${bloco.id}')" ondragstart="dragStart(event)">
+          ${textoSeguro.replaceAll("\n", "<br>")}
+        </div>
+      `;
+    }
+
+    function selecionarBloco(id) {
+      document.querySelectorAll(".code-block-item").forEach(item => item.classList.remove("selected"));
+      selectedBlockId = id;
+      const bloco = document.getElementById(id);
+      if (bloco) bloco.classList.add("selected");
+      document.getElementById("feedback").innerHTML = "Agora clique no espaço onde esse bloco deve ficar.";
+    }
+
+    function clickSlot(index) {
+      if (!selectedBlockId) return;
+      const slot = document.querySelector(`.slot[data-index='${index}']`);
+      const bloco = document.getElementById(selectedBlockId);
+      moverBlocoParaSlot(bloco, slot);
+      selectedBlockId = null;
+    }
+
+    function allowDrop(event) {
+      event.preventDefault();
+    }
+
+    function dragStart(event) {
+      event.dataTransfer.setData("text/plain", event.target.id);
+    }
+
+    function dropInSlot(event, index) {
+      event.preventDefault();
+      const id = event.dataTransfer.getData("text/plain");
+      const bloco = document.getElementById(id);
+      const slot = document.querySelector(`.slot[data-index='${index}']`);
+      moverBlocoParaSlot(bloco, slot);
+    }
+
+    function dropInBank(event) {
+      event.preventDefault();
+      const id = event.dataTransfer.getData("text/plain");
+      const bloco = document.getElementById(id);
+      const banco = document.getElementById("blockBank");
+      if (bloco && banco) {
+        banco.appendChild(bloco);
+        limparSlotsVazios();
+      }
+    }
+
+    function moverBlocoParaSlot(bloco, slot) {
+      if (!bloco || !slot) return;
+
+      const banco = document.getElementById("blockBank");
+      const blocoAtual = slot.querySelector(".code-block-item");
+
+      if (blocoAtual && blocoAtual !== bloco) {
+        banco.appendChild(blocoAtual);
+      }
+
+      slot.innerHTML = "";
+      slot.appendChild(bloco);
+      slot.classList.add("filled");
+      bloco.classList.remove("selected");
+      document.getElementById("feedback").innerHTML = "Bloco posicionado. Continue organizando o algoritmo.";
+    }
+
+    function limparSlotsVazios() {
+      document.querySelectorAll(".slot").forEach((slot, index) => {
+        if (!slot.querySelector(".code-block-item")) {
+          slot.classList.remove("filled");
+          slot.innerHTML = `Solte aqui a linha ${index + 1}`;
+        }
+      });
+    }
+
+    function verificarDrag() {
+      const etapa = etapas[etapaAtual];
+      const slots = document.querySelectorAll(".slot");
+      const feedback = document.getElementById("feedback");
+
+      const todosPreenchidos = [...slots].every(slot => slot.querySelector(".code-block-item"));
+      if (!todosPreenchidos) {
+        feedback.innerHTML = `<span class="warning-text">Ainda falta bloco.</span> Preencha todos os espaços antes de verificar.`;
+        return;
+      }
+
+      const ordemAluno = [...slots].map(slot => slot.querySelector(".code-block-item").id);
+      const correto = ordemAluno.every((id, index) => id === etapa.ordem[index]);
+
+      if (correto) {
+        feedback.innerHTML = `<span class="correct-text">Perfeito!</span> O algoritmo está na ordem correta.`;
+        pontos++;
+        respondidas++;
+        atualizarScore();
+        document.querySelectorAll(".code-block-item").forEach(item => item.draggable = false);
+        document.getElementById("btnProximo").disabled = false;
+      } else {
+        const primeiraErrada = ordemAluno.findIndex((id, index) => id !== etapa.ordem[index]);
+        feedback.innerHTML = `<span class="error-text">A ordem ainda não está correta.</span> Revise a linha ${primeiraErrada + 1}. Pense no que precisa acontecer antes dela.`;
+      }
+    }
+
+    function atualizarScore() {
+      const score = document.getElementById("score");
+      if (score) score.innerHTML = `<i class="fas fa-star"></i> Pontos: ${pontos}`;
+    }
+
+    function concluirEtapa() {
+      etapaAtual++;
+      if (etapaAtual >= etapas.length) {
+        renderizarFinal();
+      } else {
+        renderizarEtapa();
+      }
+    }
+
+    function renderizarFinal() {
+      const totalPontuavel = etapas.filter(e => e.tipo !== "simulacao").length;
+      const percentual = totalPontuavel > 0 ? Math.round((pontos / totalPontuavel) * 100) : 0;
+
+      app.innerHTML = `
+        <section class="end-screen">
+          <div class="end-card">
+            <div class="end-icon"><i class="fas fa-trophy"></i></div>
+            <h1>Atividade concluída!</h1>
+            <p>Você praticou acumuladores, contadores, decisões com <strong>se</strong> e montagem de código em blocos.</p>
+
+            <div class="end-stats">
+              <div class="end-stat">
+                <strong>${pontos}</strong>
+                <span>pontos</span>
+              </div>
+              <div class="end-stat">
+                <strong>${totalPontuavel}</strong>
+                <span>atividades pontuadas</span>
+              </div>
+              <div class="end-stat">
+                <strong>${percentual}%</strong>
+                <span>desempenho</span>
+              </div>
+            </div>
+
+            <p style="margin-bottom: 10px;"><strong>Para finalizar, informe seu nome:</strong></p>
+            <input id="nomeAlunoFinal" class="name-field" type="text" placeholder="Digite seu nome completo" autocomplete="name" />
+
+            <div id="avisoNome" class="feedback-area"></div>
+
+            <div class="actions">
+              <button id="btnFinalizar" class="btn btn-primary" type="button" onclick="finalizarComNome()">
+                <i class="fas fa-check"></i>
+                Finalizar
+              </button>
+              <button class="btn btn-secondary" type="button" onclick="iniciarTela()">
+                <i class="fas fa-rotate-left"></i>
+                Refazer atividade
+              </button>
+            </div>
+
+            <div class="end-secondary">
+              <a href="objetos.html">Voltar aos objetos</a>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function finalizarComNome() {
+      const input = document.getElementById("nomeAlunoFinal");
+      const aviso = document.getElementById("avisoNome");
+      const botao = document.getElementById("btnFinalizar");
+
+      nomeAluno = input.value.trim();
+
+      if (!nomeAluno) {
+        aviso.innerHTML = `<span class="error-text">Digite seu nome para finalizar a atividade.</span>`;
+        input.focus();
+        return;
+      }
+
+      botao.disabled = true;
+      botao.innerHTML = `<i class="fas fa-check"></i> Finalizado`;
+      aviso.innerHTML = `<span class="correct-text">Atividade finalizada. Obrigado!</span>`;
+      enviarResultado();
+    }
+
+    async function enviarResultado() {
+      if (envioRealizado) return;
+      envioRealizado = true;
+
+      const totalPontuavel = etapas.filter(e => e.tipo !== "simulacao").length;
+
+      const dados = {
+        nome: nomeAluno,
+        atividade: NOME_ATIVIDADE,
+        acertos: pontos,
+        total: totalPontuavel
+      };
+
+      try {
+        await fetch(URL_WEBAPP, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dados)
+        });
+      } catch (e) {
+        console.error("Erro ao registrar resultado:", e);
+        envioRealizado = false;
+      }
+    }
+
+    iniciarTela();
+  </script>
+</body>
+</html>
