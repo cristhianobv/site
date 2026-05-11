@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memória dos Algoritmos | Prof. Cristhiano Vasconcellos</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <style>
+    :root {
+      --text: #0f172a;
+      --text-soft: #475569;
+      --text-muted: #64748b;
+      --border: rgba(15, 23, 42, 0.08);
+      --primary: #22c55e;
+      --primary-hover: #16a34a;
+      --primary-active: #15803d;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --info: #0ea5e9;
+      --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 18px 40px rgba(15, 23, 42, 0.08);
+      --radius-lg: 28px;
+      --radius-md: 22px;
+      --container: 1120px;
+      --transition: 220ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(34, 197, 94, 0.09), transparent 24%),
+        radial-gradient(circle at 90% 18%, rgba(14, 165, 233, 0.08), transparent 20%),
+        linear-gradient(180deg, #fcfefe 0%, #f8fafc 30%, #f4f8fb 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(circle at center, black 35%, transparent 85%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    a { color: inherit; text-decoration: none; }
+    .page-wrap { padding: 20px 0 36px; position: relative; z-index: 1; }
+    .container { width: min(var(--container), calc(100% - 36px)); margin: 0 auto; position: relative; z-index: 1; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+    .back-link { display: inline-flex; align-items: center; gap: 8px; color: var(--text-soft); font-weight: 700; transition: var(--transition); }
+    .back-link:hover { color: var(--text); }
+    .chips { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .score-chip { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 999px; background: rgba(255,255,255,.82); border: 1px solid var(--border); color: var(--text-soft); box-shadow: var(--shadow-sm); font-weight: 800; }
+    .hero { margin-bottom: 16px; }
+    .hero h1 { font-family: "Space Grotesk", sans-serif; font-size: clamp(2.1rem, 4vw, 3.25rem); line-height: 1; letter-spacing: -0.05em; margin-bottom: 8px; }
+    .hero p { color: var(--text-soft); font-size: 1rem; line-height: 1.65; max-width: 920px; }
+    .progress-wrap { margin-bottom: 18px; background: rgba(255,255,255,.82); border: 1px solid var(--border); border-radius: 20px; padding: 14px 16px; box-shadow: var(--shadow-sm); }
+    .progress-label { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; color: var(--text-muted); font-size: 0.9rem; flex-wrap: wrap; }
+    .progress { width: 100%; height: 12px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+    .progress-bar { height: 100%; width: 0%; background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%); border-radius: inherit; transition: width var(--transition); }
+    .activity-card, .start-card, .end-card { background: rgba(255,255,255,.93); border: 1px solid var(--border); box-shadow: var(--shadow-md); border-radius: var(--radius-lg); padding: 24px; }
+    .card-header { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 16px; flex-wrap: wrap; }
+    .section-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(34,197,94,.10); color: var(--primary-active); border: 1px solid rgba(34,197,94,.16); border-radius: 999px; padding: 10px 14px; font-size: .9rem; font-weight: 800; }
+    .step-counter { color: var(--text-muted); font-size: .95rem; font-weight: 800; }
+    .screen-title { font-family: "Space Grotesk", sans-serif; font-size: clamp(1.55rem, 3vw, 2.2rem); letter-spacing: -0.04em; line-height: 1.08; margin-bottom: 10px; }
+    .screen-description { color: var(--text-soft); line-height: 1.72; margin-bottom: 16px; max-width: 940px; }
+    .level-info { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:12px; margin: 12px 0 18px; }
+    .info-card { background:rgba(248,250,252,.9); border:1px solid rgba(15,23,42,.06); border-radius:20px; padding:14px; box-shadow:var(--shadow-sm); }
+    .info-card strong { display:block; font-family:"Space Grotesk", sans-serif; font-size:1.25rem; margin-bottom:4px; }
+    .info-card span { color:var(--text-muted); font-size:.86rem; font-weight:700; }
+    .board { display:grid; gap:12px; margin-top: 10px; }
+    .board.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .board.cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .board.cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .memory-card { min-height: 118px; border: 1px solid rgba(15,23,42,.08); border-radius: 22px; background: #fff; cursor: pointer; box-shadow: 0 8px 22px rgba(15,23,42,.05); transition: var(--transition); overflow:hidden; position:relative; display:flex; align-items:stretch; justify-content:center; padding:0; color:var(--text); font-family:inherit; }
+    .memory-card:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 18px 32px rgba(15,23,42,.09); border-color: rgba(34,197,94,.45); }
+    .memory-card:disabled { cursor:default; }
+    .card-face { width:100%; min-height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:8px; padding:14px 12px; text-align:center; }
+    .card-back { background: linear-gradient(135deg, rgba(34,197,94,.14), rgba(14,165,233,.10)); }
+    .card-back .big { font-size:2.1rem; filter: drop-shadow(0 8px 14px rgba(34,197,94,.18)); }
+    .card-back .label { font-weight:900; color:var(--primary-active); font-size:.9rem; }
+    .card-front { display:none; background: rgba(255,255,255,.98); }
+    .memory-card.open .card-back, .memory-card.matched .card-back { display:none; }
+    .memory-card.open .card-front, .memory-card.matched .card-front { display:flex; }
+    .memory-card.matched { border-color: rgba(34,197,94,.45); background: rgba(34,197,94,.06); box-shadow: 0 14px 30px rgba(34,197,94,.13); }
+    .memory-card.wrong { animation: shake .32s ease-in-out; border-color: rgba(220,38,38,.35); }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+    .card-type { display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:6px 9px; background:rgba(34,197,94,.10); color:var(--primary-active); font-size:.72rem; font-weight:900; text-transform:uppercase; letter-spacing:.03em; }
+    .card-text { font-weight:850; line-height:1.35; font-size: .96rem; }
+    .code-text { font-family:"JetBrains Mono", monospace; font-size:.86rem; background:#0f172a; color:#e2e8f0; padding:9px 10px; border-radius:14px; width:100%; line-height:1.45; }
+    .feedback-area { min-height: 34px; margin-top: 16px; text-align: center; font-size: 1rem; color: var(--text-soft); line-height: 1.6; }
+    .correct-text { color:#15803d; font-weight:900; }
+    .error-text { color:var(--danger); font-weight:900; }
+    .warning-text { color:var(--warning); font-weight:900; }
+    .actions { margin-top: 18px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; border: none; cursor: pointer; transition: var(--transition); padding: 14px 22px; border-radius: 999px; font-weight: 850; font-size: 0.96rem; text-decoration: none; }
+    .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%); color: #052e16; box-shadow: 0 14px 28px rgba(34,197,94,.22); }
+    .btn-secondary { background: rgba(255,255,255,.9); color: var(--text-soft); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+    .btn:hover:not(:disabled) { transform: translateY(-2px); }
+    .btn:disabled { opacity:.55; cursor:not-allowed; transform:none!important; box-shadow:none; }
+    .microcopy { color: var(--text-muted); font-size:.9rem; text-align:center; margin-top:12px; line-height:1.6; }
+    .start-screen, .end-screen { min-height:70vh; display:flex; align-items:center; justify-content:center; padding:10px 0; }
+    .start-card, .end-card { width:min(820px,100%); text-align:center; }
+    .start-icon, .end-icon { width:76px; height:76px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; background:rgba(34,197,94,.12); color:var(--primary-active); font-size:1.9rem; margin-bottom:14px; }
+    .start-card h1, .end-card h1 { font-family:"Space Grotesk", sans-serif; font-size:clamp(2rem,4vw,3rem); line-height:1.02; letter-spacing:-0.04em; margin-bottom:10px; }
+    .start-card p, .end-card p { color:var(--text-soft); line-height:1.72; margin-bottom:18px; }
+    .name-field { width:min(480px,100%); border:1px solid var(--border); border-radius:999px; padding:15px 18px; font-size:1rem; outline:none; margin:6px 0 12px; box-shadow:var(--shadow-sm); background:white; }
+    .name-field:focus { border-color:rgba(34,197,94,.45); box-shadow:0 0 0 4px rgba(34,197,94,.12); }
+    .end-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-bottom:20px; }
+    .end-stat { background:rgba(255,255,255,.84); border:1px solid var(--border); border-radius:20px; padding:16px; }
+    .end-stat strong { display:block; font-family:"Space Grotesk", sans-serif; font-size:1.45rem; margin-bottom:4px; }
+    .end-stat span { color:var(--text-muted); font-size:.88rem; }
+    .confetti { position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:20; }
+    .piece { position:absolute; top:-20px; font-size:20px; animation: fall 1100ms linear forwards; }
+    @keyframes fall { to { transform: translateY(105vh) rotate(280deg); opacity:.2; } }
+    @media (max-width: 920px) { .level-info, .end-stats { grid-template-columns: repeat(2, minmax(0,1fr)); } .board.cols-5, .board.cols-6 { grid-template-columns: repeat(4, minmax(0,1fr)); } }
+    @media (max-width: 640px) { .container { width:min(var(--container), calc(100% - 20px)); } .page-wrap{padding-top:14px;} .activity-card,.start-card,.end-card{padding:18px;border-radius:22px;} .level-info,.end-stats{grid-template-columns:1fr;} .board.cols-4,.board.cols-5,.board.cols-6{grid-template-columns:repeat(2,minmax(0,1fr));} .memory-card{min-height:112px;border-radius:18px;} .card-text{font-size:.9rem;} .code-text{font-size:.78rem;} }
+  </style>
+</head>
+<body>
+  <main class="page-wrap"><div class="container" id="app"></div></main>
+
+<script>
+  const URL_WEBAPP = "https://script.google.com/macros/s/AKfycbzoeygTm-R27yb8QOcdH0s7fViv6vGPQ5MtDuCgHBt3RhvFVQKlGxf3A7yQUR3RfRqFcw/exec";
+  const NOME_ATIVIDADE = "Memória dos Algoritmos";
+  const app = document.getElementById("app");
+
+  const niveis = [
+    {
+      titulo: "Fundamentos do algoritmo", tag:"Nível 1", icone:"fa-seedling", categoria:"Comandos básicos", colunas:4,
+      descricao:"Relacione comandos iniciais com suas funções. Ideal para revisar entrada, saída, variáveis e estrutura básica.",
+      pares:[
+        p("🧾","algoritmo", "Nomeia e inicia um algoritmo"),
+        p("▶️","inicio", "Marca onde os comandos começam"),
+        p("⌨️","leia(nome)", "Entrada de dados"),
+        p("🖥️","escreval(nome)", "Saída de dados na tela")
+      ]
+    },
+    {
+      titulo:"Decisões com SE", tag:"Nível 2", icone:"fa-code-branch", categoria:"Condições", colunas:4,
+      descricao:"Agora os pares envolvem decisão, teste lógico e fechamento correto da estrutura condicional.",
+      pares:[
+        p("🔀","se", "Inicia uma decisão"),
+        p("✅","entao", "Executa quando a condição é verdadeira"),
+        p("↪️","senao", "Caminho alternativo quando a condição é falsa"),
+        p("🔚","fimse", "Fecha a estrutura de decisão"),
+        p("📊","nota >= 7", "Condição para aprovação")
+      ]
+    },
+    {
+      titulo:"Contadores e acumuladores", tag:"Nível 3", icone:"fa-calculator", categoria:"Variáveis que mudam", colunas:4,
+      descricao:"Diferencie contar quantidades de somar valores. Este nível reforça um ponto muito importante da disciplina.",
+      pares:[
+        p("🔢","contador", "Conta quantidades"),
+        p("➕","contador <- contador + 1", "Incrementa de 1 em 1"),
+        p("🧮","soma", "Acumula valores"),
+        p("💰","soma <- soma + numero", "Soma o valor lido ao total"),
+        p("🟢","se numero > 0", "Testa se o número é positivo"),
+        p("🎯","total <- total + preco", "Exemplo de acumulador")
+      ]
+    },
+    {
+      titulo:"Repetição e padrões", tag:"Nível 4", icone:"fa-repeat", categoria:"Laços", colunas:5,
+      descricao:"Associe estruturas de repetição aos seus fechamentos, condições e usos comuns.",
+      pares:[
+        p("🔁","enquanto", "Repete enquanto a condição for verdadeira"),
+        p("🔚","fimenquanto", "Fecha o laço enquanto"),
+        p("📌","i <- i + 1", "Atualiza o controle do laço"),
+        p("🧭","i <= 5", "Condição de permanência no laço"),
+        p("🧮","soma <- soma + i", "Acumula valores dentro da repetição"),
+        p("⚠️","loop infinito", "Ocorre quando a condição nunca deixa de ser verdadeira")
+      ]
+    },
+    {
+      titulo:"Interpretação de algoritmos", tag:"Nível 5", icone:"fa-brain", categoria:"Código e significado", colunas:6,
+      descricao:"Último nível: relacione trechos de código com o raciocínio que eles representam.",
+      pares:[
+        p("📥","leia(n)", "Recebe um valor do usuário"),
+        p("🧪","se n > 10 entao", "Testa se n é maior que 10"),
+        p("🔢","cont <- cont + 1", "Conta mais uma ocorrência"),
+        p("➕","soma <- soma + n", "Adiciona n ao total"),
+        p("📤","escreval(soma)", "Mostra o valor final da soma"),
+        p("🏁","fimalgoritmo", "Indica o fim do algoritmo"),
+        p("🧠","maior <- n", "Atualiza o maior valor encontrado"),
+        p("🚦","senao", "Executa quando o teste anterior falha")
+      ]
+    }
+  ];
+
+  function p(emoji, codigo, significado){ return { emoji, codigo, significado }; }
+
+  let nivelAtual = 0, pontos = 0, tentativas = 0, erros = 0, combo = 0, melhorCombo = 0, paresEncontrados = 0;
+  let niveisConcluidos = 0, niveisPulados = 0;
+  let cartas = [], abertas = [], travado = false, envioRealizado = false, nomeAluno = "";
+
+  function iniciarTela(){
+    nivelAtual = 0; pontos = 0; tentativas = 0; erros = 0; combo = 0; melhorCombo = 0; niveisConcluidos = 0; niveisPulados = 0; envioRealizado = false;
+    app.innerHTML = `
+      <section class="start-screen">
+        <div class="start-card">
+          <div class="start-icon"><i class="fas fa-brain"></i></div>
+          <h1>Memória dos Algoritmos</h1>
+          <p>Um jogo de memória para revisar comandos, decisões, contadores, acumuladores e repetição. Em cada nível, relacione o trecho de código com seu significado.</p>
+          <div class="actions"><button class="btn btn-primary" onclick="iniciarJogo()"><i class="fas fa-play"></i> Começar jogo</button></div>
+          <div class="microcopy">Pontuação maior para acertos seguidos. Erros quebram o combo.</div>
+        </div>
+      </section>`;
+  }
+
+  function iniciarJogo(){ nivelAtual=0; pontos=0; tentativas=0; erros=0; combo=0; melhorCombo=0; niveisConcluidos=0; niveisPulados=0; envioRealizado=false; carregarNivel(); }
+
+  function criarCartasNivel(){
+    const nivel = niveis[nivelAtual];
+    let lista = [];
+    nivel.pares.forEach((par, idx)=>{
+      lista.push({ id:`${idx}-codigo`, par:idx, tipo:"Código", emoji:par.emoji, texto:par.codigo, isCode:true });
+      lista.push({ id:`${idx}-significado`, par:idx, tipo:"Significado", emoji:par.emoji, texto:par.significado, isCode:false });
+    });
+    cartas = embaralhar(lista).map((c, i)=>({...c, pos:i, aberta:false, encontrada:false}));
+  }
+
+  function estruturaBase(conteudo){
+    const percent = Math.round((nivelAtual / niveis.length) * 100);
+    app.innerHTML = `
+      <div class="topbar">
+        <a class="back-link" href="objetos.html"><i class="fas fa-arrow-left"></i> Voltar aos objetos</a>
+        <div class="chips">
+          <div class="score-chip"><i class="fas fa-star"></i> Pontos: <span id="scoreValue">${pontos}</span></div>
+          <div class="score-chip"><i class="fas fa-fire"></i> Combo: <span id="comboValue">${combo}</span></div>
+        </div>
+      </div>
+      <section class="hero"><h1>Memória dos Algoritmos</h1><p>Relacione código e significado para fortalecer a leitura de algoritmos e o raciocínio lógico.</p></section>
+      <section class="progress-wrap"><div class="progress-label"><span>Nível ${nivelAtual+1} de ${niveis.length}</span><span>${percent}% concluído</span></div><div class="progress"><div class="progress-bar" style="width:${percent}%"></div></div></section>
+      ${conteudo}`;
+  }
+
+  function carregarNivel(){
+    paresEncontrados = 0; abertas = []; travado = false; combo = 0; criarCartasNivel();
+    const nivel = niveis[nivelAtual];
+    estruturaBase(`
+      <section class="activity-card">
+        <div class="card-header"><div class="section-tag"><i class="fas ${nivel.icone}"></i> ${nivel.tag} · ${nivel.categoria}</div><div class="step-counter">${nivel.pares.length} pares</div></div>
+        <h2 class="screen-title">${nivel.titulo}</h2>
+        <p class="screen-description">${nivel.descricao}</p>
+        <div class="level-info">
+          <div class="info-card"><strong>${pontos}</strong><span>pontos</span></div>
+          <div class="info-card"><strong>${tentativas}</strong><span>tentativas</span></div>
+          <div class="info-card"><strong>${erros}</strong><span>erros</span></div>
+          <div class="info-card"><strong>${melhorCombo}</strong><span>melhor combo</span></div>
+        </div>
+        <div id="board" class="board cols-${nivel.colunas}">${cartas.map(renderCarta).join("")}</div>
+        <div id="feedback" class="feedback-area">Clique em duas cartas: uma com código e outra com o significado correspondente.</div>
+        <div class="actions">
+          <button class="btn btn-secondary" onclick="carregarNivel()"><i class="fas fa-rotate-left"></i> Reiniciar nível</button>
+          <button class="btn btn-secondary" onclick="pularNivel()"><i class="fas fa-forward"></i> Pular este nível</button>
+          <button class="btn btn-secondary" onclick="renderFinal()"><i class="fas fa-flag-checkered"></i> Finalizar agora</button>
+          <button id="btnNext" class="btn btn-primary" onclick="proximoNivel()" disabled><i class="fas fa-arrow-right"></i> Avançar</button>
+        </div>
+        <div class="microcopy">Dica: contador geralmente soma +1; acumulador soma o valor de uma variável. Use “Pular este nível” quando o conteúdo ainda não foi trabalhado em aula.</div>
+      </section>`);
+  }
+
+  function renderCarta(c){
+    return `<button class="memory-card" id="card-${c.pos}" onclick="abrirCarta(${c.pos})" type="button">
+      <div class="card-face card-back"><div class="big">🧩</div><div class="label">Memória</div></div>
+      <div class="card-face card-front">
+        <span class="card-type">${c.emoji} ${c.tipo}</span>
+        <div class="${c.isCode ? 'code-text' : 'card-text'}">${escapeHTML(c.texto)}</div>
+      </div>
+    </button>`;
+  }
+
+  function abrirCarta(pos){
+    if (travado) return;
+    const carta = cartas[pos];
+    if (!carta || carta.aberta || carta.encontrada) return;
+    carta.aberta = true; abertas.push(carta);
+    document.getElementById(`card-${pos}`).classList.add("open");
+    if (abertas.length === 2) verificarPar();
+  }
+
+  function verificarPar(){
+    travado = true; tentativas++;
+    const [a,b] = abertas;
+    const feedback = document.getElementById("feedback");
+    const correto = a.par === b.par && a.tipo !== b.tipo;
+    if (correto){
+      a.encontrada = b.encontrada = true; combo++; melhorCombo = Math.max(melhorCombo, combo);
+      const ganho = 10 + (combo * 2);
+      pontos += ganho; paresEncontrados++;
+      setTimeout(()=>{
+        document.getElementById(`card-${a.pos}`).classList.add("matched");
+        document.getElementById(`card-${b.pos}`).classList.add("matched");
+        feedback.innerHTML = `<span class="correct-text">Compilado com sucesso!</span> Par correto. +${ganho} pontos.`;
+        atualizarChips(); abertas=[]; travado=false;
+        if (paresEncontrados === niveis[nivelAtual].pares.length) concluirNivel();
+      }, 320);
+    } else {
+      erros++; combo=0;
+      document.getElementById(`card-${a.pos}`).classList.add("wrong");
+      document.getElementById(`card-${b.pos}`).classList.add("wrong");
+      feedback.innerHTML = `<span class="error-text">Erro lógico encontrado.</span> Essas cartas não formam um par.`;
+      setTimeout(()=>{
+        a.aberta=false; b.aberta=false;
+        [`card-${a.pos}`,`card-${b.pos}`].forEach(id=>{ const el=document.getElementById(id); el.classList.remove("open","wrong"); });
+        atualizarChips(); abertas=[]; travado=false;
+      }, 900);
+    }
+  }
+
+  function concluirNivel(){
+    niveisConcluidos++;
+    pontos += 25; atualizarChips(); soltarConfete();
+    document.getElementById("feedback").innerHTML = `<span class="correct-text">Nível concluído!</span> Bônus de 25 pontos. Continue para o próximo desafio.`;
+    document.getElementById("btnNext").disabled = false;
+  }
+
+  function proximoNivel(){
+    nivelAtual++;
+    if (nivelAtual >= niveis.length) renderFinal(); else carregarNivel();
+  }
+
+  function pularNivel(){
+    niveisPulados++;
+    combo = 0;
+    abertas = [];
+    travado = false;
+    nivelAtual++;
+    if (nivelAtual >= niveis.length) {
+      renderFinal();
+    } else {
+      carregarNivel();
+    }
+  }
+
+  function renderFinal(){
+    const totalPares = niveis.reduce((s,n)=>s+n.pares.length,0);
+    const desempenho = tentativas > 0 ? Math.round((totalPares / tentativas) * 100) : 100;
+    app.innerHTML = `
+      <div class="topbar">
+        <a class="back-link" href="objetos.html"><i class="fas fa-arrow-left"></i> Voltar aos objetos</a>
+        <div class="score-chip"><i class="fas fa-star"></i> Pontos: ${pontos}</div>
+      </div>
+
+      <section class="end-screen"><div class="end-card">
+        <div class="end-icon"><i class="fas fa-trophy"></i></div>
+        <h1>Jogo concluído!</h1>
+        <p>Você revisou comandos básicos, decisões, contadores, acumuladores, repetição e interpretação de algoritmos. Também é possível finalizar mesmo sem concluir todos os níveis.</p>
+        <div class="end-stats">
+          <div class="end-stat"><strong>${pontos}</strong><span>pontos</span></div>
+          <div class="end-stat"><strong>${tentativas}</strong><span>tentativas</span></div>
+          <div class="end-stat"><strong>${erros}</strong><span>erros</span></div>
+          <div class="end-stat"><strong>${desempenho}%</strong><span>precisão</span></div>
+          <div class="end-stat"><strong>${niveisConcluidos}</strong><span>níveis concluídos</span></div>
+          <div class="end-stat"><strong>${niveisPulados}</strong><span>níveis pulados</span></div>
+        </div>
+        <p><strong>Para registrar na planilha, informe seu nome:</strong></p>
+        <input id="nomeAluno" class="name-field" placeholder="Digite seu nome completo" autocomplete="name" />
+        <div id="statusEnvio" class="feedback-area"></div>
+        <div class="actions">
+          <button id="btnEnviar" class="btn btn-primary" onclick="finalizarEnviar()"><i class="fas fa-paper-plane"></i> Enviar resultado</button>
+          <button class="btn btn-secondary" onclick="iniciarJogo()"><i class="fas fa-rotate-left"></i> Jogar novamente</button>
+        </div>
+      </div></section>`;
+  }
+
+  async function finalizarEnviar(){
+    if (envioRealizado) return;
+    const input = document.getElementById("nomeAluno");
+    const status = document.getElementById("statusEnvio");
+    nomeAluno = input.value.trim();
+    if (!nomeAluno){ status.innerHTML = `<span class="error-text">Digite seu nome completo antes de enviar.</span>`; input.focus(); return; }
+    envioRealizado = true; document.getElementById("btnEnviar").disabled = true; status.innerHTML = "Enviando resultado...";
+    const totalPares = niveis.reduce((s,n)=>s+n.pares.length,0);
+    const dados = {
+      nome: nomeAluno,
+      atividade: `${NOME_ATIVIDADE} - ${niveisConcluidos} nível(is) concluído(s), ${niveisPulados} pulado(s)`,
+      acertos: pontos,
+      total: totalPares,
+      erros: erros,
+      pontuacao: pontos,
+      tentativas: tentativas,
+      niveisConcluidos: niveisConcluidos,
+      niveisPulados: niveisPulados
+    };
+    try{
+      await fetch(URL_WEBAPP, { method:"POST", mode:"no-cors", headers:{"Content-Type":"application/json"}, body: JSON.stringify(dados) });
+      status.innerHTML = `<span class="correct-text">Resultado enviado.</span> Atividade finalizada.`;
+    } catch(e){ console.error(e); status.innerHTML = `<span class="warning-text">Atividade finalizada.</span> Se a internet falhar, o professor poderá conferir localmente.`; }
+  }
+
+  function atualizarChips(){
+    const s = document.getElementById("scoreValue"); const c = document.getElementById("comboValue");
+    if (s) s.textContent = pontos; if (c) c.textContent = combo;
+  }
+  function embaralhar(array){ const a=[...array]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+  function escapeHTML(txt){ return String(txt).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll("\n","<br>"); }
+  function soltarConfete(){
+    const wrap = document.createElement("div"); wrap.className="confetti"; document.body.appendChild(wrap);
+    const icons=["🎉","⭐","🧩","✅","💚","🚀"];
+    for(let i=0;i<24;i++){ const el=document.createElement("span"); el.className="piece"; el.textContent=icons[Math.floor(Math.random()*icons.length)]; el.style.left=Math.random()*100+"vw"; el.style.animationDelay=(Math.random()*280)+"ms"; wrap.appendChild(el); }
+    setTimeout(()=>wrap.remove(), 1600);
+  }
+  iniciarTela();
+</script>
+</body>
+</html>
