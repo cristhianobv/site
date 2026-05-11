@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AJAX Explorer | Prof. Cristhiano Vasconcellos</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <style>
+    :root {
+      --text: #0f172a;
+      --text-soft: #475569;
+      --text-muted: #64748b;
+      --border: rgba(15, 23, 42, 0.08);
+      --primary: #22c55e;
+      --primary-hover: #16a34a;
+      --primary-active: #15803d;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --info: #0ea5e9;
+      --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 18px 40px rgba(15, 23, 42, 0.08);
+      --radius-lg: 28px;
+      --radius-md: 22px;
+      --container: 1120px;
+      --transition: 220ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(34, 197, 94, 0.08), transparent 24%),
+        radial-gradient(circle at 90% 20%, rgba(14, 165, 233, 0.08), transparent 20%),
+        linear-gradient(180deg, #fcfefe 0%, #f8fafc 30%, #f4f8fb 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(circle at center, black 35%, transparent 85%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .page-wrap { padding: 20px 0 36px; position: relative; z-index: 1; }
+    .container { width: min(var(--container), calc(100% - 36px)); margin: 0 auto; position: relative; z-index: 1; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-weight: 700;
+      transition: var(--transition);
+    }
+
+    .back-link:hover { color: var(--text); }
+
+    .score-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid var(--border);
+      color: var(--text-soft);
+      box-shadow: var(--shadow-sm);
+      font-weight: 800;
+    }
+
+    .hero { margin-bottom: 16px; }
+    .hero h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2.1rem, 4vw, 3.4rem);
+      line-height: 1;
+      letter-spacing: -0.05em;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      color: var(--text-soft);
+      font-size: 1rem;
+      line-height: 1.65;
+      max-width: 920px;
+    }
+
+    .progress-wrap {
+      margin-bottom: 18px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      flex-wrap: wrap;
+    }
+
+    .progress {
+      width: 100%;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      border-radius: inherit;
+      transition: width var(--transition);
+    }
+
+    .activity-card,
+    .start-card,
+    .end-card {
+      background: rgba(255,255,255,.93);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(34, 197, 94, .10);
+      color: var(--primary-active);
+      border: 1px solid rgba(34, 197, 94, .16);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: .9rem;
+      font-weight: 800;
+    }
+
+    .step-counter {
+      color: var(--text-muted);
+      font-size: .95rem;
+      font-weight: 800;
+    }
+
+    .screen-title {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(1.55rem, 3vw, 2.25rem);
+      letter-spacing: -0.04em;
+      line-height: 1.08;
+      margin-bottom: 10px;
+    }
+
+    .screen-description {
+      color: var(--text-soft);
+      line-height: 1.72;
+      margin-bottom: 16px;
+      max-width: 940px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 18px;
+      align-items: start;
+      margin-top: 18px;
+    }
+
+    .panel,
+    .code-block,
+    .sim-card,
+    .answers-card {
+      background: rgba(255,255,255,.78);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .panel,
+    .sim-card,
+    .answers-card { padding: 18px; }
+
+    .code-block {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 18px;
+      font-family: "JetBrains Mono", monospace;
+      font-variant-ligatures: none;
+      font-feature-settings: "liga" 0;
+      font-size: 13px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      min-height: 220px;
+      text-align: left;
+    }
+
+    .code-comment { color: #86efac; }
+    .code-soft { color: #93c5fd; }
+    .code-alert { color: #fde68a; }
+
+    .card-subtitle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      color: var(--text-soft);
+      font-weight: 800;
+      font-size: .95rem;
+    }
+
+    .browser-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .browser {
+      background: rgba(255,255,255,.95);
+      border: 1px solid rgba(15,23,42,.08);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .browser-top {
+      height: 42px;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 14px;
+    }
+
+    .dot { width: 12px; height: 12px; border-radius: 50%; background: #94a3b8; }
+    .browser-body { min-height: 240px; padding: 18px; position: relative; }
+
+    .fake-line {
+      height: 12px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      margin-bottom: 12px;
+    }
+
+    .fake-line.short { width: 58%; }
+    .fake-line.medium { width: 76%; }
+
+    .blink { animation: blink 900ms ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.28} }
+
+    .result-box {
+      margin-top: 14px;
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(34,197,94,.08);
+      border: 1px solid rgba(34,197,94,.18);
+      color: var(--text);
+      font-weight: 750;
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .request-stage {
+      display: grid;
+      grid-template-columns: 1fr 180px 1fr;
+      gap: 16px;
+      align-items: center;
+      margin-top: 18px;
+    }
+
+    .actor-card {
+      background: rgba(255,255,255,.95);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 22px;
+      text-align: center;
+      min-height: 240px;
+      display: grid;
+      align-content: center;
+      gap: 10px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .actor-card i { font-size: 3rem; color: var(--primary-active); }
+    .actor-card h3 { font-family: "Space Grotesk", sans-serif; font-size: 1.35rem; }
+
+    .packet-lane {
+      position: relative;
+      min-height: 180px;
+      border-radius: 24px;
+      background: rgba(255,255,255,.58);
+      border: 1px dashed rgba(15,23,42,.16);
+      overflow: hidden;
+    }
+
+    .packet {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, var(--primary), #34d399);
+      position: absolute;
+      left: 20px;
+      top: 61px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #052e16;
+      font-size: 1.35rem;
+      box-shadow: 0 12px 26px rgba(34,197,94,.28);
+      transition: transform 900ms cubic-bezier(.2,.8,.2,1), background 260ms;
+    }
+
+    .packet.to-server { transform: translateX(82px); }
+    .packet.to-client { transform: translateX(0); background: linear-gradient(135deg, #38bdf8, #86efac); }
+
+    .mini-form {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .field,
+    .select-field {
+      width: 100%;
+      border: 1px solid rgba(15,23,42,.1);
+      border-radius: 18px;
+      padding: 13px 14px;
+      outline: none;
+      font: inherit;
+      background: white;
+    }
+
+    .field:focus,
+    .select-field:focus {
+      border-color: rgba(34,197,94,.48);
+      box-shadow: 0 0 0 4px rgba(34,197,94,.12);
+    }
+
+    .compare-table-wrap {
+      overflow-x: auto;
+      border-radius: 18px;
+      border: 1px solid rgba(15,23,42,.06);
+      margin-top: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(255,255,255,.94);
+      min-width: 520px;
+    }
+
+    th, td {
+      padding: 13px 14px;
+      border-bottom: 1px solid rgba(15,23,42,.06);
+      text-align: left;
+      font-size: .95rem;
+      line-height: 1.45;
+    }
+
+    th {
+      color: var(--primary-active);
+      background: rgba(34,197,94,.08);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      font-size: .82rem;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .url-demo {
+      font-family: "JetBrains Mono", monospace;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 12px 14px;
+      border-radius: 16px;
+      margin-top: 12px;
+      overflow-x: auto;
+      line-height: 1.6;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      padding: 14px 22px;
+      border-radius: 999px;
+      font-weight: 850;
+      font-size: 0.96rem;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      color: #052e16;
+      box-shadow: 0 14px 28px rgba(34,197,94,.22);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,.9);
+      color: var(--text-soft);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn:hover:not(:disabled) { transform: translateY(-2px); }
+    .btn:disabled { opacity: .55; cursor: not-allowed; transform: none !important; box-shadow: none; }
+
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .microcopy {
+      color: var(--text-muted);
+      font-size: .9rem;
+      text-align: center;
+      margin-top: 12px;
+      line-height: 1.6;
+    }
+
+    .answers { display: grid; gap: 12px; margin-top: 14px; }
+
+    .answer-btn {
+      width: 100%;
+      border: 1px solid rgba(15,23,42,.08);
+      border-radius: 22px;
+      background: rgba(255,255,255,.98);
+      padding: 16px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      text-align: left;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 8px 24px rgba(15,23,42,.04);
+      color: var(--text);
+      font-size: 0.98rem;
+      font-weight: 650;
+    }
+
+    .answer-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 32px rgba(15,23,42,.08);
+      border-color: rgba(34,197,94,.45);
+    }
+
+    .answer-btn:disabled { cursor: default; opacity: 1; }
+    .answer-btn.correct { border-color: rgba(34,197,94,.45); background: rgba(34,197,94,.07); }
+    .answer-btn.wrong { border-color: rgba(220,38,38,.28); background: rgba(220,38,38,.05); }
+
+    .answer-pill {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34,197,94,.12);
+      color: var(--primary-active);
+      font-weight: 900;
+      flex: 0 0 auto;
+    }
+
+    .answer-text { flex: 1; padding-top: 4px; line-height: 1.55; }
+
+    .feedback-area {
+      min-height: 30px;
+      margin-top: 16px;
+      text-align: center;
+      font-size: 1rem;
+      color: var(--text-soft);
+      line-height: 1.6;
+    }
+
+    .correct-text { color: #15803d; font-weight: 850; }
+    .error-text { color: var(--danger); font-weight: 850; }
+
+    .start-screen,
+    .end-screen {
+      min-height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0;
+    }
+
+    .start-card,
+    .end-card {
+      width: min(800px, 100%);
+      text-align: center;
+    }
+
+    .start-icon,
+    .end-icon {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34,197,94,.12);
+      color: var(--primary-active);
+      font-size: 1.9rem;
+      margin-bottom: 14px;
+    }
+
+    .start-card h1,
+    .end-card h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+      margin-bottom: 10px;
+    }
+
+    .start-card p,
+    .end-card p { color: var(--text-soft); line-height: 1.72; margin-bottom: 18px; }
+
+    .name-field {
+      width: min(480px, 100%);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 15px 18px;
+      font-size: 1rem;
+      outline: none;
+      margin: 6px 0 12px;
+      box-shadow: var(--shadow-sm);
+      background: white;
+    }
+
+    .name-field:focus {
+      border-color: rgba(34,197,94,.45);
+      box-shadow: 0 0 0 4px rgba(34,197,94,.12);
+    }
+
+    .end-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .end-stat {
+      background: rgba(255,255,255,.84);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .end-stat strong {
+      display: block;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.6rem;
+      margin-bottom: 4px;
+    }
+
+    .end-stat span { color: var(--text-muted); font-size: .9rem; }
+
+    @media (max-width: 920px) {
+      .layout, .browser-grid, .request-stage { grid-template-columns: 1fr; }
+      .packet-lane { min-height: 110px; }
+      .packet { left: calc(50% - 29px); top: 26px; }
+      .packet.to-server, .packet.to-client { transform: translateY(0); }
+    }
+
+    @media (max-width: 640px) {
+      .container { width: min(var(--container), calc(100% - 20px)); }
+      .page-wrap { padding-top: 14px; }
+      .activity-card, .start-card, .end-card { padding: 18px; border-radius: 22px; }
+      .code-block, .panel, .sim-card, .answers-card, .answer-btn { border-radius: 18px; }
+      .end-stats { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-wrap">
+    <div class="container" id="app"></div>
+  </main>
+
+  <script>
+    const URL_WEBAPP = "https://script.google.com/macros/s/AKfycbzoeygTm-R27yb8QOcdH0s7fViv6vGPQ5MtDuCgHBt3RhvFVQKlGxf3A7yQUR3RfRqFcw/exec";
+    const NOME_ATIVIDADE = "AJAX Explorer - Comunicação Cliente-Servidor";
+
+    const app = document.getElementById("app");
+
+    let etapaAtual = -1;
+    let pontos = 0;
+    let erros = 0;
+    let respondeuQuizAtual = false;
+    let envioRealizado = false;
+    let nomeAluno = "";
+
+    const totalTelasConteudo = 7;
+    const quizQuestoes = [
+      {
+        pergunta: "Qual é a principal ideia do AJAX?",
+        alternativas: [
+          "Permitir que uma página troque informações com o servidor sem recarregar toda a tela.",
+          "Transformar código PHP em código CSS automaticamente.",
+          "Criar bancos de dados dentro do navegador."
+        ],
+        correta: 0,
+        explicacao: "AJAX permite comunicação com o servidor e atualização parcial da página."
+      },
+      {
+        pergunta: "Quem executa o código PHP em uma aplicação web tradicional?",
+        alternativas: [
+          "O navegador do usuário.",
+          "O servidor.",
+          "O arquivo CSS."
+        ],
+        correta: 1,
+        explicacao: "O PHP é executado no servidor. O navegador recebe a resposta final."
+      },
+      {
+        pergunta: "Para que serve o método .load() do jQuery?",
+        alternativas: [
+          "Para carregar conteúdo de um arquivo e inserir em um elemento da página.",
+          "Para apagar o banco de dados.",
+          "Para alterar a senha do servidor."
+        ],
+        correta: 0,
+        explicacao: "O .load() busca um conteúdo externo e coloca dentro do elemento selecionado."
+      },
+      {
+        pergunta: "Quando o $.get() costuma ser mais adequado?",
+        alternativas: [
+          "Quando queremos buscar ou consultar informações.",
+          "Quando queremos enviar arquivos pesados obrigatoriamente.",
+          "Quando queremos mudar a fonte da página."
+        ],
+        correta: 0,
+        explicacao: "GET é comumente utilizado para buscar dados ou consultar informações."
+      },
+      {
+        pergunta: "Quando o $.post() costuma ser mais adequado?",
+        alternativas: [
+          "Quando queremos enviar dados de um formulário para o servidor processar.",
+          "Quando queremos apenas trocar a cor do botão.",
+          "Quando queremos recarregar a página inteira."
+        ],
+        correta: 0,
+        explicacao: "POST é muito usado para envio de dados, como dados de formulários."
+      }
+    ];
+
+    const telas = [
+      {
+        tag: "Páginas antigas x modernas",
+        icon: "fa-window-restore",
+        title: "Por que AJAX é importante?",
+        desc: "Antes de entender código, precisamos perceber o problema que o AJAX ajuda a resolver. Em páginas antigas, quase tudo fazia a tela inteira recarregar. Em páginas modernas, apenas uma parte pode ser atualizada.",
+        render: renderTelaAntigaModerna
+      },
+      {
+        tag: "Cliente e servidor",
+        icon: "fa-network-wired",
+        title: "Quem conversa com quem?",
+        desc: "O navegador, chamado de cliente, envia uma requisição. O servidor recebe essa solicitação, processa e devolve uma resposta. O AJAX torna esse fluxo mais leve para o usuário.",
+        render: renderClienteServidor
+      },
+      {
+        tag: "AJAX",
+        icon: "fa-bolt",
+        title: "O que significa uma requisição assíncrona?",
+        desc: "Uma requisição assíncrona acontece nos bastidores. Enquanto o navegador aguarda a resposta do servidor, a página não precisa travar nem recarregar completamente.",
+        render: renderAjaxGeral
+      },
+      {
+        tag: "Método .load()",
+        icon: "fa-file-code",
+        title: "Carregando conteúdo sem recarregar a página",
+        desc: "O .load() é uma forma muito visual de começar. Ele busca um arquivo externo, como mensagem.html, e coloca o conteúdo dentro de um elemento da página.",
+        render: renderLoad
+      },
+      {
+        tag: "Método $.get()",
+        icon: "fa-download",
+        title: "Buscando dados do servidor",
+        desc: "O $.get() é utilizado principalmente para buscar informações. O navegador pede algo ao servidor e recebe uma resposta.",
+        render: renderGet
+      },
+      {
+        tag: "Método $.post()",
+        icon: "fa-upload",
+        title: "Enviando dados para o servidor",
+        desc: "O $.post() é muito usado quando precisamos enviar dados, como o nome digitado em um formulário, para que o servidor processe e responda.",
+        render: renderPost
+      },
+      {
+        tag: "GET x POST",
+        icon: "fa-balance-scale",
+        title: "Quando usar GET e quando usar POST?",
+        desc: "GET e POST são métodos de requisição. Os dois conversam com o servidor, mas têm usos diferentes. Essa comparação ajuda a organizar o raciocínio antes de programar.",
+        render: renderGetPost
+      }
+    ];
+
+    function iniciar() {
+      app.innerHTML = `
+        <section class="start-screen">
+          <div class="start-card">
+            <div class="start-icon"><i class="fas fa-bolt"></i></div>
+            <h1>AJAX Explorer</h1>
+            <p>Aprenda visualmente como páginas web conversam com o servidor sem recarregar toda a tela. O objeto está dividido em etapas curtas, com simulações e um quiz final.</p>
+            <button class="btn btn-primary" onclick="irParaTela(0)"><i class="fas fa-play"></i> Começar</button>
+            <p class="microcopy">Você responderá 5 questões no final. O nome será solicitado ao concluir a atividade.</p>
+          </div>
+        </section>
+      `;
+    }
+
+    function montarBase() {
+      const tela = telas[etapaAtual];
+      const percent = ((etapaAtual + 1) / (totalTelasConteudo + quizQuestoes.length)) * 100;
+
+      app.innerHTML = `
+        <div class="topbar">
+          <a class="back-link" href="objetos.html"><i class="fas fa-arrow-left"></i> Voltar aos objetos</a>
+          <div id="score" class="score-chip"><i class="fas fa-star"></i> Pontos: ${pontos}</div>
+        </div>
+
+        <section class="hero">
+          <h1>AJAX Explorer</h1>
+          <p>Comunicação cliente-servidor, requisições assíncronas, .load(), $.get(), $.post() e atualização dinâmica da tela.</p>
+        </section>
+
+        <section class="progress-wrap">
+          <div class="progress-label">
+            <span>Etapa ${etapaAtual + 1} de ${totalTelasConteudo + quizQuestoes.length}</span>
+            <span>${Math.round(percent)}% concluído</span>
+          </div>
+          <div class="progress"><div class="progress-bar" style="width:${percent}%"></div></div>
+        </section>
+
+        <section class="activity-card">
+          <div class="card-header">
+            <div class="section-tag"><i class="fas ${tela.icon}"></i> ${tela.tag}</div>
+            <div class="step-counter">Tela ${etapaAtual + 1}</div>
+          </div>
+
+          <h2 class="screen-title">${tela.title}</h2>
+          <p class="screen-description">${tela.desc}</p>
+
+          <div id="screenContent"></div>
+
+          <div class="actions">
+            <button class="btn btn-secondary" type="button" onclick="voltarTela()" ${etapaAtual === 0 ? "disabled" : ""}><i class="fas fa-arrow-left"></i> Voltar</button>
+            <button class="btn btn-primary" type="button" onclick="avancarTela()">Continuar <i class="fas fa-arrow-right"></i></button>
+          </div>
+        </section>
+      `;
+
+      tela.render(document.getElementById("screenContent"));
+    }
+
+    function irParaTela(indice) {
+      etapaAtual = indice;
+      montarBase();
+    }
+
+    function avancarTela() {
+      if (etapaAtual < telas.length - 1) {
+        irParaTela(etapaAtual + 1);
+      } else {
+        renderQuiz(0);
+      }
+    }
+
+    function voltarTela() {
+      if (etapaAtual > 0) irParaTela(etapaAtual - 1);
+    }
+
+    function renderTelaAntigaModerna(el) {
+      el.innerHTML = `
+        <div class="browser-grid">
+          <div class="browser">
+            <div class="browser-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+            <div class="browser-body blink">
+              <h3>Página antiga</h3>
+              <p style="margin-top:10px;">Ao enviar uma ação, a tela inteira recarrega.</p>
+              <div style="margin-top:18px">
+                <div class="fake-line"></div><div class="fake-line medium"></div><div class="fake-line short"></div>
+              </div>
+              <div class="result-box">Recarregando tudo...</div>
+            </div>
+          </div>
+
+          <div class="browser">
+            <div class="browser-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+            <div class="browser-body">
+              <h3>Página moderna com AJAX</h3>
+              <p style="margin-top:10px;">Somente uma área da página muda.</p>
+              <div class="result-box" id="modernResult">Conteúdo inicial da DIV</div>
+              <button class="btn btn-primary" onclick="updateModern()"><i class="fas fa-magic"></i> Atualizar somente a DIV</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderClienteServidor(el) {
+      el.innerHTML = `
+        <div class="request-stage">
+          <div class="actor-card">
+            <i class="fas fa-laptop-code"></i>
+            <h3>Navegador</h3>
+            <p>Cliente. Envia a requisição.</p>
+            <button class="btn btn-primary" onclick="sendRequest()"><i class="fas fa-paper-plane"></i> Enviar requisição</button>
+          </div>
+
+          <div class="packet-lane"><div class="packet" id="packet"><i class="fas fa-envelope"></i></div></div>
+
+          <div class="actor-card">
+            <i class="fas fa-server"></i>
+            <h3>Servidor PHP</h3>
+            <p>Processa e devolve uma resposta.</p>
+            <div class="result-box" id="serverResponse">Aguardando...</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAjaxGeral(el) {
+      el.innerHTML = `
+        <div class="layout">
+          <div class="panel">
+            <div class="card-subtitle"><i class="fas fa-lightbulb"></i> Ideia central</div>
+            <p>AJAX não é uma linguagem nova. É uma forma de usar JavaScript para enviar e receber informações do servidor sem interromper toda a navegação do usuário.</p>
+            <div class="result-box">Usuário clica → JavaScript envia → Servidor responde → Parte da página muda</div>
+          </div>
+          <pre class="code-block"><span class="code-comment">// Modelo mental</span>
+Usuário realiza uma ação
+JavaScript envia uma requisição
+Servidor processa
+Servidor devolve resposta
+JavaScript atualiza uma parte da tela</pre>
+        </div>
+      `;
+    }
+
+    function renderLoad(el) {
+      el.innerHTML = `
+        <div class="layout">
+          <pre class="code-block"><span class="code-comment">// Quando o botão for clicado...</span>
+$("#btnCarregar").click(function(){
+
+   <span class="code-comment">// Busca o arquivo mensagem.html</span>
+   <span class="code-comment">// e coloca o conteúdo na div #conteudo</span>
+   $("#conteudo").load("mensagem.html");
+
+});</pre>
+          <div class="panel">
+            <div class="card-subtitle"><i class="fas fa-window-maximize"></i> Mini simulação</div>
+            <p>A área abaixo representa uma DIV vazia que receberá o conteúdo carregado.</p>
+            <div class="result-box" id="loadBox">DIV vazia aguardando conteúdo...</div>
+            <button class="btn btn-primary" onclick="simulateLoad()"><i class="fas fa-file-import"></i> Simular .load()</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderGet(el) {
+      el.innerHTML = `
+        <div class="layout">
+          <pre class="code-block">$.get(
+
+   <span class="code-alert">"mensagem.php"</span>,
+
+   function(resposta){
+      $("#resultado").html(resposta);
+   }
+
+);</pre>
+          <div class="panel">
+            <div class="card-subtitle"><i class="fas fa-download"></i> Buscar mensagem</div>
+            <p>O navegador solicita uma mensagem ao servidor. O servidor responde e a página mostra o resultado.</p>
+            <div class="result-box" id="getResult">Nenhuma mensagem recebida.</div>
+            <button class="btn btn-primary" onclick="simulateGet()"><i class="fas fa-search"></i> Buscar mensagem do servidor</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPost(el) {
+      el.innerHTML = `
+        <div class="layout">
+          <pre class="code-block">let nomeDigitado = $("#nome").val();
+
+$.post(
+   <span class="code-alert">"recebe.php"</span>,
+   { nome: nomeDigitado },
+   function(resposta){
+      $("#mensagem").html(resposta);
+   }
+);</pre>
+          <div class="panel">
+            <div class="card-subtitle"><i class="fas fa-upload"></i> Enviar nome</div>
+            <p>Digite um nome para simular o envio de dados para o servidor.</p>
+            <div class="mini-form">
+              <input class="field" type="text" id="postName" placeholder="Digite um nome" />
+              <button class="btn btn-primary" onclick="simulatePost()"><i class="fas fa-paper-plane"></i> Enviar dados</button>
+            </div>
+            <div class="result-box" id="postResult">Aguardando envio...</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderGetPost(el) {
+      el.innerHTML = `
+        <div class="compare-table-wrap">
+          <table>
+            <thead><tr><th>GET</th><th>POST</th></tr></thead>
+            <tbody>
+              <tr><td>Usado principalmente para buscar dados</td><td>Usado principalmente para enviar dados</td></tr>
+              <tr><td>Os dados podem aparecer na URL</td><td>Os dados não aparecem diretamente na URL</td></tr>
+              <tr><td>Comum em consultas e filtros</td><td>Comum em formulários e cadastros</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="layout">
+          <div class="panel">
+            <div class="card-subtitle"><i class="fas fa-link"></i> Exemplo GET</div>
+            <p>O dado aparece na URL, como em uma consulta.</p>
+            <div class="url-demo">produto.php?id=10</div>
+          </div>
+          <div class="panel">
+            <div class="card-subtitle"><i class="fas fa-lock"></i> Exemplo POST</div>
+            <p>Os dados são enviados no corpo da requisição, comum em formulários.</p>
+            <div class="url-demo">recebe.php<br>{ nome: "Maria" }</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderQuiz(indice) {
+      const q = quizQuestoes[indice];
+      respondeuQuizAtual = false;
+      const etapaGeral = totalTelasConteudo + indice + 1;
+      const totalGeral = totalTelasConteudo + quizQuestoes.length;
+      const percent = (etapaGeral / totalGeral) * 100;
+
+      app.innerHTML = `
+        <div class="topbar">
+          <a class="back-link" href="objetos.html"><i class="fas fa-arrow-left"></i> Voltar aos objetos</a>
+          <div class="score-chip"><i class="fas fa-star"></i> Pontos: ${pontos}</div>
+        </div>
+
+        <section class="hero">
+          <h1>Quiz AJAX</h1>
+          <p>Responda às questões para revisar os principais conceitos da aula.</p>
+        </section>
+
+        <section class="progress-wrap">
+          <div class="progress-label">
+            <span>Questão ${indice + 1} de ${quizQuestoes.length}</span>
+            <span>${Math.round(percent)}% concluído</span>
+          </div>
+          <div class="progress"><div class="progress-bar" style="width:${percent}%"></div></div>
+        </section>
+
+        <section class="activity-card">
+          <div class="card-header">
+            <div class="section-tag"><i class="fas fa-question-circle"></i> Quiz final</div>
+            <div class="step-counter">${indice + 1}/${quizQuestoes.length}</div>
+          </div>
+
+          <h2 class="screen-title">${q.pergunta}</h2>
+
+          <div class="answers" id="answers">
+            ${q.alternativas.map((alt, i) => `
+              <button class="answer-btn" onclick="responderQuiz(${indice}, ${i})">
+                <span class="answer-pill">${String.fromCharCode(65 + i)}</span>
+                <span class="answer-text">${alt}</span>
+              </button>
+            `).join("")}
+          </div>
+
+          <div id="feedback" class="feedback-area">Selecione uma alternativa para responder.</div>
+
+          <div class="actions">
+            <button id="btnProximoQuiz" class="btn btn-primary" type="button" onclick="proximaQuestaoQuiz(${indice})" disabled>
+              Continuar <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </section>
+      `;
+    }
+
+    function responderQuiz(indiceQuestao, indiceResposta) {
+      if (respondeuQuizAtual) return;
+      respondeuQuizAtual = true;
+
+      const q = quizQuestoes[indiceQuestao];
+      const botoes = Array.from(document.querySelectorAll(".answer-btn"));
+      botoes.forEach(btn => btn.disabled = true);
+
+      if (indiceResposta === q.correta) {
+        pontos++;
+        botoes[indiceResposta].classList.add("correct");
+        document.getElementById("feedback").innerHTML = `<span class="correct-text">✔ Correto!</span> ${q.explicacao}`;
+      } else {
+        erros++;
+        botoes[indiceResposta].classList.add("wrong");
+        botoes[q.correta].classList.add("correct");
+        document.getElementById("feedback").innerHTML = `<span class="error-text">✖ Errado.</span> ${q.explicacao}`;
+      }
+
+      document.getElementById("btnProximoQuiz").disabled = false;
+      document.querySelector(".score-chip").innerHTML = `<i class="fas fa-star"></i> Pontos: ${pontos}`;
+    }
+
+    function proximaQuestaoQuiz(indiceAtual) {
+      if (!respondeuQuizAtual) return;
+      if (indiceAtual < quizQuestoes.length - 1) {
+        renderQuiz(indiceAtual + 1);
+      } else {
+        mostrarTelaNome();
+      }
+    }
+
+    function mostrarTelaNome() {
+      app.innerHTML = `
+        <section class="end-screen">
+          <div class="end-card">
+            <div class="end-icon"><i class="fas fa-user-check"></i></div>
+            <h1>Atividade concluída!</h1>
+            <p>Digite seu nome completo para registrar sua pontuação na planilha do professor.</p>
+            <input id="nomeAluno" class="name-field" type="text" placeholder="Digite seu nome completo" />
+            <div class="end-stats">
+              <div class="end-stat"><strong>${pontos}</strong><span>Acertos</span></div>
+              <div class="end-stat"><strong>${erros}</strong><span>Erros</span></div>
+              <div class="end-stat"><strong>${quizQuestoes.length}</strong><span>Questões</span></div>
+            </div>
+            <button class="btn btn-primary" onclick="finalizarEnviar()"><i class="fas fa-paper-plane"></i> Enviar resultado</button>
+            <p class="microcopy" id="statusEnvio">O envio registra nome, atividade, acertos, total e erros.</p>
+          </div>
+        </section>
+      `;
+    }
+
+    async function registrarResultado(nome, atividade, acertos, total, erros) {
+      const dados = { nome, atividade, acertos, total, erros };
+      await fetch(URL_WEBAPP, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dados)
+      });
+    }
+
+    async function finalizarEnviar() {
+      if (envioRealizado) return;
+      const campo = document.getElementById("nomeAluno");
+      const status = document.getElementById("statusEnvio");
+      const nome = campo.value.trim();
+
+      if (!nome) {
+        status.innerHTML = "Digite seu nome completo antes de enviar.";
+        status.style.color = "#dc2626";
+        campo.focus();
+        return;
+      }
+
+      envioRealizado = true;
+      nomeAluno = nome;
+      status.innerHTML = "Enviando resultado...";
+
+      try {
+        await registrarResultado(nomeAluno, NOME_ATIVIDADE, pontos, quizQuestoes.length, erros);
+        mostrarFinal();
+      } catch (erro) {
+        console.error(erro);
+        mostrarFinal();
+      }
+    }
+
+    function mostrarFinal() {
+      app.innerHTML = `
+        <section class="end-screen">
+          <div class="end-card">
+            <div class="end-icon"><i class="fas fa-bolt"></i></div>
+            <h1>AJAX Explorer concluído!</h1>
+            <p>Você revisou comunicação cliente-servidor, requisições assíncronas, .load(), $.get(), $.post() e a diferença entre GET e POST.</p>
+            <div class="end-stats">
+              <div class="end-stat"><strong>${pontos}</strong><span>Acertos</span></div>
+              <div class="end-stat"><strong>${erros}</strong><span>Erros</span></div>
+              <div class="end-stat"><strong>${quizQuestoes.length}</strong><span>Questões</span></div>
+            </div>
+            <div class="actions">
+              <a class="btn btn-primary" href="objetos.html"><i class="fas fa-cubes"></i> Explorar objetos</a>
+              <a class="btn btn-secondary" href="index.html"><i class="fas fa-home"></i> Voltar ao início</a>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function updateModern() {
+      const alvo = document.getElementById("modernResult");
+      if (alvo) alvo.innerHTML = "Somente esta DIV foi atualizada. O restante da página continuou igual.";
+    }
+
+    function sendRequest() {
+      const packet = document.getElementById("packet");
+      const response = document.getElementById("serverResponse");
+      if (!packet || !response) return;
+
+      response.innerHTML = "Requisição enviada...";
+      packet.classList.remove("to-client");
+      packet.classList.add("to-server");
+
+      setTimeout(() => {
+        response.innerHTML = "Servidor processando...";
+      }, 700);
+
+      setTimeout(() => {
+        packet.classList.remove("to-server");
+        packet.classList.add("to-client");
+        response.innerHTML = "Resposta enviada ao navegador.";
+      }, 1400);
+    }
+
+    function simulateLoad() {
+      const box = document.getElementById("loadBox");
+      if (!box) return;
+      box.innerHTML = `<div><strong>Conteúdo carregado!</strong><br>Esta mensagem veio de um arquivo externo chamado mensagem.html.</div>`;
+    }
+
+    function simulateGet() {
+      const box = document.getElementById("getResult");
+      if (!box) return;
+      box.innerHTML = "Olá! Esta mensagem veio do servidor PHP.";
+    }
+
+    function simulatePost() {
+      const campo = document.getElementById("postName");
+      const box = document.getElementById("postResult");
+      if (!campo || !box) return;
+      const nome = campo.value.trim();
+      if (!nome) {
+        box.innerHTML = "Digite um nome antes de enviar.";
+        return;
+      }
+      box.innerHTML = `Olá, ${nome}! O servidor recebeu seus dados e devolveu esta resposta.`;
+    }
+
+    iniciar();
+  </script>
+</body>
+</html>
