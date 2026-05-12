@@ -801,6 +801,66 @@
           transform: none !important;
         }
       }
+
+      .area-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 16px;
+        margin: 0 0 30px;
+      }
+
+      .area-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 18px;
+        border-radius: 26px;
+        background: rgba(255, 255, 255, 0.76);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        box-shadow: var(--shadow-sm);
+        backdrop-filter: blur(12px);
+        transition: var(--transition);
+      }
+
+      .area-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+        border-color: rgba(34, 197, 94, 0.18);
+      }
+
+      .area-card-icon {
+        width: 46px;
+        height: 46px;
+        flex: 0 0 auto;
+        border-radius: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(
+          135deg,
+          rgba(34, 197, 94, 0.14),
+          rgba(14, 165, 233, 0.08)
+        );
+        border: 1px solid rgba(34, 197, 94, 0.14);
+        color: var(--primary-active);
+      }
+
+      .area-card strong {
+        display: block;
+        margin-bottom: 4px;
+        letter-spacing: -0.03em;
+      }
+
+      .area-card span {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        line-height: 1.55;
+      }
+
+      .object-card.placeholder {
+        border-style: dashed;
+        background: rgba(255, 255, 255, 0.66);
+      }
     </style>
   </head>
   <body>
@@ -870,7 +930,38 @@
               </h2>
             </div>
           </div>
-          <div class="object-group reveal">
+          <div class="area-overview reveal">
+            <a class="area-card" href="#programacao-i-intro"
+              ><div class="area-card-icon"><i class="fas fa-code"></i></div>
+              <div>
+                <strong>Programação I</strong
+                ><span
+                  >Algoritmos, Visualg, condições, variáveis e repetição.</span
+                >
+              </div></a
+            ><a class="area-card" href="#estrutura-dados"
+              ><div class="area-card-icon"><i class="fas fa-sitemap"></i></div>
+              <div>
+                <strong>Estrutura de Dados</strong
+                ><span
+                  >Listas, nós, ponteiros, vetores e estruturas dinâmicas.</span
+                >
+              </div></a
+            ><a class="area-card" href="#programacao-web"
+              ><div class="area-card-icon"><i class="fas fa-globe"></i></div>
+              <div>
+                <strong>Programação Web</strong
+                ><span>HTML, JavaScript, DOM, AJAX, PHP e integrações.</span>
+              </div></a
+            ><a class="area-card" href="#jogos-raciocinio"
+              ><div class="area-card-icon"><i class="fas fa-gamepad"></i></div>
+              <div>
+                <strong>Jogos de Raciocínio</strong
+                ><span>Memória, estratégia, atenção e lógica.</span>
+              </div></a
+            >
+          </div>
+          <div class="object-group reveal" id="programacao-i-intro">
             <div class="object-group-header">
               <div>
                 <div class="object-group-kicker">
@@ -886,7 +977,6 @@
               </div>
               <div class="object-group-count">4 objetos</div>
             </div>
-
             <div class="objects-grid">
               <article class="object-card reveal">
                 <a
@@ -904,7 +994,6 @@
                   de conceitos de pseudocódigo.
                 </p>
               </article>
-
               <article class="object-card reveal delay-1">
                 <a
                   href="fluxograma_interativo.html"
@@ -922,7 +1011,6 @@
                   experiência visual e comparativa.
                 </p>
               </article>
-
               <article class="object-card reveal delay-2">
                 <a
                   href="objeto_aprendizagem_blocos.html"
@@ -940,7 +1028,6 @@
                   foco em sequência lógica.
                 </p>
               </article>
-
               <article class="object-card reveal delay-3">
                 <a
                   href="depuracao.html"
@@ -959,8 +1046,7 @@
               </article>
             </div>
           </div>
-
-          <div class="object-group reveal delay-1">
+          <div class="object-group reveal delay-1" id="programacao-i-condicoes">
             <div class="object-group-header">
               <div>
                 <div class="object-group-kicker">
@@ -976,9 +1062,8 @@
                   contadores e acumuladores.
                 </p>
               </div>
-              <div class="object-group-count">5 objetos</div>
+              <div class="object-group-count">6 objetos</div>
             </div>
-
             <div class="objects-grid">
               <article class="object-card reveal">
                 <a
@@ -996,7 +1081,6 @@
                   raciocínio lógico aplicado.
                 </p>
               </article>
-
               <article class="object-card reveal delay-1">
                 <a
                   href="desafio_se_encadeado.html"
@@ -1015,7 +1099,6 @@
                   lógicos.
                 </p>
               </article>
-
               <article class="object-card reveal delay-2">
                 <a
                   href="simulador_acumuladores.html"
@@ -1033,7 +1116,6 @@
                   durante a execução do algoritmo.
                 </p>
               </article>
-
               <article class="object-card reveal delay-3">
                 <a
                   href="simulador_contadores_acumuladores.html"
@@ -1053,7 +1135,6 @@
                   interpretação e montagem de algoritmos em blocos.
                 </p>
               </article>
-
               <article class="object-card reveal delay-3">
                 <a
                   href="jogo_memoria_algoritmos.html"
@@ -1072,7 +1153,6 @@
                   pontuação e desafios de lógica.
                 </p>
               </article>
-
               <article class="object-card reveal">
                 <a
                   href="simulador_variaveis_memoria.html"
@@ -1083,7 +1163,9 @@
                 <a
                   href="simulador_variaveis_memoria.html"
                   style="text-decoration: none; color: inherit"
-                  ><h3 class="object-title">Simulador de Variáveis e Memória</h3></a
+                  ><h3 class="object-title">
+                    Simulador de Variáveis e Memória
+                  </h3></a
                 >
                 <p class="object-desc">
                   Execute algoritmos passo a passo, observe a memória das
@@ -1093,8 +1175,7 @@
               </article>
             </div>
           </div>
-
-          <div class="object-group reveal delay-2">
+          <div class="object-group reveal delay-2" id="programacao-i-repeticao">
             <div class="object-group-header">
               <div>
                 <div class="object-group-kicker">
@@ -1111,7 +1192,6 @@
               </div>
               <div class="object-group-count">4 objetos</div>
             </div>
-
             <div class="objects-grid">
               <article class="object-card reveal">
                 <a
@@ -1130,7 +1210,6 @@
                   saída em exemplos progressivos.
                 </p>
               </article>
-
               <article class="object-card reveal delay-1">
                 <a
                   href="simulador_enquanto_multilinguagem.html"
@@ -1148,7 +1227,6 @@
                   a mesma.
                 </p>
               </article>
-
               <article class="object-card reveal delay-2">
                 <a
                   href="simulador_enquanto_teste_mesa.html"
@@ -1167,7 +1245,6 @@
                   execução do laço <strong>enquanto</strong>.
                 </p>
               </article>
-
               <article class="object-card reveal">
                 <a
                   href="simulador_para_multilinguagem.html"
@@ -1189,8 +1266,108 @@
               </article>
             </div>
           </div>
-
-          <div class="object-group reveal delay-3">
+          <div class="object-group reveal" id="estrutura-dados">
+            <div class="object-group-header">
+              <div>
+                <div class="object-group-kicker">
+                  <i class="fas fa-sitemap"></i> Estrutura de Dados
+                </div>
+                <h3 class="object-group-title">Estrutura de Dados</h3>
+                <p class="object-group-desc">
+                  Objetos interativos para compreender listas encadeadas, nós,
+                  ponteiros, percursos, comparação entre estruturas e
+                  organização dinâmica de dados.
+                </p>
+              </div>
+              <div class="object-group-count">3 objetos</div>
+            </div>
+            <div class="objects-grid">
+              <article class="object-card reveal">
+                <a
+                  href="simulador_lista_encadeada.html"
+                  style="text-decoration: none; color: inherit"
+                  ><div class="object-icon"><i class="fas fa-link"></i></div></a
+                ><a
+                  href="simulador_lista_encadeada.html"
+                  style="text-decoration: none; color: inherit"
+                  ><h3 class="object-title">Simulador de Lista Encadeada</h3></a
+                >
+                <p class="object-desc">
+                  Visualize a criação de nós, as conexões entre ponteiros e a
+                  formação de uma lista encadeada passo a passo.
+                </p>
+              </article>
+              <article class="object-card reveal delay-1">
+                <a
+                  href="simulador_percorrer_nos_lista_encadeada(1).html"
+                  style="text-decoration: none; color: inherit"
+                  ><div class="object-icon">
+                    <i class="fas fa-route"></i></div></a
+                ><a
+                  href="simulador_percorrer_nos_lista_encadeada(1).html"
+                  style="text-decoration: none; color: inherit"
+                  ><h3 class="object-title">Percorrendo Lista Encadeada</h3></a
+                >
+                <p class="object-desc">
+                  Acompanhe o deslocamento do ponteiro auxiliar pelos nós até
+                  encontrar o final da lista.
+                </p>
+              </article>
+              <article class="object-card reveal delay-2">
+                <a
+                  href="comparador_vetor_lista.html"
+                  style="text-decoration: none; color: inherit"
+                  ><div class="object-icon">
+                    <i class="fas fa-balance-scale"></i></div></a
+                ><a
+                  href="comparador_vetor_lista.html"
+                  style="text-decoration: none; color: inherit"
+                  ><h3 class="object-title">
+                    Comparador: Vetor x Lista Encadeada
+                  </h3></a
+                >
+                <p class="object-desc">
+                  Compare visualmente vetores dinâmicos e listas encadeadas em
+                  memória, inserções e organização dos dados.
+                </p>
+              </article>
+            </div>
+          </div>
+          <div class="object-group reveal" id="programacao-web">
+            <div class="object-group-header">
+              <div>
+                <div class="object-group-kicker">
+                  <i class="fas fa-globe"></i> Programação Web
+                </div>
+                <h3 class="object-group-title">Programação Web</h3>
+                <p class="object-group-desc">
+                  Objetos de desenvolvimento web para explorar HTML, CSS,
+                  JavaScript, DOM, jQuery, AJAX, PHP, banco de dados e
+                  integração entre tecnologias.
+                </p>
+              </div>
+              <div class="object-group-count">1 objeto</div>
+            </div>
+            <div class="objects-grid">
+              <article class="object-card reveal">
+                <a
+                  href="ajax_explorer.html"
+                  style="text-decoration: none; color: inherit"
+                  ><div class="object-icon"><i class="fas fa-bolt"></i></div></a
+                ><a
+                  href="ajax_explorer.html"
+                  style="text-decoration: none; color: inherit"
+                  ><h3 class="object-title">AJAX Explorer</h3></a
+                >
+                <p class="object-desc">
+                  Explore comunicação cliente-servidor, requisições assíncronas,
+                  .load(), $.get(), $.post() e atualização dinâmica de páginas
+                  web.
+                </p>
+              </article>
+            </div>
+          </div>
+          <div class="object-group reveal delay-3" id="jogos-raciocinio">
             <div class="object-group-header">
               <div>
                 <div class="object-group-kicker">
@@ -1204,9 +1381,8 @@
                   estratégia e leitura cuidadosa de situações.
                 </p>
               </div>
-              <div class="object-group-count">1 objeto</div>
+              <div class="object-group-count">2 objetos</div>
             </div>
-
             <div class="objects-grid">
               <article class="object-card reveal">
                 <a
@@ -1222,6 +1398,22 @@
                 <p class="object-desc">
                   Desafios estratégicos com interface própria, conectando
                   raciocínio, atenção e tomada de decisão.
+                </p>
+              </article>
+              <article class="object-card reveal delay-1">
+                <a
+                  href="jogo_memoria_niveis.html"
+                  style="text-decoration: none; color: inherit"
+                  ><div class="object-icon">
+                    <i class="fas fa-layer-group"></i></div></a
+                ><a
+                  href="jogo_memoria_niveis.html"
+                  style="text-decoration: none; color: inherit"
+                  ><h3 class="object-title">Memória em Níveis</h3></a
+                >
+                <p class="object-desc">
+                  Jogo de memória comum com fases progressivas, pontuação,
+                  atenção visual e desafios de concentração.
                 </p>
               </article>
             </div>
