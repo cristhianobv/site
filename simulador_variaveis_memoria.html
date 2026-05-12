@@ -1,0 +1,1193 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulador de Variáveis e Memória | Prof. Cristhiano Vasconcellos</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <style>
+    :root {
+      --text: #0f172a;
+      --text-soft: #475569;
+      --text-muted: #64748b;
+      --border: rgba(15, 23, 42, 0.08);
+      --primary: #22c55e;
+      --primary-hover: #16a34a;
+      --primary-active: #15803d;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --info: #0284c7;
+      --dark: #0f172a;
+      --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 18px 40px rgba(15, 23, 42, 0.08);
+      --radius-lg: 28px;
+      --radius-md: 22px;
+      --container: 1180px;
+      --transition: 220ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(34, 197, 94, 0.10), transparent 25%),
+        radial-gradient(circle at 92% 18%, rgba(14, 165, 233, 0.08), transparent 22%),
+        linear-gradient(180deg, #fcfefe 0%, #f8fafc 35%, #f3f8fb 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(circle at center, black 38%, transparent 86%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input { font-family: inherit; }
+
+    .page-wrap { padding: 20px 0 36px; position: relative; z-index: 1; }
+    .container { width: min(var(--container), calc(100% - 36px)); margin: 0 auto; position: relative; z-index: 1; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-weight: 700;
+      transition: var(--transition);
+    }
+
+    .back-link:hover { color: var(--text); transform: translateX(-2px); }
+
+    .score-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.84);
+      border: 1px solid var(--border);
+      color: var(--text-soft);
+      box-shadow: var(--shadow-sm);
+      font-weight: 800;
+    }
+
+    .hero { margin-bottom: 16px; }
+    .hero h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1;
+      letter-spacing: -0.05em;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      color: var(--text-soft);
+      font-size: 1rem;
+      line-height: 1.65;
+      max-width: 900px;
+    }
+
+    .progress-wrap {
+      margin-bottom: 18px;
+      background: rgba(255,255,255,.84);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      flex-wrap: wrap;
+    }
+
+    .progress {
+      width: 100%;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      border-radius: inherit;
+      transition: width var(--transition);
+    }
+
+    .intro-card, .activity-card, .end-card {
+      background: rgba(255,255,255,.93);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+    }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: 1.02fr .98fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .intro-card h2, .panel h3 {
+      font-family: "Space Grotesk", sans-serif;
+      letter-spacing: -.03em;
+    }
+
+    .intro-card p, .intro-card li {
+      color: var(--text-soft);
+      line-height: 1.65;
+      font-size: 1rem;
+    }
+
+    .intro-card ul { margin: 14px 0 0 18px; }
+    .intro-card li { margin-bottom: 8px; }
+
+    .mini-panels {
+      display: grid;
+      gap: 12px;
+    }
+
+    .mini-panel {
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 16px;
+      background: rgba(255,255,255,.78);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .mini-panel strong {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1.03fr .97fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .activity-card { display: none; }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(34, 197, 94, .10);
+      color: var(--primary-active);
+      border: 1px solid rgba(34, 197, 94, .16);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: .9rem;
+      font-weight: 800;
+    }
+
+    .question-counter {
+      color: var(--text-muted);
+      font-size: .95rem;
+      font-weight: 800;
+    }
+
+    .question-title {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 16px;
+      font-weight: 700;
+    }
+
+    .panel {
+      background: rgba(255,255,255,.80);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(15,23,42,.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-weight: 800;
+    }
+
+    .code-block {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 18px;
+      font-family: "JetBrains Mono", monospace;
+      font-variant-ligatures: none;
+      font-feature-settings: "liga" 0;
+      font-size: 13px;
+      line-height: 1.7;
+      min-height: 440px;
+      overflow-x: auto;
+      text-align: left;
+    }
+
+    .code-line {
+      display: block;
+      padding: 2px 8px;
+      margin: 1px 0;
+      border-radius: 9px;
+      border-left: 3px solid transparent;
+      white-space: pre;
+      transition: var(--transition);
+    }
+
+    .code-line.active {
+      background: rgba(34,197,94,.16);
+      border-left-color: var(--primary);
+      color: #f8fafc;
+      box-shadow: inset 0 0 0 1px rgba(34,197,94,.20);
+    }
+
+    .code-line.executed { color: #94a3b8; }
+
+    .memory-wrap { padding: 16px; }
+
+    .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .memory-card {
+      position: relative;
+      min-height: 92px;
+      background: rgba(255,255,255,.96);
+      border: 1px solid rgba(15,23,42,.08);
+      border-radius: 20px;
+      padding: 14px;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .memory-card.changed {
+      border-color: rgba(34,197,94,.55);
+      background: rgba(34,197,94,.07);
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px rgba(34,197,94,.12);
+    }
+
+    .memory-label {
+      color: var(--text-muted);
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .memory-name {
+      font-family: "JetBrains Mono", monospace;
+      font-size: .95rem;
+      color: var(--text-soft);
+      margin-bottom: 4px;
+    }
+
+    .memory-value {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      letter-spacing: -.04em;
+      color: var(--text);
+    }
+
+    .memory-old {
+      color: var(--text-muted);
+      font-size: .82rem;
+      margin-top: 4px;
+    }
+
+    .explain-box {
+      border-radius: 18px;
+      background: rgba(34,197,94,.07);
+      border: 1px solid rgba(34,197,94,.16);
+      padding: 14px;
+      color: var(--text-soft);
+      line-height: 1.6;
+      font-size: .95rem;
+      min-height: 86px;
+    }
+
+    .question-box {
+      padding: 16px;
+      border-top: 1px solid rgba(15,23,42,.06);
+    }
+
+    .challenge-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .answers { display: grid; gap: 10px; }
+
+    .answer-btn {
+      width: 100%;
+      border: 1px solid rgba(15,23,42,.08);
+      border-radius: 20px;
+      background: rgba(255,255,255,.98);
+      padding: 13px 15px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      text-align: left;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 8px 22px rgba(15,23,42,.04);
+      color: var(--text);
+      font-size: 0.96rem;
+      font-weight: 700;
+    }
+
+    .answer-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 32px rgba(15,23,42,.08);
+      border-color: rgba(34,197,94,.45);
+    }
+
+    .answer-btn:disabled { cursor: default; opacity: 1; }
+    .answer-btn.correct { border-color: rgba(34,197,94,.45); background: rgba(34,197,94,.08); }
+    .answer-btn.wrong { border-color: rgba(220,38,38,.30); background: rgba(220,38,38,.05); }
+
+    .answer-pill {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34,197,94,.12);
+      color: var(--primary-active);
+      font-weight: 900;
+      flex: 0 0 auto;
+      font-family: "Space Grotesk", sans-serif;
+    }
+
+    .answer-text { flex: 1; padding-top: 3px; line-height: 1.45; }
+
+    .feedback-area {
+      min-height: 28px;
+      margin-top: 16px;
+      text-align: center;
+      font-size: 1rem;
+      color: var(--text-soft);
+      line-height: 1.6;
+    }
+
+    .correct-text { color: #15803d; font-weight: 800; }
+    .error-text { color: var(--danger); font-weight: 800; }
+
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      padding: 14px 22px;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 0.96rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      color: #052e16;
+      box-shadow: 0 14px 28px rgba(34,197,94,.22);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,.92);
+      color: var(--text-soft);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-danger {
+      background: rgba(220,38,38,.08);
+      color: #991b1b;
+      border: 1px solid rgba(220,38,38,.16);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn:hover:not(:disabled) { transform: translateY(-2px); }
+    .btn:disabled { opacity: 0.52; cursor: not-allowed; transform: none !important; box-shadow: none; }
+
+    .input-line {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .input-line input {
+      width: 100%;
+      border: 1px solid rgba(15,23,42,.10);
+      border-radius: 999px;
+      padding: 14px 16px;
+      font-size: 1rem;
+      outline: none;
+      transition: var(--transition);
+      background: rgba(255,255,255,.96);
+    }
+
+    .input-line input:focus {
+      border-color: rgba(34,197,94,.55);
+      box-shadow: 0 0 0 4px rgba(34,197,94,.12);
+    }
+
+    .end-screen { min-height: 70vh; display: flex; align-items: center; justify-content: center; }
+    .end-card { width: min(800px, 100%); text-align: center; }
+
+    .end-icon {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34,197,94,.12);
+      color: var(--primary-active);
+      font-size: 1.9rem;
+      margin-bottom: 14px;
+    }
+
+    .end-card h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+      margin-bottom: 10px;
+    }
+
+    .end-card p { color: var(--text-soft); line-height: 1.7; margin-bottom: 20px; }
+
+    .end-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .end-stat {
+      background: rgba(255,255,255,.86);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .end-stat strong {
+      display: block;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.7rem;
+      margin-bottom: 4px;
+    }
+
+    .end-stat span { color: var(--text-muted); font-size: .9rem; }
+
+    .end-actions { display: flex; justify-content: center; margin-top: 16px; gap: 12px; flex-wrap: wrap; }
+    .end-secondary { text-align: center; margin-top: 10px; }
+    .end-secondary a { font-size: .9rem; color: #64748b; transition: .2s; }
+    .end-secondary a:hover { color: #0f172a; }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 960px) {
+      .main-layout, .intro-grid { grid-template-columns: 1fr; }
+      .code-block { min-height: 320px; }
+    }
+
+    @media (max-width: 640px) {
+      .container { width: min(var(--container), calc(100% - 20px)); }
+      .page-wrap { padding-top: 14px; }
+      .intro-card, .activity-card, .end-card { padding: 16px; border-radius: 22px; }
+      .panel, .answer-btn { border-radius: 18px; }
+      .memory-grid { grid-template-columns: 1fr; }
+      .end-stats { grid-template-columns: 1fr; }
+      .input-line { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-wrap">
+    <div class="container" id="app">
+      <div class="topbar">
+        <a class="back-link" href="objetos.html"><i class="fas fa-arrow-left"></i> Voltar aos objetos</a>
+        <div id="score" class="score-chip"><i class="fas fa-star"></i> Pontos: 0</div>
+      </div>
+
+      <section class="hero">
+        <h1>Simulador de Variáveis e Memória</h1>
+        <p>Execute algoritmos linha por linha, observe a memória do programa e descubra como variáveis mudam durante atribuições, cálculos, decisões, contadores e acumuladores — sem usar estruturas de repetição.</p>
+      </section>
+
+      <section class="progress-wrap" id="progressWrap">
+        <div class="progress-label">
+          <span id="progressText">Introdução</span>
+          <span id="progressPercent">0% concluído</span>
+        </div>
+        <div class="progress"><div id="bar" class="progress-bar"></div></div>
+      </section>
+
+      <section class="intro-card" id="introCard">
+        <div class="intro-grid">
+          <div>
+            <h2>Como funciona?</h2>
+            <p>Este objeto mostra o algoritmo como se fosse um pequeno laboratório. A cada passo, uma linha é executada e a memória é atualizada. Em alguns momentos, você será desafiado a prever o próximo valor antes de continuar.</p>
+            <ul>
+              <li><strong>Variável</strong> é como uma caixinha com nome que guarda um valor.</li>
+              <li><strong>Atribuição</strong> acontece quando usamos <strong>&lt;-</strong> para colocar um valor dentro da variável.</li>
+              <li><strong>Acumulador</strong> reaproveita o próprio valor, como em <strong>soma &lt;- soma + valor</strong>.</li>
+              <li><strong>Contador</strong> geralmente aumenta de 1 em 1, como em <strong>cont &lt;- cont + 1</strong>.</li>
+            </ul>
+            <div class="actions" style="justify-content:flex-start; margin-top:20px;">
+              <button class="btn btn-primary" id="startBtn" type="button"><i class="fas fa-play"></i> Começar simulação</button>
+            </div>
+          </div>
+          <div class="mini-panels">
+            <div class="mini-panel">
+              <strong><i class="fas fa-code"></i> Código destacado</strong>
+              <p>A linha atual fica destacada para o aluno acompanhar o fluxo do algoritmo.</p>
+            </div>
+            <div class="mini-panel">
+              <strong><i class="fas fa-memory"></i> Memória visual</strong>
+              <p>As variáveis aparecem como cards. Quando um valor muda, o card ganha destaque.</p>
+            </div>
+            <div class="mini-panel">
+              <strong><i class="fas fa-check-circle"></i> Desafios curtos</strong>
+              <p>O aluno prevê valores, condições e saídas para reforçar o teste de mesa.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="activity-card" id="activityCard">
+        <div class="card-header">
+          <div class="section-tag"><i class="fas fa-microchip"></i> Variáveis, decisões e memória</div>
+          <div id="questionCounter" class="question-counter">Exemplo 1</div>
+        </div>
+
+        <div id="tituloQuestao" class="question-title"></div>
+
+        <div class="main-layout">
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><i class="fas fa-code"></i> Algoritmo</div>
+              <div id="stepBadge" class="question-counter">Passo 0</div>
+            </div>
+            <div id="codigo" class="code-block"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><i class="fas fa-memory"></i> Memória do algoritmo</div>
+              <div id="modeBadge" class="question-counter">Observação</div>
+            </div>
+            <div class="memory-wrap">
+              <div id="memoryGrid" class="memory-grid"></div>
+              <div id="explainBox" class="explain-box">Clique em “Executar próxima linha” para iniciar.</div>
+            </div>
+
+            <div id="questionBox" class="question-box hidden">
+              <div class="challenge-title"><i class="fas fa-bullseye"></i> Desafio antes de executar</div>
+              <div id="challengeText" class="question-title" style="margin-bottom:12px;"></div>
+              <div class="answers" id="answers"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="feedback" class="feedback-area">Avance com calma e observe o que muda na memória.</div>
+
+        <div class="actions">
+          <button id="btnStep" class="btn btn-primary" type="button"><i class="fas fa-forward-step"></i> Executar próxima linha</button>
+          <button id="btnReset" class="btn btn-secondary" type="button"><i class="fas fa-rotate-left"></i> Reiniciar exemplo</button>
+          <button id="btnSkip" class="btn btn-danger" type="button"><i class="fas fa-forward"></i> Próximo exemplo</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const URL_WEBAPP = "https://script.google.com/macros/s/AKfycbzoeygTm-R27yb8QOcdH0s7fViv6vGPQ5MtDuCgHBt3RhvFVQKlGxf3A7yQUR3RfRqFcw/exec";
+    const NOME_ATIVIDADE = "Simulador de Variáveis e Memória";
+
+    const exemplos = [
+      {
+        titulo: "Exemplo 1: atribuição simples e cálculo do dobro",
+        objetivo: "Observe como uma variável recebe um valor e como outra variável pode usar esse valor em um cálculo.",
+        variaveis: ["numero", "dobro"],
+        linhas: [
+          "algoritmo \"dobro\"",
+          "var",
+          "   numero, dobro: inteiro",
+          "inicio",
+          "   numero <- 7",
+          "   dobro <- numero * 2",
+          "   escreval(dobro)",
+          "fimalgoritmo"
+        ],
+        passos: [
+          { linha: 4, memoria: { numero: 7 }, mudou: ["numero"], explicacao: "A variável numero recebe o valor 7. Antes ela estava vazia; agora a memória guarda numero = 7." },
+          { linha: 5, memoria: { dobro: 14 }, mudou: ["dobro"], desafio: { texto: "Depois de executar dobro <- numero * 2, qual será o valor de dobro?", opcoes: ["7", "14", "2"], correta: 1, explicacao: "Como numero vale 7, então dobro recebe 7 * 2, que é 14." }, explicacao: "A variável dobro usa o valor atual de numero. Como numero vale 7, dobro recebe 14." },
+          { linha: 6, saida: "14", memoria: {}, mudou: [], desafio: { texto: "Qual valor será mostrado na tela?", opcoes: ["numero", "dobro", "14"], correta: 2, explicacao: "O comando escreval(dobro) mostra o conteúdo de dobro, que é 14." }, explicacao: "O algoritmo mostra na tela o valor guardado em dobro: 14." }
+        ]
+      },
+      {
+        titulo: "Exemplo 2: soma de dois valores",
+        objetivo: "Acompanhe como a variável soma depende dos valores já guardados em n1 e n2.",
+        variaveis: ["n1", "n2", "soma"],
+        linhas: [
+          "algoritmo \"soma\"",
+          "var",
+          "   n1, n2, soma: inteiro",
+          "inicio",
+          "   n1 <- 8",
+          "   n2 <- 5",
+          "   soma <- n1 + n2",
+          "   escreval(soma)",
+          "fimalgoritmo"
+        ],
+        passos: [
+          { linha: 4, memoria: { n1: 8 }, mudou: ["n1"], explicacao: "n1 recebe o valor 8." },
+          { linha: 5, memoria: { n2: 5 }, mudou: ["n2"], explicacao: "n2 recebe o valor 5. Agora já temos dois valores na memória." },
+          { linha: 6, memoria: { soma: 13 }, mudou: ["soma"], desafio: { texto: "Qual valor será guardado em soma?", opcoes: ["8", "5", "13"], correta: 2, explicacao: "soma recebe n1 + n2, ou seja, 8 + 5 = 13." }, explicacao: "A variável soma recebe 8 + 5, resultando em 13." },
+          { linha: 7, saida: "13", memoria: {}, mudou: [], explicacao: "O valor exibido é o conteúdo da variável soma: 13." }
+        ]
+      },
+      {
+        titulo: "Exemplo 3: cálculo de média",
+        objetivo: "Veja a diferença entre guardar a soma e guardar a média.",
+        variaveis: ["nota1", "nota2", "soma", "media"],
+        linhas: [
+          "algoritmo \"media\"",
+          "var",
+          "   nota1, nota2, soma: inteiro",
+          "   media: real",
+          "inicio",
+          "   nota1 <- 6",
+          "   nota2 <- 8",
+          "   soma <- nota1 + nota2",
+          "   media <- soma / 2",
+          "   escreval(media)",
+          "fimalgoritmo"
+        ],
+        passos: [
+          { linha: 5, memoria: { nota1: 6 }, mudou: ["nota1"], explicacao: "nota1 recebe 6." },
+          { linha: 6, memoria: { nota2: 8 }, mudou: ["nota2"], explicacao: "nota2 recebe 8." },
+          { linha: 7, memoria: { soma: 14 }, mudou: ["soma"], desafio: { texto: "Depois de soma <- nota1 + nota2, qual será o valor de soma?", opcoes: ["14", "7", "68"], correta: 0, explicacao: "A soma é 6 + 8 = 14." }, explicacao: "soma guarda o total das notas: 14." },
+          { linha: 8, memoria: { media: 7 }, mudou: ["media"], desafio: { texto: "Qual será o valor de media?", opcoes: ["14", "7", "2"], correta: 1, explicacao: "media recebe soma / 2, ou seja, 14 / 2 = 7." }, explicacao: "media recebe 14 dividido por 2. Portanto, media vale 7." },
+          { linha: 9, saida: "7", memoria: {}, mudou: [], explicacao: "O algoritmo mostra o valor da média: 7." }
+        ]
+      },
+      {
+        titulo: "Exemplo 4: decisão com se/senão",
+        objetivo: "Entenda como uma condição decide qual caminho do algoritmo será executado.",
+        variaveis: ["idade"],
+        linhas: [
+          "algoritmo \"maioridade\"",
+          "var",
+          "   idade: inteiro",
+          "inicio",
+          "   idade <- 16",
+          "   se idade >= 18 entao",
+          "      escreval(\"Maior de idade\")",
+          "   senao",
+          "      escreval(\"Menor de idade\")",
+          "   fimse",
+          "fimalgoritmo"
+        ],
+        passos: [
+          { linha: 4, memoria: { idade: 16 }, mudou: ["idade"], explicacao: "idade recebe o valor 16." },
+          { linha: 5, memoria: {}, mudou: [], condicao: "falsa", desafio: { texto: "A condição idade >= 18 é verdadeira ou falsa?", opcoes: ["Verdadeira", "Falsa"], correta: 1, explicacao: "Como idade vale 16, ela não é maior nem igual a 18. A condição é falsa." }, explicacao: "A condição é falsa, então o algoritmo segue para o bloco do senao." },
+          { linha: 8, saida: "Menor de idade", memoria: {}, mudou: [], desafio: { texto: "Qual mensagem será exibida?", opcoes: ["Maior de idade", "Menor de idade", "Nenhuma mensagem"], correta: 1, explicacao: "Como a condição foi falsa, o algoritmo executa o senao." }, explicacao: "Como idade é 16, a saída será: Menor de idade." }
+        ]
+      },
+      {
+        titulo: "Exemplo 5: se encadeado com classificação",
+        objetivo: "Acompanhe um algoritmo que testa mais de uma condição para decidir a situação de um aluno.",
+        variaveis: ["nota"],
+        linhas: [
+          "algoritmo \"situacao\"",
+          "var",
+          "   nota: real",
+          "inicio",
+          "   nota <- 5.5",
+          "   se nota >= 7 entao",
+          "      escreval(\"Aprovado\")",
+          "   senao",
+          "      se nota >= 5 entao",
+          "         escreval(\"Recuperacao\")",
+          "      senao",
+          "         escreval(\"Reprovado\")",
+          "      fimse",
+          "   fimse",
+          "fimalgoritmo"
+        ],
+        passos: [
+          { linha: 4, memoria: { nota: 5.5 }, mudou: ["nota"], explicacao: "nota recebe 5.5." },
+          { linha: 5, memoria: {}, mudou: [], condicao: "falsa", desafio: { texto: "A condição nota >= 7 é verdadeira?", opcoes: ["Sim", "Não"], correta: 1, explicacao: "5.5 não é maior nem igual a 7." }, explicacao: "A primeira condição é falsa, então o algoritmo entra no senao." },
+          { linha: 8, memoria: {}, mudou: [], condicao: "verdadeira", desafio: { texto: "Agora, a condição nota >= 5 é verdadeira?", opcoes: ["Sim", "Não"], correta: 0, explicacao: "5.5 é maior que 5, então a condição é verdadeira." }, explicacao: "A segunda condição é verdadeira. O caminho escolhido é Recuperacao." },
+          { linha: 9, saida: "Recuperacao", memoria: {}, mudou: [], explicacao: "A mensagem exibida será Recuperacao." }
+        ]
+      },
+      {
+        titulo: "Exemplo 6: contador sem repetição",
+        objetivo: "Veja como um contador aumenta quando determinadas condições são verdadeiras.",
+        variaveis: ["cont"],
+        linhas: [
+          "algoritmo \"contador\"",
+          "var",
+          "   cont: inteiro",
+          "inicio",
+          "   cont <- 0",
+          "   se 9 >= 7 entao",
+          "      cont <- cont + 1",
+          "   fimse",
+          "   se 4 >= 7 entao",
+          "      cont <- cont + 1",
+          "   fimse",
+          "   se 8 >= 7 entao",
+          "      cont <- cont + 1",
+          "   fimse",
+          "   escreval(cont)",
+          "fimalgoritmo"
+        ],
+        passos: [
+          { linha: 4, memoria: { cont: 0 }, mudou: ["cont"], explicacao: "O contador começa em 0." },
+          { linha: 5, memoria: {}, mudou: [], condicao: "verdadeira", explicacao: "9 >= 7 é verdadeiro. Portanto, o próximo comando de contagem será executado." },
+          { linha: 6, memoria: { cont: 1 }, mudou: ["cont"], desafio: { texto: "Depois de cont <- cont + 1, quanto vale cont?", opcoes: ["0", "1", "9"], correta: 1, explicacao: "cont valia 0. Depois recebe 0 + 1, ficando com valor 1." }, explicacao: "cont aumenta de 0 para 1." },
+          { linha: 8, memoria: {}, mudou: [], condicao: "falsa", explicacao: "4 >= 7 é falso. O comando cont <- cont + 1 deste bloco não será executado." },
+          { linha: 11, memoria: {}, mudou: [], condicao: "verdadeira", explicacao: "8 >= 7 é verdadeiro. Então o contador aumentará novamente." },
+          { linha: 12, memoria: { cont: 2 }, mudou: ["cont"], desafio: { texto: "Qual será o novo valor de cont?", opcoes: ["1", "2", "3"], correta: 1, explicacao: "cont estava com 1 e recebe mais 1. Portanto, passa a valer 2." }, explicacao: "cont aumenta de 1 para 2." },
+          { linha: 14, saida: "2", memoria: {}, mudou: [], explicacao: "O algoritmo exibe 2, pois duas condições foram verdadeiras." }
+        ]
+      },
+      {
+        titulo: "Exemplo 7: acumulador sem repetição",
+        objetivo: "Acompanhe uma soma progressiva em que a variável soma reaproveita o próprio valor.",
+        variaveis: ["soma", "valor"],
+        linhas: [
+          "algoritmo \"acumulador\"",
+          "var",
+          "   soma, valor: inteiro",
+          "inicio",
+          "   soma <- 0",
+          "   valor <- 4",
+          "   soma <- soma + valor",
+          "   valor <- 6",
+          "   soma <- soma + valor",
+          "   escreval(soma)",
+          "fimalgoritmo"
+        ],
+        passos: [
+          { linha: 4, memoria: { soma: 0 }, mudou: ["soma"], explicacao: "soma começa em 0." },
+          { linha: 5, memoria: { valor: 4 }, mudou: ["valor"], explicacao: "valor recebe 4." },
+          { linha: 6, memoria: { soma: 4 }, mudou: ["soma"], desafio: { texto: "Depois de soma <- soma + valor, qual será o valor de soma?", opcoes: ["0", "4", "8"], correta: 1, explicacao: "soma estava em 0 e valor é 4. Então soma recebe 0 + 4 = 4." }, explicacao: "soma acumula o valor 4." },
+          { linha: 7, memoria: { valor: 6 }, mudou: ["valor"], explicacao: "valor muda de 4 para 6. A variável valor recebeu um novo conteúdo." },
+          { linha: 8, memoria: { soma: 10 }, mudou: ["soma"], desafio: { texto: "Agora soma recebe soma + valor. Qual será o novo valor de soma?", opcoes: ["6", "10", "24"], correta: 1, explicacao: "soma estava em 4 e valor vale 6. Então soma recebe 4 + 6 = 10." }, explicacao: "soma reaproveita seu valor anterior e acumula mais 6, chegando a 10." },
+          { linha: 9, saida: "10", memoria: {}, mudou: [], explicacao: "O resultado final exibido é 10." }
+        ]
+      },
+      {
+        titulo: "Exemplo 8: desafio final integrando decisão e memória",
+        objetivo: "Una cálculo, condição e atualização de variável em um mesmo teste de mesa.",
+        variaveis: ["preco", "desconto", "total"],
+        linhas: [
+          "algoritmo \"desconto\"",
+          "var",
+          "   preco, desconto, total: real",
+          "inicio",
+          "   preco <- 120",
+          "   desconto <- 0",
+          "   se preco >= 100 entao",
+          "      desconto <- 20",
+          "   fimse",
+          "   total <- preco - desconto",
+          "   escreval(total)",
+          "fimalgoritmo"
+        ],
+        passos: [
+          { linha: 4, memoria: { preco: 120 }, mudou: ["preco"], explicacao: "preco recebe 120." },
+          { linha: 5, memoria: { desconto: 0 }, mudou: ["desconto"], explicacao: "desconto começa em 0." },
+          { linha: 6, memoria: {}, mudou: [], condicao: "verdadeira", desafio: { texto: "A condição preco >= 100 é verdadeira?", opcoes: ["Sim", "Não"], correta: 0, explicacao: "Como preco vale 120, a condição 120 >= 100 é verdadeira." }, explicacao: "A condição é verdadeira. Então o desconto será atualizado." },
+          { linha: 7, memoria: { desconto: 20 }, mudou: ["desconto"], desafio: { texto: "Qual valor ficará guardado em desconto?", opcoes: ["0", "20", "120"], correta: 1, explicacao: "Como a condição foi verdadeira, desconto recebe 20." }, explicacao: "desconto muda de 0 para 20." },
+          { linha: 9, memoria: { total: 100 }, mudou: ["total"], desafio: { texto: "Qual será o valor de total?", opcoes: ["100", "120", "140"], correta: 0, explicacao: "total recebe preco - desconto, ou seja, 120 - 20 = 100." }, explicacao: "total recebe 120 - 20, resultando em 100." },
+          { linha: 10, saida: "100", memoria: {}, mudou: [], explicacao: "O algoritmo exibe o total final: 100." }
+        ]
+      }
+    ];
+
+    let exemploAtual = 0;
+    let passoAtual = 0;
+    let memoria = {};
+    let pontos = 0;
+    let erros = 0;
+    let desafiosRespondidos = 0;
+    let totalDesafios = exemplos.reduce((acc, ex) => acc + ex.passos.filter(p => p.desafio).length, 0);
+    let aguardandoResposta = false;
+    let passoPendente = null;
+    let jaRegistrou = false;
+
+    const introCard = document.getElementById("introCard");
+    const activityCard = document.getElementById("activityCard");
+    const startBtn = document.getElementById("startBtn");
+    const score = document.getElementById("score");
+    const progressText = document.getElementById("progressText");
+    const progressPercent = document.getElementById("progressPercent");
+    const bar = document.getElementById("bar");
+    const questionCounter = document.getElementById("questionCounter");
+    const tituloQuestao = document.getElementById("tituloQuestao");
+    const codigo = document.getElementById("codigo");
+    const stepBadge = document.getElementById("stepBadge");
+    const modeBadge = document.getElementById("modeBadge");
+    const memoryGrid = document.getElementById("memoryGrid");
+    const explainBox = document.getElementById("explainBox");
+    const questionBox = document.getElementById("questionBox");
+    const challengeText = document.getElementById("challengeText");
+    const answers = document.getElementById("answers");
+    const feedback = document.getElementById("feedback");
+    const btnStep = document.getElementById("btnStep");
+    const btnReset = document.getElementById("btnReset");
+    const btnSkip = document.getElementById("btnSkip");
+    const app = document.getElementById("app");
+
+    function escapeHtml(texto) {
+      return String(texto)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function formatarValor(valor) {
+      if (valor === undefined || valor === null || valor === "") return "vazio";
+      return String(valor);
+    }
+
+    function obterNomeAluno() {
+      let nome = sessionStorage.getItem("nomeAluno");
+      if (!nome) {
+        nome = prompt("Digite seu nome completo para registrar sua atividade:");
+        if (nome && nome.trim() !== "") {
+          nome = nome.trim();
+          sessionStorage.setItem("nomeAluno", nome);
+        } else {
+          nome = "Anônimo";
+        }
+      }
+      return nome;
+    }
+
+    async function registrarResultado(nome, atividade, acertos, total, erros) {
+      const dados = { nome, atividade, acertos, total, erros };
+      try {
+        await fetch(URL_WEBAPP, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dados),
+        });
+        console.log("✅ Registrado:", dados);
+      } catch (erro) {
+        console.error("❌ Erro ao registrar:", erro);
+      }
+    }
+
+    function atualizarUI() {
+      score.innerHTML = `<i class="fas fa-star"></i> Pontos: ${pontos}`;
+      questionCounter.innerText = `Exemplo ${exemploAtual + 1} de ${exemplos.length}`;
+      stepBadge.innerText = `Passo ${Math.min(passoAtual, exemplos[exemploAtual].passos.length)} de ${exemplos[exemploAtual].passos.length}`;
+
+      const exemplosFinalizados = exemploAtual;
+      const passosDoAtual = passoAtual / exemplos[exemploAtual].passos.length;
+      const percent = ((exemplosFinalizados + passosDoAtual) / exemplos.length) * 100;
+
+      progressText.innerText = `Exemplo ${exemploAtual + 1} de ${exemplos.length}`;
+      progressPercent.innerText = `${Math.round(percent)}% concluído`;
+      bar.style.width = `${percent}%`;
+    }
+
+    function renderizarCodigo(linhaAtiva = -1) {
+      const ex = exemplos[exemploAtual];
+      codigo.innerHTML = ex.linhas.map((linha, idx) => {
+        const classe = idx === linhaAtiva ? "code-line active" : (idx < linhaAtiva ? "code-line executed" : "code-line");
+        return `<span class="${classe}">${escapeHtml(linha)}</span>`;
+      }).join("");
+    }
+
+    function renderizarMemoria(mudou = []) {
+      const ex = exemplos[exemploAtual];
+      memoryGrid.innerHTML = ex.variaveis.map(nome => {
+        const valor = memoria[nome];
+        const changed = mudou.includes(nome) ? " changed" : "";
+        const oldText = valor === undefined ? "Ainda não recebeu valor" : "Valor atual na memória";
+        return `
+          <div class="memory-card${changed}">
+            <div class="memory-label">Variável</div>
+            <div class="memory-name">${escapeHtml(nome)}</div>
+            <div class="memory-value">${escapeHtml(formatarValor(valor))}</div>
+            <div class="memory-old">${oldText}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function carregarExemplo() {
+      const ex = exemplos[exemploAtual];
+      passoAtual = 0;
+      memoria = {};
+      aguardandoResposta = false;
+      passoPendente = null;
+
+      tituloQuestao.innerText = `${ex.titulo}. ${ex.objetivo}`;
+      renderizarCodigo();
+      renderizarMemoria();
+      explainBox.innerHTML = "Clique em <strong>Executar próxima linha</strong> para iniciar o teste de mesa.";
+      feedback.innerHTML = "Avance com calma e observe o que muda na memória.";
+      questionBox.classList.add("hidden");
+      btnStep.disabled = false;
+      btnStep.innerHTML = `<i class="fas fa-forward-step"></i> Executar próxima linha`;
+      modeBadge.innerText = "Observação";
+      atualizarUI();
+    }
+
+    function aplicarPasso(passo) {
+      Object.assign(memoria, passo.memoria || {});
+      renderizarCodigo(passo.linha);
+      renderizarMemoria(passo.mudou || []);
+      modeBadge.innerText = passo.condicao ? `Condição: ${passo.condicao}` : (passo.saida ? `Saída: ${passo.saida}` : "Memória atualizada");
+      explainBox.innerHTML = passo.explicacao;
+      feedback.innerHTML = passo.saida ? `<span class="correct-text">Saída na tela:</span> ${escapeHtml(passo.saida)}` : "Observe a memória e avance para a próxima linha.";
+      passoAtual++;
+      atualizarUI();
+
+      if (passoAtual >= exemplos[exemploAtual].passos.length) {
+        btnStep.innerHTML = exemploAtual + 1 >= exemplos.length ? `<i class="fas fa-flag-checkered"></i> Finalizar atividade` : `<i class="fas fa-arrow-right"></i> Próximo exemplo`;
+      }
+    }
+
+    function prepararDesafio(passo) {
+      aguardandoResposta = true;
+      passoPendente = passo;
+      btnStep.disabled = true;
+      questionBox.classList.remove("hidden");
+      challengeText.innerText = passo.desafio.texto;
+      answers.innerHTML = "";
+      const letras = ["A", "B", "C", "D"];
+      passo.desafio.opcoes.forEach((opcao, indice) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "answer-btn";
+        btn.innerHTML = `<span class="answer-pill">${letras[indice]}</span><span class="answer-text">${escapeHtml(opcao)}</span>`;
+        btn.onclick = () => responderDesafio(indice);
+        answers.appendChild(btn);
+      });
+      feedback.innerHTML = "Responda ao desafio para liberar a próxima linha.";
+    }
+
+    function responderDesafio(indice) {
+      if (!aguardandoResposta || !passoPendente) return;
+      const desafio = passoPendente.desafio;
+      const botoes = Array.from(document.querySelectorAll(".answer-btn"));
+      botoes.forEach(btn => btn.disabled = true);
+
+      desafiosRespondidos++;
+      if (indice === desafio.correta) {
+        pontos++;
+        botoes[indice].classList.add("correct");
+        feedback.innerHTML = `<span class="correct-text">✔ Correto!</span> ${desafio.explicacao}`;
+      } else {
+        erros++;
+        botoes[indice].classList.add("wrong");
+        botoes[desafio.correta].classList.add("correct");
+        feedback.innerHTML = `<span class="error-text">✖ Errado.</span> ${desafio.explicacao}`;
+      }
+
+      setTimeout(() => {
+        questionBox.classList.add("hidden");
+        aguardandoResposta = false;
+        const passo = passoPendente;
+        passoPendente = null;
+        btnStep.disabled = false;
+        aplicarPasso(passo);
+      }, 850);
+    }
+
+    function executarProximaLinha() {
+      if (aguardandoResposta) return;
+      const ex = exemplos[exemploAtual];
+
+      if (passoAtual >= ex.passos.length) {
+        proximoExemploOuFinalizar();
+        return;
+      }
+
+      const passo = ex.passos[passoAtual];
+      if (passo.desafio) {
+        prepararDesafio(passo);
+      } else {
+        aplicarPasso(passo);
+      }
+    }
+
+    function proximoExemploOuFinalizar() {
+      if (exemploAtual + 1 >= exemplos.length) {
+        finalizarAtividade();
+        return;
+      }
+      exemploAtual++;
+      carregarExemplo();
+    }
+
+    function reiniciarExemplo() {
+      carregarExemplo();
+    }
+
+    function pularExemplo() {
+      proximoExemploOuFinalizar();
+    }
+
+    function finalizarAtividade() {
+      if (!jaRegistrou) {
+        jaRegistrou = true;
+        const nome = obterNomeAluno();
+        registrarResultado(nome, NOME_ATIVIDADE, pontos, totalDesafios, erros);
+      }
+
+      const percentual = totalDesafios > 0 ? Math.round((pontos / totalDesafios) * 100) : 0;
+      bar.style.width = "100%";
+      progressText.innerText = "Atividade concluída";
+      progressPercent.innerText = "100% concluído";
+      score.innerHTML = `<i class="fas fa-star"></i> Pontos: ${pontos}`;
+
+      app.innerHTML = `
+        <div class="topbar">
+          <a class="back-link" href="objetos.html"><i class="fas fa-arrow-left"></i> Voltar aos objetos</a>
+          <div class="score-chip"><i class="fas fa-star"></i> Pontos: ${pontos}</div>
+        </div>
+
+        <section class="end-screen">
+          <div class="end-card">
+            <div class="end-icon"><i class="fas fa-memory"></i></div>
+            <h1>Simulador concluído!</h1>
+            <p>Você finalizou a atividade sobre <strong>variáveis e memória</strong>. O objetivo foi reforçar o teste de mesa, a atualização de variáveis, decisões, contadores e acumuladores sem estruturas de repetição.</p>
+
+            <div class="end-stats">
+              <div class="end-stat">
+                <strong>${pontos}</strong>
+                <span>Acertos</span>
+              </div>
+              <div class="end-stat">
+                <strong>${erros}</strong>
+                <span>Erros</span>
+              </div>
+              <div class="end-stat">
+                <strong>${percentual}%</strong>
+                <span>Aproveitamento</span>
+              </div>
+            </div>
+
+            <div class="end-actions">
+              <a class="btn btn-primary" href="objetos.html"><i class="fas fa-cubes"></i> Explorar objetos</a>
+              <button class="btn btn-secondary" type="button" onclick="location.reload()"><i class="fas fa-rotate-right"></i> Refazer atividade</button>
+            </div>
+
+            <div class="end-secondary">
+              <a href="index.html">Voltar ao início</a>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    startBtn.onclick = () => {
+      introCard.style.display = "none";
+      activityCard.style.display = "block";
+      carregarExemplo();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    btnStep.onclick = executarProximaLinha;
+    btnReset.onclick = reiniciarExemplo;
+    btnSkip.onclick = pularExemplo;
+
+    renderizarCodigo();
+    renderizarMemoria();
+  </script>
+</body>
+</html>
