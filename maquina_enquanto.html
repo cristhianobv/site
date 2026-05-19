@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Máquina do Enquanto | Prof. Cristhiano Vasconcellos</title>
+    <!-- versão refeita: missão 6 com drag and drop real -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+      :root{--text:#0f172a;--text-soft:#475569;--text-muted:#64748b;--border:rgba(15,23,42,.08);--primary:#22c55e;--primary-active:#15803d;--danger:#dc2626;--warning:#ca8a04;--blue:#0284c7;--shadow-sm:0 8px 24px rgba(15,23,42,.05);--shadow-md:0 18px 40px rgba(15,23,42,.08);--radius-lg:28px;--radius-md:22px;--container:1120px;--transition:220ms cubic-bezier(.2,.8,.2,1)}
+      *{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{font-family:"Inter",sans-serif;color:var(--text);background:radial-gradient(circle at top left,rgba(34,197,94,.08),transparent 24%),radial-gradient(circle at 90% 20%,rgba(14,165,233,.08),transparent 20%),linear-gradient(180deg,#fcfefe 0%,#f8fafc 30%,#f4f8fb 100%);min-height:100vh;overflow-x:hidden}body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(15,23,42,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(15,23,42,.03) 1px,transparent 1px);background-size:44px 44px;mask-image:radial-gradient(circle at center,black 35%,transparent 85%);pointer-events:none;z-index:0}a{color:inherit;text-decoration:none}button,input{font-family:inherit}.container{width:min(var(--container),calc(100% - 36px));margin:0 auto;position:relative;z-index:1}.page-wrap{padding:20px 0 36px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px;flex-wrap:wrap}.back-link{display:inline-flex;align-items:center;gap:8px;color:var(--text-soft);font-weight:600;transition:var(--transition)}.back-link:hover{color:var(--text)}.score-chip{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.82);border:1px solid var(--border);color:var(--text-soft);box-shadow:var(--shadow-sm);font-weight:700}.hero{margin-bottom:16px}.hero h1{font-family:"Space Grotesk",sans-serif;font-size:clamp(2rem,4vw,3rem);line-height:1;letter-spacing:-.05em;margin-bottom:8px}.hero p{color:var(--text-soft);font-size:1rem;line-height:1.65;max-width:850px}.progress-wrap{margin-bottom:18px;background:rgba(255,255,255,.82);border:1px solid var(--border);border-radius:20px;padding:14px 16px;box-shadow:var(--shadow-sm)}.progress-label{display:flex;justify-content:space-between;gap:12px;margin-bottom:8px;color:var(--text-muted);font-size:.9rem;flex-wrap:wrap}.progress{width:100%;height:12px;background:#e2e8f0;border-radius:999px;overflow:hidden}.progress-bar{height:100%;width:0%;background:linear-gradient(135deg,var(--primary) 0%,#34d399 100%);border-radius:inherit;transition:width var(--transition)}.activity-card{background:rgba(255,255,255,.92);border:1px solid var(--border);box-shadow:var(--shadow-md);border-radius:var(--radius-lg);padding:22px;animation:fadeUp 260ms ease both}@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.card-header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px;flex-wrap:wrap}.section-tag{display:inline-flex;align-items:center;gap:8px;background:rgba(34,197,94,.1);color:var(--primary-active);border:1px solid rgba(34,197,94,.16);border-radius:999px;padding:10px 14px;font-size:.9rem;font-weight:700}.question-counter{color:var(--text-muted);font-size:.95rem;font-weight:700}.question-title{font-size:1.05rem;line-height:1.7;color:var(--text);margin-bottom:16px;font-weight:600}.code-block{background:#0f172a;color:#e2e8f0;border-radius:var(--radius-md);padding:18px;font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.65;white-space:pre-wrap;overflow-x:auto;margin-bottom:16px;text-align:left;font-variant-ligatures:none;font-feature-settings:"liga" 0}.code-line{display:block;padding:2px 8px;border-radius:10px}.code-line.active{background:rgba(34,197,94,.2);outline:1px solid rgba(34,197,94,.35);color:#ecfdf5}.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}.mini-title{color:var(--text-muted);font-size:.86rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}.machine-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:16px;margin-bottom:16px}.panel{background:rgba(255,255,255,.88);border:1px solid var(--border);border-radius:22px;padding:16px;box-shadow:0 8px 24px rgba(15,23,42,.04)}.memory{display:grid;gap:10px}.memory-row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#f8fafc;border:1px solid var(--border);border-radius:16px;padding:12px 14px}.memory-row strong{font-family:"JetBrains Mono",monospace;color:var(--text)}.memory-value{font-family:"JetBrains Mono",monospace;font-size:1.25rem;font-weight:800;color:var(--primary-active)}.condition-box{margin-top:12px;border-radius:18px;padding:14px;border:1px solid var(--border);background:linear-gradient(180deg,#fff,#f8fafc)}.condition-result{margin-top:8px;font-weight:900;font-size:1.3rem}.condition-result.yes{color:var(--primary-active)}.condition-result.no{color:var(--danger)}.output-box{min-height:110px;background:#0f172a;color:#e2e8f0;border-radius:18px;padding:14px;font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.6;white-space:pre-wrap}.timeline{display:grid;gap:8px}.step-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:16px;background:#f8fafc;border:1px solid var(--border);color:var(--text-soft);font-size:.93rem;line-height:1.45}.step-dot{width:24px;height:24px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:rgba(34,197,94,.12);color:var(--primary-active);font-weight:900;flex:0 0 auto;font-size:.8rem}.step-item.active{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.22);color:var(--text)}.step-item.danger{background:rgba(220,38,38,.06);border-color:rgba(220,38,38,.18)}.answers{display:grid;gap:12px}.answer-btn{width:100%;border:1px solid rgba(15,23,42,.08);border-radius:22px;background:rgba(255,255,255,.98);padding:16px 18px;display:flex;align-items:flex-start;gap:12px;text-align:left;cursor:pointer;transition:var(--transition);box-shadow:0 8px 24px rgba(15,23,42,.04);color:var(--text);font-size:.98rem;font-weight:600}.answer-btn pre{margin:0;white-space:pre-wrap;font-family:"JetBrains Mono",monospace;font-size:12.5px;line-height:1.5}.answer-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 18px 32px rgba(15,23,42,.08);border-color:rgba(34,197,94,.45)}.answer-btn:disabled{cursor:default;opacity:1}.answer-btn.correct{border-color:rgba(34,197,94,.45);background:rgba(34,197,94,.07)}.answer-btn.wrong{border-color:rgba(220,38,38,.28);background:rgba(220,38,38,.05)}.answer-pill{width:36px;height:36px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:rgba(34,197,94,.12);color:var(--primary-active);font-weight:800;flex:0 0 auto}.build-area{display:grid;grid-template-columns:1fr 1fr;gap:16px}.build-card{background:rgba(255,255,255,.88);border:1px solid var(--border);border-radius:22px;padding:16px;box-shadow:0 8px 24px rgba(15,23,42,.04)}.piece-list,.drop-list{display:grid;gap:10px;align-content:start;min-height:310px}.drop-list{border:2px dashed rgba(34,197,94,.35);border-radius:20px;padding:12px;background:rgba(34,197,94,.04)}.drop-list.drag-over{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.7)}.piece,.slot{border:1px solid var(--border);border-radius:18px;padding:12px 14px;background:#fff;box-shadow:0 8px 20px rgba(15,23,42,.04);font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.45;user-select:none}.piece{cursor:grab;transition:var(--transition);border-left:4px solid var(--primary)}.piece:active{cursor:grabbing}.piece:hover{transform:translateY(-1px);border-color:rgba(34,197,94,.4)}.piece.used{opacity:.38;pointer-events:none}.slot{min-height:48px;display:flex;align-items:center;color:var(--text-muted);background:#f8fafc}.slot.filled{color:var(--text);background:#0f172a;color:#e2e8f0;border-left:4px solid var(--primary);cursor:grab}.slot.placeholder{justify-content:center;border-style:dashed;background:rgba(255,255,255,.7);color:var(--text-muted);font-family:"Inter",sans-serif}.slot.filled:hover{transform:translateY(-1px)}.slot.filled:active{cursor:grabbing}.input-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0}.small-input{width:90px;border:1px solid var(--border);border-radius:14px;padding:12px;font-size:1rem;font-weight:800;text-align:center;background:#fff;color:var(--text)}.feedback-area{min-height:26px;margin-top:16px;text-align:center;font-size:1rem;color:var(--text-soft);line-height:1.6}.correct-text{color:#15803d;font-weight:700}.error-text{color:var(--danger);font-weight:700}.warning-text{color:var(--warning);font-weight:800}.actions{margin-top:18px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:none;cursor:pointer;transition:var(--transition);padding:14px 22px;border-radius:999px;font-weight:800;font-size:.96rem}.btn-primary{background:linear-gradient(135deg,var(--primary) 0%,#34d399 100%);color:#052e16;box-shadow:0 14px 28px rgba(34,197,94,.22)}.btn-secondary{background:rgba(255,255,255,.9);color:var(--text-soft);border:1px solid var(--border);box-shadow:var(--shadow-sm)}.btn-danger{background:rgba(220,38,38,.08);color:var(--danger);border:1px solid rgba(220,38,38,.18)}.btn-primary:hover:not(:disabled),.btn-secondary:hover:not(:disabled),.btn-danger:hover:not(:disabled){transform:translateY(-2px)}.btn:disabled{opacity:.55;cursor:not-allowed;transform:none!important;box-shadow:none}.microcopy{color:var(--text-muted);font-size:.9rem;text-align:center;margin-top:12px}.hidden{display:none!important}.end-screen{min-height:70vh;display:flex;align-items:center;justify-content:center;padding:10px 0}.end-card{width:min(760px,100%);background:rgba(255,255,255,.94);border:1px solid var(--border);box-shadow:var(--shadow-md);border-radius:32px;padding:32px;text-align:center}.end-icon{width:72px;height:72px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:rgba(34,197,94,.12);color:var(--primary-active);font-size:1.8rem;margin-bottom:14px}.end-card h1{font-family:"Space Grotesk",sans-serif;font-size:clamp(2rem,4vw,3rem);line-height:1.02;letter-spacing:-.04em;margin-bottom:10px}.end-card p{color:var(--text-soft);line-height:1.7;margin-bottom:20px}.end-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:20px}.end-stat{background:rgba(255,255,255,.84);border:1px solid var(--border);border-radius:20px;padding:16px}.end-stat strong{display:block;font-family:"Space Grotesk",sans-serif;font-size:1.6rem;margin-bottom:4px}.end-stat span{color:var(--text-muted);font-size:.9rem}.end-actions{display:flex;justify-content:center;margin-top:16px;flex-wrap:wrap;gap:12px}.end-secondary{text-align:center;margin-top:10px}.end-secondary a{font-size:.9rem;color:#64748b;text-decoration:none;transition:.2s}.end-secondary a:hover{color:#0f172a}@media(max-width:820px){.container{width:min(var(--container),calc(100% - 20px))}.page-wrap{padding-top:14px}.compare-grid,.machine-grid,.build-area{grid-template-columns:1fr}.activity-card{padding:16px;border-radius:22px}.code-block,.answer-btn{border-radius:18px}.end-stats{grid-template-columns:1fr}}
+    </style>
+  </head>
+  <body>
+    <main class="page-wrap">
+      <div class="container" id="app">
+        <div class="topbar">
+          <a class="back-link" href="objetos.html"><i class="fas fa-arrow-left"></i> Voltar aos objetos</a>
+          <div id="score" class="score-chip"><i class="fas fa-star"></i> Pontos: 0</div>
+        </div>
+        <section class="hero">
+          <h1>Máquina do Enquanto</h1>
+          <p>Veja o comando <strong>enquanto faca</strong> funcionando por dentro: teste da condição, execução do bloco, atualização do contador e saída do laço. A ideia é entender o fluxo antes de decorar a sintaxe.</p>
+        </section>
+        <section class="progress-wrap">
+          <div class="progress-label"><span id="progressText">Missão 1 de 7</span><span id="progressPercent">0% concluído</span></div>
+          <div class="progress"><div id="bar" class="progress-bar"></div></div>
+        </section>
+        <article class="activity-card">
+          <div class="card-header"><div id="sectionTag" class="section-tag"><i class="fas fa-gears"></i> Máquina do Enquanto</div><div id="missionCounter" class="question-counter">Missão 1</div></div>
+          <div id="activity"></div>
+          <div id="feedback" class="feedback-area">Leia a explicação e avance quando estiver pronto.</div>
+          <div class="actions">
+            <button id="btnAnterior" class="btn btn-secondary" type="button"><i class="fas fa-arrow-left"></i> Anterior</button>
+            <button id="btnResetar" class="btn btn-secondary hidden" type="button"><i class="fas fa-rotate-left"></i> Reiniciar máquina</button>
+            <button id="btnPasso" class="btn btn-primary hidden" type="button"><i class="fas fa-forward-step"></i> Próximo passo</button>
+            <button id="btnVerificar" class="btn btn-primary hidden" type="button"><i class="fas fa-check"></i> Verificar</button>
+            <button id="btnProximo" class="btn btn-primary" type="button"><i class="fas fa-arrow-right"></i> Continuar</button>
+          </div>
+          <div id="microcopy" class="microcopy">Dica: em um <strong>enquanto</strong>, a condição é testada antes de cada repetição.</div>
+        </article>
+      </div>
+    </main>
+    <script>
+      const URL_WEBAPP = "";
+      const NOME_ATIVIDADE = "Máquina do Enquanto";
+      const missions=[
+        {tipo:"intro",tag:'<i class="fas fa-eye"></i> Entendendo a ideia',titulo:"O enquanto repete enquanto a condição for verdadeira.",pontos:1},
+        {tipo:"machine",tag:'<i class="fas fa-gears"></i> Execução passo a passo',titulo:"Execute a máquina e observe o contador mudando.",pontos:3,scenario:"contador",sucesso:"✔ Muito bem! Você viu que o contador começa em 1, a condição é testada, o bloco executa e o contador aumenta até a condição ficar falsa."},
+        {tipo:"quiz",tag:'<i class="fas fa-brain"></i> Preveja a saída',titulo:"Antes de executar, qual será a saída deste algoritmo?",pontos:2,codigo:'contador <- 1\n\nenquanto contador <= 4 faca\n   escreval(contador)\n   contador <- contador + 1\nfimenquanto',opcoes:["1 2 3 4","1 2 3 4 5","2 3 4","O algoritmo não mostra nada"],correta:0,explicacao:"A condição é verdadeira para 1, 2, 3 e 4. Quando o contador vira 5, a condição contador <= 4 fica falsa."},
+        {tipo:"loop",tag:'<i class="fas fa-triangle-exclamation"></i> Loop infinito',titulo:"Observe o perigo: o contador nunca muda dentro do enquanto.",pontos:2},
+        {tipo:"quiz-code",tag:'<i class="fas fa-bug"></i> Pega-ratão',titulo:"Qual versão evita o loop infinito?",pontos:2,opcoes:['contador <- 1\n\nenquanto contador <= 5 faca\n   escreval(contador)\nfimenquanto','contador <- 1\n\nenquanto contador <= 5 faca\n   escreval(contador)\n   contador <- contador + 1\nfimenquanto','contador <- 1\n\nenquanto contador <= 5 faca\n   contador <- 1\n   escreval(contador)\nfimenquanto'],correta:1,explicacao:"A segunda versão atualiza o contador dentro do bloco. Assim, uma hora a condição ficará falsa."},
+        {tipo:"build",tag:'<i class="fas fa-puzzle-piece"></i> Monte o algoritmo',titulo:"Monte a ordem correta de um enquanto que mostra os números de 1 a 3.",pontos:3},
+        {tipo:"machine",tag:'<i class="fas fa-calculator"></i> Acumulador com enquanto',titulo:"Agora veja um acumulador somando três valores.",pontos:3,scenario:"soma",sucesso:"✔ Excelente! O contador controla quantas leituras acontecem, enquanto a variável soma acumula os valores informados."}
+      ];
+      let atual=0,pontos=0,erros=0;const respondida=new Set();let nomeAluno=null;let machineState=null;let selectedPiece=null;let draggedPiece=null;let buildDisponiveis=null;let buildResposta=[];
+      const app=document.getElementById("app"),activity=document.getElementById("activity"),feedback=document.getElementById("feedback"),score=document.getElementById("score"),bar=document.getElementById("bar"),progressText=document.getElementById("progressText"),progressPercent=document.getElementById("progressPercent"),missionCounter=document.getElementById("missionCounter"),sectionTag=document.getElementById("sectionTag"),btnAnterior=document.getElementById("btnAnterior"),btnVerificar=document.getElementById("btnVerificar"),btnProximo=document.getElementById("btnProximo"),btnPasso=document.getElementById("btnPasso"),btnResetar=document.getElementById("btnResetar"),microcopy=document.getElementById("microcopy");
+      function obterNomeAluno(){let nome=sessionStorage.getItem("nomeAluno");if(!nome){nome=prompt("Digite seu nome completo para registrar sua atividade:");if(nome&&nome.trim()!==""){nome=nome.trim();sessionStorage.setItem("nomeAluno",nome)}else nome="Anônimo"}return nome}
+      async function registrarResultado(nome,atividade,acertos,total,erros){if(!URL_WEBAPP)return;try{await fetch(URL_WEBAPP,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json"},body:JSON.stringify({nome,atividade,acertos,total,erros})})}catch(e){console.error(e)}}
+      function totalPontos(){return missions.reduce((s,m)=>s+m.pontos,0)}
+      function atualizarUI(){score.innerHTML=`<i class="fas fa-star"></i> Pontos: ${pontos}`;missionCounter.innerText=`Missão ${atual+1}`;progressText.innerText=`Missão ${atual+1} de ${missions.length}`;const percent=((atual+(respondida.has(atual)?1:0))/missions.length)*100;bar.style.width=`${Math.min(100,percent)}%`;progressPercent.innerText=`${Math.round(Math.min(100,percent))}% concluído`;btnAnterior.disabled=atual===0}
+      function marcar(indice,acerto=true){if(!respondida.has(indice)){respondida.add(indice);if(acerto)pontos+=missions[indice].pontos;else erros++}atualizarUI()}
+      function limparBotoes(){btnVerificar.classList.add("hidden");btnPasso.classList.add("hidden");btnResetar.classList.add("hidden");btnProximo.disabled=false;btnProximo.classList.remove("btn-secondary");btnProximo.classList.add("btn-primary")}
+      function carregar(){const m=missions[atual];sectionTag.innerHTML=m.tag;feedback.className="feedback-area";limparBotoes();btnProximo.innerHTML=atual===missions.length-1?'<i class="fas fa-flag-checkered"></i> Finalizar':'<i class="fas fa-arrow-right"></i> Continuar';microcopy.innerHTML='Dica: em um <strong>enquanto</strong>, a condição é testada antes de cada repetição.';if(m.tipo==="intro")carregarIntro(m);if(m.tipo==="machine")carregarMachine(m);if(m.tipo==="quiz")carregarQuiz(m);if(m.tipo==="loop")carregarLoop(m);if(m.tipo==="quiz-code")carregarQuizCodigo(m);if(m.tipo==="build")carregarBuild(m);atualizarUI();window.scrollTo({top:0,behavior:"smooth"})}
+      function carregarIntro(m){activity.innerHTML=`<div class="question-title">${m.titulo}</div><div class="compare-grid"><div><div class="mini-title">Repetir manualmente</div><pre class="code-block">escreval(1)
+escreval(2)
+escreval(3)
+escreval(4)
+escreval(5)</pre></div><div><div class="mini-title">Repetir com enquanto</div><pre class="code-block">contador <- 1
+
+enquanto contador <= 5 faca
+   escreval(contador)
+   contador <- contador + 1
+fimenquanto</pre></div></div><div class="question-title">A máquina do enquanto sempre faz uma pergunta antes de repetir: <strong>a condição ainda é verdadeira?</strong> Se for, executa o bloco. Se não for, sai do laço.</div>`;feedback.innerHTML='<span class="correct-text">Objetivo:</span> enxergar o caminho do algoritmo, linha por linha.'}
+      function codigoComLinhas(lines,active){return `<pre class="code-block">${lines.map((l,i)=>`<span class="code-line ${i===active?'active':''}">${escapeHTML(l)||' '}</span>`).join('')}</pre>`}
+      function initMachine(scenario){if(scenario==="soma")return {scenario,pc:0,contador:1,soma:0,valores:[4,7,2],saida:"",iteracao:0,acabou:false,last:"Clique em Próximo passo para iniciar."};return {scenario,pc:0,contador:1,saida:"",iteracao:0,acabou:false,last:"Clique em Próximo passo para iniciar."}}
+      function carregarMachine(m){if(!machineState||machineState.scenario!==m.scenario)machineState=initMachine(m.scenario);btnPasso.classList.remove("hidden");btnResetar.classList.remove("hidden");btnProximo.disabled=!respondida.has(atual);renderMachine(m)}
+      function renderMachine(m){const s=machineState;const isSoma=s.scenario==="soma";const lines=isSoma?['contador <- 1','soma <- 0','enquanto contador <= 3 faca','   leia(valor)','   soma <- soma + valor','   contador <- contador + 1','fimenquanto','escreval(soma)']:['contador <- 1','','enquanto contador <= 5 faca','   escreval(contador)','   contador <- contador + 1','fimenquanto'];const condLimit=isSoma?3:5;const cond=s.contador<=condLimit;activity.innerHTML=`<div class="question-title">${m.titulo}</div><div class="machine-grid"><div>${codigoComLinhas(lines,s.pc)}<div class="panel"><div class="mini-title">Saída na tela</div><div class="output-box">${escapeHTML(s.saida||"(nada exibido ainda)")}</div></div></div><div class="panel"><div class="mini-title">Memória</div><div class="memory"><div class="memory-row"><strong>contador</strong><span class="memory-value">${s.contador}</span></div>${isSoma?`<div class="memory-row"><strong>soma</strong><span class="memory-value">${s.soma}</span></div><div class="memory-row"><strong>valores lidos</strong><span class="memory-value">${s.valores.join(', ')}</span></div>`:''}</div><div class="condition-box"><div class="mini-title">Teste da condição</div><strong>contador <= ${condLimit}</strong><div class="condition-result ${cond?'yes':'no'}">${cond?'VERDADEIRO':'FALSO'}</div></div></div></div><div class="panel"><div class="mini-title">O que aconteceu?</div><div class="timeline"><div class="step-item active"><span class="step-dot">${Math.max(1,s.iteracao)}</span><span>${s.last}</span></div>${s.acabou?'<div class="step-item"><span class="step-dot"><i class="fas fa-door-open"></i></span><span>O laço terminou porque a condição ficou falsa.</span></div>':''}</div></div>`;if(s.acabou){btnPasso.disabled=true;btnProximo.disabled=false;marcar(atual,true);feedback.innerHTML=`<span class="correct-text">${m.sucesso}</span>`}else{btnPasso.disabled=false;feedback.innerHTML="Clique em <strong>Próximo passo</strong> para acompanhar a máquina."}}
+      function machineStep(){const m=missions[atual];const s=machineState;if(!s||s.acabou)return;if(s.scenario==="soma")stepSoma(s);else stepContador(s);renderMachine(m)}
+      function stepContador(s){if(s.pc===0){s.contador=1;s.last="A variável contador recebeu o valor inicial 1.";s.pc=2;return}if(s.pc===2){if(s.contador<=5){s.iteracao++;s.last=`Teste: ${s.contador} <= 5 é verdadeiro. A máquina entra no bloco.`;s.pc=3}else{s.last=`Teste: ${s.contador} <= 5 é falso. A máquina sai do enquanto.`;s.pc=5;s.acabou=true}return}if(s.pc===3){s.saida+=`${s.contador}\n`;s.last=`O comando escreval mostrou ${s.contador} na tela.`;s.pc=4;return}if(s.pc===4){s.contador++;s.last=`O contador foi atualizado. Agora contador vale ${s.contador}.`;s.pc=2;return}}
+      function stepSoma(s){if(s.pc===0){s.contador=1;s.last="A variável contador recebeu o valor inicial 1.";s.pc=1;return}if(s.pc===1){s.soma=0;s.last="A variável soma começou em 0, pois ainda não acumulou nenhum valor.";s.pc=2;return}if(s.pc===2){if(s.contador<=3){s.iteracao++;s.last=`Teste: ${s.contador} <= 3 é verdadeiro. A máquina fará a leitura ${s.iteracao}.`;s.pc=3}else{s.last=`Teste: ${s.contador} <= 3 é falso. A repetição terminou.`;s.pc=7}return}if(s.pc===3){s.valor=s.valores[s.contador-1];s.last=`O valor lido foi ${s.valor}.`;s.pc=4;return}if(s.pc===4){s.soma+=s.valor;s.last=`A soma acumulou ${s.valor}. Agora soma vale ${s.soma}.`;s.pc=5;return}if(s.pc===5){s.contador++;s.last=`O contador foi atualizado. Agora contador vale ${s.contador}.`;s.pc=2;return}if(s.pc===7){s.saida=`Soma final: ${s.soma}\n`;s.last=`O algoritmo mostrou a soma final: ${s.soma}.`;s.acabou=true;return}}
+      function resetMachine(){const m=missions[atual];machineState=initMachine(m.scenario);renderMachine(m)}
+      function carregarLoop(m){btnPasso.classList.remove("hidden");btnResetar.classList.remove("hidden");btnProximo.disabled=!respondida.has(atual);if(!machineState||machineState.scenario!=="loop")machineState={scenario:"loop",passos:0,contador:1,saida:"",travado:false};renderLoop()}
+      function renderLoop(){const s=machineState;activity.innerHTML=`<div class="question-title">Observe este algoritmo. Falta uma linha importante dentro do bloco.</div>${codigoComLinhas(['contador <- 1','','enquanto contador <= 5 faca','   escreval(contador)','fimenquanto'],s.travado?3:(s.passos%2===0?2:3))}<div class="machine-grid"><div class="panel"><div class="mini-title">Saída na tela</div><div class="output-box">${escapeHTML(s.saida||"(nada exibido ainda)")}</div></div><div class="panel"><div class="mini-title">Memória</div><div class="memory"><div class="memory-row"><strong>contador</strong><span class="memory-value">${s.contador}</span></div></div><div class="condition-box"><div class="mini-title">Teste repetido</div><strong>contador <= 5</strong><div class="condition-result yes">SEMPRE VERDADEIRO</div></div></div></div>`;if(s.travado){feedback.innerHTML='<span class="warning-text">Pega-ratão:</span> o contador continua valendo 1. Como ele nunca muda, a condição nunca fica falsa.';marcar(atual,true);btnPasso.disabled=true;btnProximo.disabled=false}else{feedback.innerHTML="Clique algumas vezes em <strong>Próximo passo</strong> para ver o problema aparecer.";btnPasso.disabled=false}}
+      function loopStep(){const s=machineState;if(s.travado)return;s.passos++;s.saida+=`${s.contador}\n`;if(s.passos>=5){s.travado=true;s.saida+="...\n...\n..."}renderLoop()}
+      function carregarQuiz(m){btnProximo.disabled=!respondida.has(atual);activity.innerHTML=`<div class="question-title">${m.titulo}</div><pre class="code-block">${escapeHTML(m.codigo)}</pre><div class="answers">${m.opcoes.map((op,i)=>`<button class="answer-btn" type="button" onclick="responderQuiz(${i})" ${respondida.has(atual)?"disabled":""}><span class="answer-pill">${String.fromCharCode(65+i)}</span><span class="answer-text">${op}</span></button>`).join("")}</div>`;if(respondida.has(atual)){marcarAlternativas();feedback.innerHTML=`<span class="correct-text">Resposta registrada.</span> ${m.explicacao}`}else feedback.innerHTML="Selecione uma alternativa para responder."}
+      function carregarQuizCodigo(m){btnProximo.disabled=!respondida.has(atual);activity.innerHTML=`<div class="question-title">${m.titulo}</div><div class="answers">${m.opcoes.map((op,i)=>`<button class="answer-btn" type="button" onclick="responderQuiz(${i})" ${respondida.has(atual)?"disabled":""}><span class="answer-pill">${String.fromCharCode(65+i)}</span><pre>${escapeHTML(op)}</pre></button>`).join("")}</div>`;if(respondida.has(atual)){marcarAlternativas();feedback.innerHTML=`<span class="correct-text">Resposta registrada.</span> ${m.explicacao}`}else feedback.innerHTML="Selecione a versão correta."}
+      function responderQuiz(indice){const m=missions[atual];if(respondida.has(atual))return;const botoes=[...document.querySelectorAll(".answer-btn")];botoes.forEach(b=>b.disabled=true);if(indice===m.correta){botoes[indice].classList.add("correct");marcar(atual,true);feedback.innerHTML=`<span class="correct-text">✔ Correto!</span> ${m.explicacao}`}else{botoes[indice].classList.add("wrong");botoes[m.correta].classList.add("correct");marcar(atual,false);feedback.innerHTML=`<span class="error-text">✖ Errado.</span> ${m.explicacao}`}btnProximo.disabled=false}
+      function marcarAlternativas(){const m=missions[atual];[...document.querySelectorAll(".answer-btn")].forEach((b,i)=>{if(i===m.correta)b.classList.add("correct");b.disabled=true})}
+      const buildPieces=[
+        'contador <- 1',
+        'enquanto contador <= 3 faca',
+        '   escreval(contador)',
+        '   contador <- contador + 1',
+        'fimenquanto'
+      ];
+      const buildRespostaCorreta=[0,1,2,3,4];
+      function embaralharBuild(array){
+        const copia=[...array];
+        for(let i=copia.length-1;i>0;i--){
+          const j=Math.floor(Math.random()*(i+1));
+          [copia[i],copia[j]]=[copia[j],copia[i]];
+        }
+        return copia;
+      }
+      function iniciarBuild(){
+        buildDisponiveis=embaralharBuild(buildRespostaCorreta);
+        buildResposta=[];
+        draggedPiece=null;
+      }
+      function carregarBuild(){
+        btnVerificar.classList.remove("hidden");
+        btnResetar.classList.remove("hidden");
+        btnResetar.innerHTML='<i class="fas fa-rotate-left"></i> Reiniciar montagem';
+        btnProximo.disabled=!respondida.has(atual);
+        microcopy.innerHTML='Missão 6: agora é <strong>arrastar e soltar de verdade</strong>. Arraste os comandos para montar o algoritmo.';
+        if(!buildDisponiveis)iniciarBuild();
+        activity.innerHTML=`
+          <div class="question-title">
+            ${missions[atual].titulo}<br>
+            <span style="color:var(--text-soft);font-weight:500">
+              Arraste os blocos verdes para a área <strong>Seu algoritmo</strong>. Também é possível arrastar de volta ou reorganizar antes de verificar.
+            </span>
+          </div>
+          <div class="build-area">
+            <div class="build-card">
+              <div class="mini-title">📦 Blocos disponíveis</div>
+              <div id="buildOrigin" class="piece-list drop-list" aria-label="Blocos disponíveis">
+                ${buildDisponiveis.length?buildDisponiveis.map((i,pos)=>`<div class="piece" draggable="${respondida.has(atual)?'false':'true'}" data-zone="origin" data-pos="${pos}" data-piece="${i}">${escapeHTML(buildPieces[i])}</div>`).join(''):'<div class="slot placeholder">Todos os blocos foram usados</div>'}
+              </div>
+            </div>
+            <div class="build-card">
+              <div class="mini-title">🧩 Seu algoritmo</div>
+              <div id="buildDrop" class="drop-list" aria-label="Seu algoritmo">
+                ${buildResposta.length?buildResposta.map((i,pos)=>`<div class="slot filled" draggable="${respondida.has(atual)?'false':'true'}" data-zone="answer" data-pos="${pos}" data-piece="${i}">${escapeHTML(buildPieces[i])}</div>`).join(''):'<div class="slot placeholder">Solte os blocos aqui</div>'}
+              </div>
+            </div>
+          </div>`;
+        ligarEventosBuild();
+        if(respondida.has(atual)){
+          feedback.innerHTML='<span class="correct-text">✔ Algoritmo montado corretamente!</span>';
+        }else{
+          feedback.innerHTML='Arraste os blocos para a direita na ordem correta. Para corrigir, arraste um bloco de volta para a esquerda ou reorganize dentro do algoritmo.';
+        }
+      }
+      function iniciarArrastoBuild(e,zone,pos,piece){
+        if(respondida.has(atual)){e.preventDefault();return;}
+        draggedPiece={zone,pos,piece};
+        e.dataTransfer.setData('application/json',JSON.stringify(draggedPiece));
+        e.dataTransfer.setData('text/plain',String(piece));
+        e.dataTransfer.effectAllowed='move';
+      }
+      function lerArrastoBuild(e){
+        try{
+          const txt=e.dataTransfer.getData('application/json');
+          if(txt)return JSON.parse(txt);
+        }catch(_){ }
+        return draggedPiece;
+      }
+      function removerOrigemDoArrasto(info){
+        if(!info)return null;
+        let item=null;
+        if(info.zone==='origin'){
+          if(buildDisponiveis[info.pos]!==info.piece)return null;
+          item=buildDisponiveis.splice(info.pos,1)[0];
+        }else if(info.zone==='answer'){
+          if(buildResposta[info.pos]!==info.piece)return null;
+          item=buildResposta.splice(info.pos,1)[0];
+        }
+        return item;
+      }
+      function inserirEmAlgoritmo(info,alvoPos=null){
+        const item=removerOrigemDoArrasto(info);
+        if(item===null||item===undefined)return;
+        let pos=(alvoPos===null||alvoPos===undefined)?buildResposta.length:Number(alvoPos);
+        if(info.zone==='answer' && info.pos<pos)pos--;
+        pos=Math.max(0,Math.min(pos,buildResposta.length));
+        buildResposta.splice(pos,0,item);
+        draggedPiece=null;
+        carregarBuild();
+      }
+      function devolverParaBlocos(info){
+        const item=removerOrigemDoArrasto(info);
+        if(item===null||item===undefined)return;
+        buildDisponiveis.push(item);
+        draggedPiece=null;
+        carregarBuild();
+      }
+      function ligarEventosBuild(){
+        document.querySelectorAll('#buildOrigin .piece, #buildDrop .slot.filled').forEach(el=>{
+          el.addEventListener('dragstart',e=>{
+            iniciarArrastoBuild(e,el.dataset.zone,Number(el.dataset.pos),Number(el.dataset.piece));
+          });
+        });
+        const origin=document.getElementById('buildOrigin');
+        const drop=document.getElementById('buildDrop');
+        if(origin){
+          origin.addEventListener('dragover',e=>{e.preventDefault();origin.classList.add('drag-over');});
+          origin.addEventListener('dragleave',()=>origin.classList.remove('drag-over'));
+          origin.addEventListener('drop',e=>{
+            e.preventDefault();origin.classList.remove('drag-over');
+            if(respondida.has(atual))return;
+            const info=lerArrastoBuild(e);
+            if(!info)return;
+            if(info.zone==='answer')devolverParaBlocos(info);
+          });
+        }
+        if(drop){
+          drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('drag-over');});
+          drop.addEventListener('dragleave',()=>drop.classList.remove('drag-over'));
+          drop.addEventListener('drop',e=>{
+            e.preventDefault();drop.classList.remove('drag-over');
+            if(respondida.has(atual))return;
+            const info=lerArrastoBuild(e);
+            if(!info)return;
+            inserirEmAlgoritmo(info,null);
+          });
+        }
+        document.querySelectorAll('#buildDrop .slot.filled').forEach(el=>{
+          el.addEventListener('dragover',e=>{e.preventDefault();el.style.outline='2px solid rgba(34,197,94,.55)';});
+          el.addEventListener('dragleave',()=>{el.style.outline='';});
+          el.addEventListener('drop',e=>{
+            e.preventDefault();
+            e.stopPropagation();
+            el.style.outline='';
+            if(respondida.has(atual))return;
+            const info=lerArrastoBuild(e);
+            if(!info)return;
+            inserirEmAlgoritmo(info,Number(el.dataset.pos));
+          });
+        });
+      }
+      function resetBuild(){iniciarBuild();carregarBuild();}
+      function verificarBuild(){
+        if(buildResposta.length<buildRespostaCorreta.length){
+          feedback.innerHTML='<span class="warning-text">Ainda faltam blocos.</span> Arraste todos os comandos para a área da direita.';
+          return;
+        }
+        const ok=buildResposta.every((v,i)=>v===buildRespostaCorreta[i]);
+        if(ok){
+          marcar(atual,true);
+          btnProximo.disabled=false;
+          feedback.innerHTML='<span class="correct-text">✔ Perfeito!</span> Primeiro inicializamos o contador, depois testamos a condição, executamos o bloco, atualizamos o contador e fechamos com <strong>fimenquanto</strong>.';
+          carregarBuild();
+        }else{
+          feedback.innerHTML='<span class="error-text">Ainda não.</span> A ordem precisa ser: inicializar contador, abrir o enquanto, mostrar o contador, incrementar e fechar o bloco. Reorganize arrastando os blocos.';
+        }
+      }
+      function proxima(){if(atual===0&&!respondida.has(atual))marcar(atual,true);if(atual>=missions.length-1){finalizar();return}atual++;machineState=null;selectedPiece=null;if(missions[atual]?.tipo!=="build"){buildDisponiveis=null;buildResposta=[];}carregar()}
+      function anterior(){if(atual===0)return;atual--;machineState=null;selectedPiece=null;if(missions[atual]?.tipo!=="build"){buildDisponiveis=null;buildResposta=[];}carregar()}
+      async function finalizar(){if(!nomeAluno){nomeAluno=obterNomeAluno();await registrarResultado(nomeAluno,NOME_ATIVIDADE,pontos,totalPontos(),erros)}const total=totalPontos();const percentual=Math.round((pontos/total)*100);app.innerHTML=`<section class="end-screen"><div class="end-card"><div class="end-icon"><i class="fas fa-gears"></i></div><h1>Máquina concluída!</h1><p>Você acompanhou o funcionamento do <strong>enquanto faca</strong>, previu saídas, identificou loop infinito, montou um algoritmo e viu contador e acumulador em ação.</p><div class="end-stats"><div class="end-stat"><strong>${pontos}</strong><span>Pontos</span></div><div class="end-stat"><strong>${total}</strong><span>Total possível</span></div><div class="end-stat"><strong>${percentual}%</strong><span>Aproveitamento</span></div></div><div class="end-actions"><a class="btn btn-primary" href="objetos.html"><i class="fas fa-cubes"></i> Explorar objetos</a><button class="btn btn-secondary" onclick="location.reload()"><i class="fas fa-rotate-right"></i> Refazer</button></div><div class="end-secondary"><a href="index.html">Voltar ao início</a></div></div></section>`}
+      function escapeHTML(t){return String(t).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")}
+      btnAnterior.onclick=anterior;btnProximo.onclick=proxima;btnResetar.onclick=()=>{const m=missions[atual];if(m.tipo==="build")resetBuild();else if(m.tipo==="loop"){machineState={scenario:"loop",passos:0,contador:1,saida:"",travado:false};renderLoop()}else resetMachine()};btnPasso.onclick=()=>{const m=missions[atual];if(m.tipo==="loop")loopStep();else machineStep()};btnVerificar.onclick=()=>{if(missions[atual].tipo==="build")verificarBuild()};carregar();
+    </script>
+  </body>
+</html>
