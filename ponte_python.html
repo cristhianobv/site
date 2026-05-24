@@ -1,0 +1,1088 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ponte Python: do Visualg ao Código Real | Prof. Cristhiano Vasconcellos</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+  <style>
+    :root {
+      --text: #0f172a;
+      --text-soft: #475569;
+      --text-muted: #64748b;
+      --border: rgba(15, 23, 42, 0.08);
+      --primary: #22c55e;
+      --primary-hover: #16a34a;
+      --primary-active: #15803d;
+      --danger: #dc2626;
+      --warn: #f59e0b;
+      --code: #0f172a;
+      --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 18px 40px rgba(15, 23, 42, 0.08);
+      --radius-lg: 28px;
+      --radius-md: 22px;
+      --container: 1080px;
+      --transition: 220ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(34, 197, 94, 0.08), transparent 24%),
+        radial-gradient(circle at 90% 20%, rgba(14, 165, 233, 0.08), transparent 20%),
+        linear-gradient(180deg, #fcfefe 0%, #f8fafc 30%, #f4f8fb 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(circle at center, black 35%, transparent 85%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .container {
+      width: min(var(--container), calc(100% - 36px));
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .page-wrap { padding: 20px 0 36px; }
+
+    /* TOPBAR no padrão dos outros objetos */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .back-link:hover { color: var(--text); }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .score-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid var(--border);
+      color: var(--text-soft);
+      box-shadow: var(--shadow-sm);
+      font-weight: 700;
+    }
+
+    .hero { margin-bottom: 16px; }
+
+    .hero h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1;
+      letter-spacing: -0.05em;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      color: var(--text-soft);
+      font-size: 1rem;
+      line-height: 1.65;
+      max-width: 820px;
+    }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .mini-card {
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .mini-card strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #166534;
+    }
+
+    .progress-wrap {
+      margin-bottom: 18px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .progress {
+      width: 100%;
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      border-radius: inherit;
+      transition: width var(--transition);
+    }
+
+    .activity-card {
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      min-height: 500px;
+    }
+
+    .mission-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .mission-title h2 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(1.45rem, 3vw, 2rem);
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+    }
+
+    .mission-title p { color: var(--text-soft); line-height: 1.6; }
+
+    .mission-badge {
+      white-space: nowrap;
+      background: rgba(34,197,94,.10);
+      color: #166534;
+      border: 1px solid rgba(34,197,94,.25);
+      border-radius: 999px;
+      padding: 9px 13px;
+      font-weight: 800;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .label { font-weight: 900; color: #166534; margin-bottom: 8px; }
+
+    .codebox {
+      background: var(--code);
+      color: #e2e8f0;
+      border-radius: var(--radius-md);
+      padding: 18px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 13px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    .codebox.light {
+      background: #f8fafc;
+      color: var(--text);
+      border: 1px solid #e2e8f0;
+    }
+
+    .hint { color: var(--text-muted); font-size: 0.92rem; line-height: 1.5; }
+
+    .answers,
+    .option-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .option-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .answer-btn,
+    .option {
+      width: 100%;
+      border: 1px solid rgba(15,23,42,.08);
+      border-radius: 22px;
+      background: rgba(255,255,255,.98);
+      padding: 16px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      text-align: left;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 8px 24px rgba(15,23,42,.04);
+      color: var(--text);
+      font-size: 0.98rem;
+      font-weight: 700;
+    }
+
+    .option { display: block; }
+
+    .answer-btn:hover:not(:disabled),
+    .option:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 32px rgba(15,23,42,.08);
+      border-color: rgba(34,197,94,.45);
+    }
+
+    .answer-btn:disabled,
+    .option:disabled { cursor: default; opacity: 1; }
+
+    .correct { border-color: rgba(34,197,94,.55) !important; background: rgba(34,197,94,.08) !important; }
+    .wrong { border-color: rgba(220,38,38,.35) !important; background: rgba(220,38,38,.05) !important; }
+
+    .answer-pill {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34,197,94,.12);
+      color: var(--primary-active);
+      font-weight: 800;
+      flex: 0 0 auto;
+    }
+
+    .feedback-area {
+      min-height: 34px;
+      margin-top: 16px;
+      border-radius: 18px;
+      padding: 14px 16px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: var(--text-soft);
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .feedback-area.ok { background: #f0fdf4; border-color: #bbf7d0; color: #14532d; font-weight: 700; }
+    .feedback-area.err { background: #fef2f2; border-color: #fecaca; color: #991b1b; font-weight: 700; }
+    .feedback-area.warn { background: #fffbeb; border-color: #fde68a; color: #92400e; font-weight: 700; }
+
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      padding: 14px 22px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.96rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+      color: #052e16;
+      box-shadow: 0 14px 28px rgba(34,197,94,.22);
+    }
+
+    .btn-secondary { background: #e2e8f0; color: #172033; }
+    .btn-primary:hover:not(:disabled), .btn-secondary:hover:not(:disabled) { transform: translateY(-2px); }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none !important; box-shadow: none; }
+
+    .select-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 12px;
+      font-family: "JetBrains Mono", monospace;
+      margin-bottom: 10px;
+    }
+
+    .select-line select {
+      font: inherit;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 7px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .pair-area,
+    .translate-box { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .stack,
+    .block-pool,
+    .answer-zone {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 14px;
+      min-height: 260px;
+    }
+
+    .answer-zone { border: 2px dashed #86efac; }
+    .answer-zone.over, .drop-item.over { background: #ecfdf5; outline: 3px solid rgba(34,197,94,.18); }
+
+    .stack h3 { text-align: center; margin-bottom: 12px; color: #166534; }
+
+    .drag-item,
+    .drop-item,
+    .code-block {
+      background: #fff;
+      border: 1px solid #dbeafe;
+      border-left: 5px solid var(--primary);
+      border-radius: 14px;
+      padding: 12px;
+      margin: 8px 0;
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 700;
+      cursor: grab;
+      user-select: none;
+      box-shadow: 0 4px 12px rgba(15,23,42,.04);
+    }
+
+    .drop-item {
+      min-height: 58px;
+      border-style: dashed;
+      color: var(--text-soft);
+      cursor: default;
+    }
+
+    .drop-item.filled { border-style: solid; color: var(--text); background: #f0fdf4; }
+    .drag-item.small { font-size: .88rem; }
+    .code-block.used { opacity: .35; pointer-events: none; }
+    .answer-zone .code-block { cursor: default; background: #f0fdf4; }
+    .tiny { color: var(--text-muted); font-size: .84rem; line-height: 1.45; margin-top: 4px; }
+
+    .bug-card {
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      border-radius: 18px;
+      padding: 16px;
+      margin-top: 12px;
+    }
+
+    .bug-title { font-weight: 900; margin-bottom: 10px; }
+    .bug-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+
+    .end-screen {
+      min-height: 62vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0;
+    }
+
+    .end-card {
+      width: min(760px, 100%);
+      background: rgba(255,255,255,.94);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      border-radius: 32px;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .end-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34,197,94,.12);
+      color: var(--primary-active);
+      font-size: 1.8rem;
+      margin-bottom: 14px;
+    }
+
+    .end-card h1 {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+      margin-bottom: 10px;
+    }
+
+    .end-card p { color: var(--text-soft); line-height: 1.7; margin-bottom: 20px; }
+
+    .end-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .end-stat {
+      background: rgba(255,255,255,.84);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .end-stat strong {
+      display: block;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.6rem;
+      margin-bottom: 4px;
+    }
+
+    .end-stat span { color: var(--text-muted); font-size: .9rem; }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.75rem;
+      color: #64748b;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 760px) {
+      .container { width: min(var(--container), calc(100% - 20px)); }
+      .page-wrap { padding-top: 14px; }
+      .activity-card { padding: 16px; border-radius: 22px; }
+      .intro-grid,
+      .grid-2,
+      .pair-area,
+      .translate-box,
+      .bug-options,
+      .option-grid,
+      .end-stats { grid-template-columns: 1fr; }
+      .mission-head { flex-direction: column; }
+      .actions { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-wrap">
+    <div class="container" id="appWrap">
+      <div class="topbar">
+        <a class="back-link" href="objetos.html"><i class="fas fa-arrow-left"></i> Voltar aos objetos</a>
+        <div class="topbar-actions">
+          <div id="score" class="score-chip"><i class="fas fa-star"></i> Pontos: 0</div>
+          <div id="missionChip" class="score-chip"><i class="fas fa-route"></i> Missão 1/12</div>
+        </div>
+      </div>
+
+      <section class="hero">
+        <h1>Ponte Python: do Visualg ao Código Real</h1>
+        <p>Você já conhece a lógica em Visualg. Agora vai ver, de forma leve e gradual, como escrever ideias parecidas em Python: saída, entrada, variáveis, decisões, contador, acumulador e enquanto.</p>
+        <div class="intro-grid">
+          <div class="mini-card">
+            <strong>Visualg</strong>
+            <pre class="codebox light">escreval("Olá, mundo!")</pre>
+          </div>
+          <div class="mini-card">
+            <strong>Python</strong>
+            <pre class="codebox">print("Olá, mundo!")</pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="progress-wrap">
+        <div class="progress-label">
+          <span>Progresso</span>
+          <span id="progressText">uma missão por vez</span>
+        </div>
+        <div class="progress"><div id="bar" class="progress-bar"></div></div>
+      </section>
+
+      <article class="activity-card" id="app"></article>
+    </div>
+  </main>
+
+  <footer>
+    <span><i class="fas fa-graduation-cap"></i> IFFar - Programação I | Professor Cristhiano Vasconcellos</span>
+  </footer>
+
+<script>
+  const missions = [
+    {
+      type: "quiz",
+      title: "Missão 1 — Saída na tela",
+      desc: "Começamos pelo comando mais tranquilo: mostrar uma mensagem na tela.",
+      question: 'escreval("Olá, turma!")',
+      options: ['print("Olá, turma!")', 'input("Olá, turma!")', 'if "Olá, turma!":', 'while "Olá, turma!":'],
+      answer: 0,
+      tip: 'Em Python, usamos print() para mostrar informações na tela.'
+    },
+    {
+      type: "quiz",
+      title: "Missão 2 — Entrada de texto",
+      desc: "Agora o programa precisa ler um nome digitado pelo usuário.",
+      question: 'leia(nome)',
+      options: ['nome = input("Digite seu nome: ")', 'print(nome)', 'nome <- input', 'if nome:'],
+      answer: 0,
+      tip: 'input() lê o que a pessoa digita. O valor pode ser guardado em uma variável.'
+    },
+    {
+      type: "quiz",
+      title: "Missão 3 — Entrada numérica",
+      desc: "Quando queremos fazer contas, a entrada precisa virar número.",
+      question: 'leia(idade)  // idade será usada como número',
+      options: ['idade = input("Idade: ")', 'idade = int(input("Idade: "))', 'print(input("Idade: "))', 'idade == input("Idade: ")'],
+      answer: 1,
+      tip: 'input() lê texto. Para trabalhar com inteiro, usamos int(input(...)).'
+    },
+    {
+      type: "fill",
+      title: "Missão 4 — Complete uma soma",
+      desc: "Complete o código Python para ler dois números e mostrar a soma.",
+      lines: [
+        { before: 'a = ', opts: ['input("A: ")', 'int(input("A: "))', 'print("A")'], ans: 'int(input("A: "))', after: '' },
+        { before: 'b = ', opts: ['int(input("B: "))', 'escreval(b)', 'if b:'], ans: 'int(input("B: "))', after: '' },
+        { before: 'soma = ', opts: ['a + b', 'a > b', 'a == b'], ans: 'a + b', after: '' },
+        { before: '', opts: ['print(soma)', 'input(soma)', 'while soma:'], ans: 'print(soma)', after: '' }
+      ],
+      tip: 'A sequência é: ler, calcular e mostrar.'
+    },
+    {
+      type: "pairs",
+      title: "Missão 5 — Ligando Visualg e Python",
+      desc: "Arraste cada comando Python para o comando Visualg correspondente.",
+      left: ['escreval("Aprovado")', 'leia(idade)', 'se idade >= 18 entao', 'enquanto contador <= 5 faca'],
+      right: [
+        { text: 'if idade >= 18:', match: 2 },
+        { text: 'print("Aprovado")', match: 0 },
+        { text: 'while contador <= 5:', match: 3 },
+        { text: 'idade = int(input("Idade: "))', match: 1 }
+      ],
+      tip: 'Python usa dois-pontos e indentação no lugar de fimse/fimenquanto.'
+    },
+    {
+      type: "bug",
+      title: "Missão 6 — Pega-ratão da indentação",
+      desc: "Python leva a indentação muito a sério. Descubra o erro.",
+      code: 'idade = 17\nif idade >= 18:\nprint("Maior de idade")',
+      options: ['Falta indentação no print', 'Falta fimalgoritmo', 'O if deveria ser enquanto', 'Não pode usar número em variável'],
+      answer: 0,
+      tip: 'Depois do if, o bloco interno precisa ficar deslocado para a direita.'
+    },
+    {
+      type: "bug",
+      title: "Missão 7 — Pega-ratão do igual",
+      desc: "Na condição, comparar é diferente de receber valor.",
+      code: 'senha = 123\nif senha = 123:\n    print("Acesso liberado")',
+      options: ['Na condição deveria ser ==', 'Faltou escreval', 'A variável não pode chamar senha', 'O print deveria vir antes do if'],
+      answer: 0,
+      tip: 'Um igual (=) atribui valor. Dois iguais (==) comparam valores.'
+    },
+    {
+      type: "quiz",
+      title: "Missão 8 — Se e senão",
+      desc: "Agora vamos comparar a estrutura de decisão completa.",
+      question: 'se idade >= 18 entao\n   escreval("Maior")\nsenao\n   escreval("Menor")\nfimse',
+      options: [
+        'if idade >= 18:\n    print("Maior")\nelse:\n    print("Menor")',
+        'while idade >= 18:\n    print("Maior")\nelse:\n    print("Menor")',
+        'if idade >= 18\nprint("Maior")\nelse\nprint("Menor")',
+        'idade = int(input("Maior"))'
+      ],
+      answer: 0,
+      tip: 'O else também usa dois-pontos, e os comandos internos ficam indentados.'
+    },
+    {
+      type: "fill",
+      title: "Missão 9 — Se encadeado em Python",
+      desc: "O senao + se do Visualg vira elif em Python.",
+      lines: [
+        { before: '', opts: ['if nota >= 7:', 'while nota >= 7:', 'print(nota >= 7)'], ans: 'if nota >= 7:', after: '' },
+        { before: '    ', opts: ['print("Aprovado")', 'input("Aprovado")', 'elif "Aprovado":'], ans: 'print("Aprovado")', after: '' },
+        { before: '', opts: ['elif nota >= 5:', 'else nota >= 5:', 'if fimse:'], ans: 'elif nota >= 5:', after: '' },
+        { before: '    ', opts: ['print("Recuperação")', 'while recuperação:', 'input("Recuperação")'], ans: 'print("Recuperação")', after: '' },
+        { before: '', opts: ['else:', 'senao:', 'fimse'], ans: 'else:', after: '' },
+        { before: '    ', opts: ['print("Reprovado")', 'input("Reprovado")', 'while reprovado:'], ans: 'print("Reprovado")', after: '' }
+      ],
+      tip: 'A estrutura correta é: if para o primeiro teste, elif para o “senão se” e else para o caso final.'
+    },
+    {
+      type: "order",
+      title: "Missão 10 — Monte um contador simples",
+      desc: "Monte o código Python que conta de 1 até 3.",
+      visualg: 'contador <- 1\nenquanto contador <= 3 faca\n   escreval(contador)\n   contador <- contador + 1\nfimenquanto',
+      blocks: ['contador = 1', 'while contador <= 3:', '    print(contador)', '    contador = contador + 1'],
+      answer: ['contador = 1', 'while contador <= 3:', '    print(contador)', '    contador = contador + 1'],
+      tip: 'A lógica é: inicializa, testa, mostra e atualiza o contador.'
+    },
+    {
+      type: "order",
+      title: "Missão 11 — Monte um acumulador",
+      desc: "Agora o desafio é somar três números digitados pelo usuário.",
+      visualg: 'soma <- 0\ncontador <- 1\nenquanto contador <= 3 faca\n   leia(numero)\n   soma <- soma + numero\n   contador <- contador + 1\nfimenquanto\nescreval(soma)',
+      blocks: ['soma = 0', 'contador = 1', 'while contador <= 3:', '    numero = int(input("Número: "))', '    soma = soma + numero', '    contador = contador + 1', 'print(soma)'],
+      answer: ['soma = 0', 'contador = 1', 'while contador <= 3:', '    numero = int(input("Número: "))', '    soma = soma + numero', '    contador = contador + 1', 'print(soma)'],
+      tip: 'O acumulador começa em zero e vai recebendo soma = soma + numero.'
+    },
+    {
+      type: "order",
+      title: "Missão Final — Enquanto com decisão",
+      desc: "Desafio final: monte um Python com while, contador e if. As opções são embaralhadas a cada tentativa.",
+      visualg: 'contador <- 1\nenquanto contador <= 4 faca\n   se contador > 2 entao\n      escreval("Maior que 2")\n   senao\n      escreval("Até 2")\n   fimse\n   contador <- contador + 1\nfimenquanto',
+      blocks: ['contador = 1', 'while contador <= 4:', '    if contador > 2:', '        print("Maior que 2")', '    else:', '        print("Até 2")', '    contador = contador + 1'],
+      answer: ['contador = 1', 'while contador <= 4:', '    if contador > 2:', '        print("Maior que 2")', '    else:', '        print("Até 2")', '    contador = contador + 1'],
+      tip: 'Aqui aparecem dois blocos indentados: o bloco do while e, dentro dele, o bloco do if/else.'
+    }
+  ];
+
+  let current = 0;
+  let score = 0;
+  let answered = false;
+  let dragData = null;
+  let finalizado = false;
+
+  const URL_WEBAPP = "https://script.google.com/macros/s/AKfycbzoeygTm-R27yb8QOcdH0s7fViv6vGPQ5MtDuCgHBt3RhvFVQKlGxf3A7yQUR3RfRqFcw/exec";
+  const NOME_ATIVIDADE = "Ponte Python: do Visualg ao Código Real";
+
+  const app = document.getElementById('app');
+  const scoreEl = document.getElementById('score');
+  const missionChip = document.getElementById('missionChip');
+  const bar = document.getElementById('bar');
+  const progressText = document.getElementById('progressText');
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  }
+
+  function shuffle(array) {
+    const a = [...array];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function obterNomeAluno() {
+    let nome = sessionStorage.getItem("nomeAluno");
+    if (!nome) {
+      nome = prompt("Digite seu nome completo para registrar sua atividade:");
+      if (nome && nome.trim() !== "") {
+        nome = nome.trim();
+        sessionStorage.setItem("nomeAluno", nome);
+      } else {
+        nome = "Anônimo";
+      }
+    }
+    return nome;
+  }
+
+  async function registrarResultado(nome, atividade, acertos, total) {
+    const dados = { nome, atividade, acertos, total };
+    await fetch(URL_WEBAPP, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dados)
+    });
+  }
+
+  async function enviarRegistroFinal() {
+    const status = document.getElementById('registroStatus');
+    if (!status || finalizado) return;
+    finalizado = true;
+    const nome = obterNomeAluno();
+    status.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Enviando registro para a planilha...`;
+    try {
+      await registrarResultado(nome, NOME_ATIVIDADE, score, missions.length);
+      status.innerHTML = `<span class="ok"><i class="fas fa-check-circle"></i> Registro enviado para a planilha.</span><br><small>Nome: ${esc(nome)} | Acertos: ${score}/${missions.length}</small>`;
+    } catch (e) {
+      console.error(e);
+      status.innerHTML = `<span class="err"><i class="fas fa-triangle-exclamation"></i> Não foi possível enviar o registro. Verifique a conexão e tente novamente.</span>`;
+      finalizado = false;
+    }
+  }
+
+  function updateTop() {
+    scoreEl.innerHTML = `<i class="fas fa-star"></i> Pontos: ${score}`;
+    missionChip.innerHTML = `<i class="fas fa-route"></i> Missão ${Math.min(current + 1, missions.length)}/${missions.length}`;
+    const percent = (current / missions.length) * 100;
+    bar.style.width = `${percent}%`;
+    progressText.textContent = `${current + 1} de ${missions.length}`;
+  }
+
+  function shell(m, body) {
+    app.innerHTML = `
+      <div class="mission-head">
+        <div class="mission-title">
+          <h2>${m.title}</h2>
+          <p>${m.desc}</p>
+        </div>
+        <div class="mission-badge">${current + 1} de ${missions.length}</div>
+      </div>
+      ${body}
+      <div id="feedback" class="feedback-area">Leia com calma e responda quando estiver pronto.</div>
+      <div class="actions">
+        <button class="btn btn-secondary" type="button" onclick="restartMission()"><i class="fas fa-rotate-left"></i> Reiniciar missão</button>
+        <div>
+          <button class="btn btn-secondary" type="button" onclick="prevMission()" ${current === 0 ? 'disabled' : ''}><i class="fas fa-arrow-left"></i> Voltar</button>
+          <button class="btn btn-primary" type="button" id="nextBtn" onclick="nextMission()" disabled>Próxima <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>`;
+  }
+
+  function render() {
+    answered = false;
+    dragData = null;
+    updateTop();
+    const m = missions[current];
+    if (m.type === 'quiz') renderQuiz(m);
+    if (m.type === 'fill') renderFill(m);
+    if (m.type === 'pairs') renderPairs(m);
+    if (m.type === 'bug') renderBug(m);
+    if (m.type === 'order') renderOrder(m);
+  }
+
+  function setFeedback(txt, kind = '') {
+    const f = document.getElementById('feedback');
+    f.className = 'feedback-area ' + kind;
+    f.innerHTML = txt;
+  }
+
+  function markRight() {
+    if (!answered) {
+      score++;
+      answered = true;
+      updateTop();
+    }
+    document.getElementById('nextBtn').disabled = false;
+  }
+
+  function allowNextAfterWrong() {
+    answered = true;
+    document.getElementById('nextBtn').disabled = false;
+  }
+
+  function renderQuiz(m) {
+    const options = m.options.map((text, index) => ({ text, original: index }));
+    const shuffled = shuffle(options);
+    shell(m, `
+      <div class="grid-2">
+        <div>
+          <div class="label">Visualg / situação</div>
+          <pre class="codebox light">${esc(m.question)}</pre>
+          <p class="hint">Qual alternativa mantém a mesma lógica em Python?</p>
+        </div>
+        <div>
+          <div class="label">Escolha a opção correta</div>
+          <div class="answers">
+            ${shuffled.map((o, i) => `
+              <button class="answer-btn" type="button" data-original="${o.original}" onclick="answerQuiz(this)">
+                <span class="answer-pill">${String.fromCharCode(65 + i)}</span>
+                <span>${esc(o.text)}</span>
+              </button>`).join('')}
+          </div>
+        </div>
+      </div>`);
+  }
+
+  function answerQuiz(btn) {
+    const m = missions[current];
+    const chosen = Number(btn.dataset.original);
+    document.querySelectorAll('.answer-btn').forEach(b => {
+      b.disabled = true;
+      if (Number(b.dataset.original) === m.answer) b.classList.add('correct');
+    });
+
+    if (chosen === m.answer) {
+      setFeedback('✅ Muito bem! ' + m.tip, 'ok');
+      markRight();
+    } else {
+      btn.classList.add('wrong');
+      setFeedback('❌ Ainda não. ' + m.tip, 'err');
+      allowNextAfterWrong();
+    }
+  }
+
+  function renderFill(m) {
+    shell(m, `
+      <div class="label">Complete o código Python</div>
+      ${m.lines.map((l, i) => `
+        <div class="select-line">
+          <span>${esc(l.before)}</span>
+          <select id="sel${i}">
+            <option value="">escolha...</option>
+            ${shuffle(l.opts).map(o => `<option value="${esc(o)}">${esc(o)}</option>`).join('')}
+          </select>
+          <span>${esc(l.after)}</span>
+        </div>`).join('')}
+      <button class="btn btn-primary" type="button" onclick="checkFill()"><i class="fas fa-check"></i> Verificar</button>`);
+  }
+
+  function checkFill() {
+    const m = missions[current];
+    let ok = true;
+    m.lines.forEach((l, i) => {
+      if (document.getElementById('sel' + i).value !== l.ans) ok = false;
+    });
+
+    if (ok) {
+      setFeedback('✅ Certinho! ' + m.tip, 'ok');
+      markRight();
+    } else {
+      setFeedback('❌ Revise as lacunas. Dica: ' + m.tip, 'err');
+      allowNextAfterWrong();
+    }
+  }
+
+  function renderPairs(m) {
+    const rights = shuffle(m.right);
+    shell(m, `
+      <div class="pair-area">
+        <div class="stack">
+          <h3>Visualg</h3>
+          ${m.left.map((l, i) => `
+            <div class="drop-item" data-left="${i}" ondragover="allowDrop(event)" ondragleave="leaveDrop(event)" ondrop="dropPair(event)">
+              <strong>${esc(l)}</strong>
+              <div class="tiny">Solte aqui o par em Python</div>
+            </div>`).join('')}
+        </div>
+        <div class="stack">
+          <h3>Python</h3>
+          ${rights.map(r => `<div class="drag-item small" draggable="true" data-match="${r.match}" ondragstart="startDragPair(event)">${esc(r.text)}</div>`).join('')}
+        </div>
+      </div>
+      <button class="btn btn-primary" type="button" onclick="checkPairs()"><i class="fas fa-check"></i> Verificar pares</button>`);
+  }
+
+  function startDragPair(e) {
+    dragData = { text: e.target.textContent, match: e.target.dataset.match, el: e.target };
+  }
+
+  function allowDrop(e) { e.preventDefault(); e.currentTarget.classList.add('over'); }
+  function leaveDrop(e) { e.currentTarget.classList.remove('over'); }
+
+  function dropPair(e) {
+    e.preventDefault();
+    const z = e.currentTarget;
+    z.classList.remove('over');
+    if (!dragData) return;
+
+    z.dataset.got = dragData.match;
+    const visualgText = z.querySelector('strong').textContent;
+    z.innerHTML = `<strong>${esc(visualgText)}</strong><div class="drag-item small" style="cursor:default">${esc(dragData.text)}</div>`;
+    z.classList.add('filled');
+    dragData.el.style.display = 'none';
+    dragData = null;
+  }
+
+  function checkPairs() {
+    let ok = true;
+    document.querySelectorAll('.drop-item').forEach(z => {
+      if (z.dataset.left !== z.dataset.got) ok = false;
+    });
+    const m = missions[current];
+    if (ok) {
+      setFeedback('✅ Todos os pares estão corretos! ' + m.tip, 'ok');
+      markRight();
+    } else {
+      setFeedback('❌ Algum par não combina. Reinicie a missão e tente novamente. ' + m.tip, 'err');
+      allowNextAfterWrong();
+    }
+  }
+
+  function renderBug(m) {
+    const shuffled = shuffle(m.options.map((text, index) => ({ text, original: index })));
+    shell(m, `
+      <div class="bug-card">
+        <div class="bug-title">Código com problema</div>
+        <pre class="codebox">${esc(m.code)}</pre>
+        <div class="bug-options">
+          ${shuffled.map((o, i) => `
+            <button class="option" type="button" data-original="${o.original}" onclick="answerBug(this)">
+              ${String.fromCharCode(65 + i)}. ${esc(o.text)}
+            </button>`).join('')}
+        </div>
+      </div>`);
+  }
+
+  function answerBug(btn) {
+    const m = missions[current];
+    const chosen = Number(btn.dataset.original);
+    document.querySelectorAll('.option').forEach(b => {
+      b.disabled = true;
+      if (Number(b.dataset.original) === m.answer) b.classList.add('correct');
+    });
+
+    if (chosen === m.answer) {
+      setFeedback('✅ Boa! ' + m.tip, 'ok');
+      markRight();
+    } else {
+      btn.classList.add('wrong');
+      setFeedback('❌ Essa não era a pegadinha principal. ' + m.tip, 'err');
+      allowNextAfterWrong();
+    }
+  }
+
+  function renderOrder(m) {
+    const blocks = shuffle(m.blocks);
+    shell(m, `
+      <div class="translate-box">
+        <div>
+          <div class="label">Visualg</div>
+          <pre class="codebox light">${esc(m.visualg)}</pre>
+          <p class="hint">Arraste os blocos Python para formar a mesma lógica. Atenção à indentação.</p>
+        </div>
+        <div>
+          <div class="label">Python</div>
+          <div class="grid-2">
+            <div class="block-pool" id="pool">
+              ${blocks.map(b => `<div class="code-block" draggable="true" ondragstart="startDragOrder(event)">${esc(b)}</div>`).join('')}
+            </div>
+            <div class="answer-zone" id="answer" ondragover="allowOrder(event)" ondragleave="leaveOrder(event)" ondrop="dropOrder(event)">
+              <div class="tiny">Solte os blocos aqui na ordem correta.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-primary" type="button" onclick="checkOrder()"><i class="fas fa-check"></i> Verificar código</button>`);
+  }
+
+  function startDragOrder(e) {
+    dragData = { text: e.target.textContent, el: e.target };
+  }
+
+  function allowOrder(e) { e.preventDefault(); e.currentTarget.classList.add('over'); }
+  function leaveOrder(e) { e.currentTarget.classList.remove('over'); }
+
+  function dropOrder(e) {
+    e.preventDefault();
+    const zone = e.currentTarget;
+    zone.classList.remove('over');
+    if (!dragData) return;
+    const placeholder = zone.querySelector('.tiny');
+    if (placeholder) placeholder.remove();
+    const d = document.createElement('div');
+    d.className = 'code-block';
+    d.textContent = dragData.text;
+    zone.appendChild(d);
+    dragData.el.classList.add('used');
+    dragData = null;
+  }
+
+  function checkOrder() {
+    const m = missions[current];
+    const got = [...document.querySelectorAll('#answer .code-block')].map(x => x.textContent);
+    const ok = JSON.stringify(got) === JSON.stringify(m.answer);
+    if (ok) {
+      setFeedback('✅ Perfeito! ' + m.tip, 'ok');
+      markRight();
+      if (current === missions.length - 1) {
+        document.getElementById('nextBtn').innerHTML = 'Finalizar <i class="fas fa-flag-checkered"></i>';
+      }
+    } else {
+      setFeedback('❌ A ordem ainda não está certa. Revise a sequência e a indentação. ' + m.tip, 'err');
+      allowNextAfterWrong();
+    }
+  }
+
+  function restartMission() { render(); }
+
+  function prevMission() {
+    if (current > 0) {
+      current--;
+      render();
+    }
+  }
+
+  function nextMission() {
+    if (current < missions.length - 1) {
+      current++;
+      render();
+    } else {
+      finalScreen();
+    }
+  }
+
+  function finalScreen() {
+    bar.style.width = '100%';
+    missionChip.innerHTML = '<i class="fas fa-check-circle"></i> Concluído';
+    scoreEl.innerHTML = `<i class="fas fa-star"></i> Pontos: ${score}`;
+    app.innerHTML = `
+      <section class="end-screen">
+        <div class="end-card">
+          <div class="end-icon"><i class="fas fa-code"></i></div>
+          <h1>Você atravessou a ponte!</h1>
+          <p>Visualg e Python escrevem de formas diferentes, mas a lógica continua sendo sua. Você praticou saída, entrada, variáveis, if, elif, while, contador e acumulador.</p>
+          <div class="end-stats">
+            <div class="end-stat">
+              <strong>${score}</strong>
+              <span>Acertos</span>
+            </div>
+            <div class="end-stat">
+              <strong>${missions.length}</strong>
+              <span>Missões</span>
+            </div>
+          </div>
+          <div id="registroStatus" class="feedback-area">Preparando registro...</div>
+          <button class="btn btn-primary" type="button" onclick="current=0; score=0; finalizado=false; render()"><i class="fas fa-rotate-left"></i> Refazer objeto</button>
+          <div style="margin-top:14px"><a class="back-link" href="objetos.html"><i class="fas fa-cubes"></i> Voltar aos objetos</a></div>
+        </div>
+      </section>`;
+    enviarRegistroFinal();
+  }
+
+  render();
+</script>
+</body>
+</html>
