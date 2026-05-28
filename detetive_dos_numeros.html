@@ -1,0 +1,1090 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detetive dos Números | Prof. Cristhiano Vasconcellos</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+
+    <style>
+      :root {
+        --text: #0f172a;
+        --text-soft: #475569;
+        --text-muted: #64748b;
+        --border: rgba(15, 23, 42, 0.08);
+        --primary: #22c55e;
+        --primary-hover: #16a34a;
+        --primary-active: #15803d;
+        --danger: #dc2626;
+        --warn: #f59e0b;
+        --blue: #0ea5e9;
+        --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.05);
+        --shadow-md: 0 18px 40px rgba(15, 23, 42, 0.08);
+        --radius-lg: 28px;
+        --radius-md: 22px;
+        --container: 1080px;
+        --transition: 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(
+            circle at top left,
+            rgba(34, 197, 94, 0.08),
+            transparent 24%
+          ),
+          radial-gradient(
+            circle at 90% 20%,
+            rgba(14, 165, 233, 0.08),
+            transparent 20%
+          ),
+          linear-gradient(180deg, #fcfefe 0%, #f8fafc 30%, #f4f8fb 100%);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+        background-size: 44px 44px;
+        mask-image: radial-gradient(
+          circle at center,
+          black 35%,
+          transparent 85%
+        );
+        pointer-events: none;
+        z-index: 0;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .container {
+        width: min(var(--container), calc(100% - 36px));
+        margin: 0 auto;
+        position: relative;
+        z-index: 1;
+      }
+      .page-wrap {
+        padding: 20px 0 36px;
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+      }
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-soft);
+        font-weight: 600;
+        transition: var(--transition);
+      }
+      .back-link:hover {
+        color: var(--text);
+      }
+      .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .score-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.82);
+        border: 1px solid var(--border);
+        color: var(--text-soft);
+        box-shadow: var(--shadow-sm);
+        font-weight: 700;
+      }
+      .hero {
+        margin-bottom: 16px;
+      }
+      .hero h1 {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: clamp(2rem, 4vw, 3rem);
+        line-height: 1;
+        letter-spacing: -0.05em;
+        margin-bottom: 8px;
+      }
+      .hero p {
+        color: var(--text-soft);
+        font-size: 1rem;
+        line-height: 1.65;
+        max-width: 850px;
+      }
+      .hero strong {
+        color: #166534;
+      }
+      .intro-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-top: 16px;
+      }
+      .mini-card {
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 16px;
+        box-shadow: var(--shadow-sm);
+      }
+      .mini-card strong {
+        display: block;
+        margin-bottom: 8px;
+        color: #166534;
+      }
+      .mini-card p {
+        font-size: 0.94rem;
+        color: var(--text-soft);
+        line-height: 1.55;
+      }
+      .progress-wrap {
+        margin-bottom: 18px;
+        background: rgba(255, 255, 255, 0.82);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 14px 16px;
+        box-shadow: var(--shadow-sm);
+      }
+      .progress-label {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 8px;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
+      .progress {
+        width: 100%;
+        height: 12px;
+        background: #e2e8f0;
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      .progress-bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+        border-radius: inherit;
+        transition: width var(--transition);
+      }
+      .activity-card {
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-md);
+        border-radius: var(--radius-lg);
+        padding: 22px;
+        min-height: 500px;
+      }
+      .mission-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+      .mission-title h2 {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: clamp(1.45rem, 3vw, 2rem);
+        letter-spacing: -0.03em;
+        margin-bottom: 6px;
+      }
+      .mission-title p {
+        color: var(--text-soft);
+        line-height: 1.6;
+      }
+      .mission-badge {
+        white-space: nowrap;
+        background: rgba(34, 197, 94, 0.1);
+        color: #166534;
+        border: 1px solid rgba(34, 197, 94, 0.25);
+        border-radius: 999px;
+        padding: 9px 13px;
+        font-weight: 800;
+      }
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .label {
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--primary-active);
+        font-weight: 800;
+        margin-bottom: 8px;
+      }
+      .codebox {
+        background: #0f172a;
+        color: #e2e8f0;
+        border-radius: var(--radius-md);
+        padding: 18px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        line-height: 1.65;
+        white-space: pre-wrap;
+        overflow-x: auto;
+        min-height: 180px;
+        font-variant-ligatures: none;
+        font-feature-settings:
+          "liga" 0,
+          "calt" 0;
+      }
+      .case-card {
+        background: #f8fafc;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        border-radius: var(--radius-md);
+        padding: 18px;
+        min-height: 180px;
+      }
+      .number-display {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 104px;
+        height: 104px;
+        margin: 0 auto 14px;
+        border-radius: 32px;
+        background: linear-gradient(
+          135deg,
+          rgba(34, 197, 94, 0.16),
+          rgba(14, 165, 233, 0.13)
+        );
+        color: #052e16;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 2.6rem;
+        font-weight: 800;
+        border: 1px solid rgba(34, 197, 94, 0.22);
+      }
+      .clues {
+        display: grid;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .clue {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        color: var(--text-soft);
+        line-height: 1.45;
+        font-weight: 600;
+      }
+      .clue i {
+        color: var(--primary-active);
+        margin-top: 2px;
+      }
+      .answers {
+        display: grid;
+        gap: 12px;
+      }
+      .answer-btn {
+        width: 100%;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.98);
+        padding: 15px 16px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        text-align: left;
+        cursor: pointer;
+        transition: var(--transition);
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+        color: var(--text);
+        font-size: 0.96rem;
+        font-weight: 650;
+      }
+      .answer-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 32px rgba(15, 23, 42, 0.08);
+        border-color: rgba(34, 197, 94, 0.45);
+      }
+      .answer-btn:disabled {
+        cursor: default;
+      }
+      .answer-btn.correct {
+        border-color: rgba(34, 197, 94, 0.45);
+        background: rgba(34, 197, 94, 0.08);
+      }
+      .answer-btn.wrong {
+        border-color: rgba(220, 38, 38, 0.28);
+        background: rgba(220, 38, 38, 0.05);
+      }
+      .answer-pill {
+        width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(34, 197, 94, 0.12);
+        color: var(--primary-active);
+        font-weight: 800;
+        flex: 0 0 auto;
+      }
+      .hint {
+        color: var(--text-muted);
+        line-height: 1.65;
+        margin: 10px 0 14px;
+      }
+      .input-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+      .text-input {
+        flex: 1 1 180px;
+        border: 1px solid rgba(15, 23, 42, 0.12);
+        border-radius: 18px;
+        padding: 14px 16px;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text);
+        background: #fff;
+        outline: none;
+      }
+      .text-input:focus {
+        border-color: rgba(34, 197, 94, 0.55);
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+      }
+      .feedback-area {
+        min-height: 32px;
+        margin-top: 16px;
+        text-align: center;
+        font-size: 1rem;
+        color: var(--text-soft);
+        line-height: 1.6;
+      }
+      .feedback-area.ok,
+      .ok {
+        color: #15803d;
+        font-weight: 700;
+      }
+      .feedback-area.err,
+      .err {
+        color: var(--danger);
+        font-weight: 700;
+      }
+      .actions {
+        margin-top: 18px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border: none;
+        cursor: pointer;
+        transition: var(--transition);
+        padding: 14px 20px;
+        border-radius: 999px;
+        font-weight: 800;
+        font-size: 0.96rem;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, var(--primary) 0%, #34d399 100%);
+        color: #052e16;
+        box-shadow: 0 14px 28px rgba(34, 197, 94, 0.22);
+      }
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.86);
+        border: 1px solid var(--border);
+        color: var(--text-soft);
+        box-shadow: var(--shadow-sm);
+      }
+      .btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+      }
+      .btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none;
+      }
+      .end-screen {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 0;
+      }
+      .end-card {
+        width: min(760px, 100%);
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-md);
+        border-radius: 32px;
+        padding: 32px;
+        text-align: center;
+      }
+      .end-icon {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(34, 197, 94, 0.12);
+        color: var(--primary-active);
+        font-size: 1.8rem;
+        margin-bottom: 14px;
+      }
+      .end-card h1 {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: clamp(2rem, 4vw, 3rem);
+        line-height: 1.02;
+        letter-spacing: -0.04em;
+        margin-bottom: 10px;
+      }
+      .end-card p {
+        color: var(--text-soft);
+        line-height: 1.7;
+        margin-bottom: 20px;
+      }
+      .end-stats {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .end-stat {
+        background: rgba(255, 255, 255, 0.84);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 16px;
+      }
+      .end-stat strong {
+        display: block;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.6rem;
+        margin-bottom: 4px;
+      }
+      .end-stat span {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
+      .registro-box {
+        margin-top: 16px;
+        background: #f8fafc;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        border-radius: 20px;
+        padding: 14px;
+        color: var(--text-soft);
+        line-height: 1.6;
+      }
+      @media (max-width: 780px) {
+        .grid-2,
+        .intro-grid {
+          grid-template-columns: 1fr;
+        }
+        .activity-card {
+          padding: 16px;
+        }
+        .mission-head {
+          flex-direction: column;
+        }
+        .actions {
+          justify-content: center;
+        }
+        .btn {
+          width: 100%;
+        }
+        .end-stats {
+          grid-template-columns: 1fr;
+        }
+        .container {
+          width: min(var(--container), calc(100% - 20px));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page-wrap">
+      <div class="container">
+        <div class="topbar">
+          <a class="back-link" href="objetos.html"
+            ><i class="fas fa-arrow-left"></i> Voltar aos objetos</a
+          >
+          <div class="topbar-actions">
+            <div id="missionChip" class="score-chip">
+              <i class="fas fa-magnifying-glass"></i> Caso 1/12
+            </div>
+            <div id="score" class="score-chip">
+              <i class="fas fa-star"></i> Pontos: 0
+            </div>
+          </div>
+        </div>
+
+        <section class="hero">
+          <h1>Detetive dos Números</h1>
+          <p>
+            Entre na investigação dos restos! Neste objeto, você vai usar
+            <strong>mod</strong> (ou %), par ou ímpar, divisibilidade e pistas
+            numéricas para descobrir como o computador toma decisões com
+            números.
+          </p>
+          <div class="intro-grid">
+            <div class="mini-card">
+              <strong>Investigue</strong>
+              <p>Leia pistas sobre números e descubra padrões.</p>
+            </div>
+            <div class="mini-card">
+              <strong>Use o mod</strong>
+              <p>Entenda o resto da divisão sem decorar regra solta.</p>
+            </div>
+            <div class="mini-card">
+              <strong>Desvende</strong>
+              <p>Resolva casos com lógica parecida com jogos e algoritmos.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="progress-wrap">
+          <div class="progress-label">
+            <span>Progresso</span><span id="progressText">1 de 12</span>
+          </div>
+          <div class="progress"><div id="bar" class="progress-bar"></div></div>
+        </section>
+
+        <article id="app" class="activity-card"></article>
+      </div>
+    </main>
+
+    <script>
+      const URL_WEBAPP =
+        "https://script.google.com/macros/s/AKfycbzoeygTm-R27yb8QOcdH0s7fViv6vGPQ5MtDuCgHBt3RhvFVQKlGxf3A7yQUR3RfRqFcw/exec";
+      const NOME_ATIVIDADE = "Detetive dos Números";
+
+      function randi(limite) {
+        return Math.floor(Math.random() * (limite + 1));
+      }
+
+      const numeroAleatorio1 = 10 + randi(39); // 10 a 49
+      const numeroAleatorio2 = 20 + randi(79); // 20 a 99
+      const numeroSecreto = [24, 30, 36, 42, 48, 54][randi(5)];
+
+      const missions = [
+        {
+          type: "mc",
+          title: "Caso 1 — O primeiro resto",
+          subtitle: "Todo detetive precisa começar pela pista mais simples.",
+          number: 17,
+          code: `algoritmo "resto"
+var
+   resto: inteiro
+inicio
+   resto <- 17 mod 5
+   escreval(resto)
+fimalgoritmo`,
+          question: "Qual valor será mostrado na tela?",
+          options: ["2", "3", "5"],
+          answer: 0,
+          explain:
+            "17 dividido por 5 dá 3 e sobra 2. Por isso, 17 mod 5 resulta em 2.",
+        },
+        {
+          type: "mc",
+          title: "Caso 2 — Par ou ímpar?",
+          subtitle: "O operador mod ajuda a descobrir se um número é par.",
+          number: 28,
+          code: `numero <- 28
+
+se (numero mod 2 = 0) entao
+   escreval("Par")
+senao
+   escreval("Impar")
+fimse`,
+          question: "Qual é a saída correta?",
+          options: ["Par", "Ímpar", "O algoritmo não mostra nada"],
+          answer: 0,
+          explain: "Quando um número dividido por 2 tem resto 0, ele é par.",
+        },
+        {
+          type: "mc",
+          title: "Caso 3 — A pista do ímpar",
+          subtitle: "Agora a sobra muda o resultado da investigação.",
+          number: 31,
+          code: `numero <- 31
+
+se (numero mod 2 = 0) entao
+   escreval("Par")
+senao
+   escreval("Impar")
+fimse`,
+          question: "Qual pista o detetive encontra?",
+          options: ["Par", "Ímpar", "Divisível por 10"],
+          answer: 1,
+          explain:
+            "31 dividido por 2 deixa resto 1. Logo, o algoritmo cai no senao e mostra Ímpar.",
+        },
+        {
+          type: "mc",
+          title: "Caso 4 — Divisível por 3",
+          subtitle: "Quando o resto é zero, a divisão foi exata.",
+          number: 21,
+          code: `numero <- 21
+
+se (numero mod 3 = 0) entao
+   escreval("Divisivel por 3")
+senao
+   escreval("Nao divisivel por 3")
+fimse`,
+          question: "O que o algoritmo mostra?",
+          options: ["Divisivel por 3", "Nao divisivel por 3", "Resto 3"],
+          answer: 0,
+          explain:
+            "21 dividido por 3 dá 7 e sobra 0. Então 21 é divisível por 3.",
+        },
+        {
+          type: "mc",
+          title: "Caso 5 — Cuidado com o resto",
+          subtitle: "Nem todo número termina a divisão sem sobra.",
+          number: 22,
+          code: `numero <- 22
+
+se (numero mod 3 = 0) entao
+   escreval("Divisivel por 3")
+senao
+   escreval("Tem resto")
+fimse`,
+          question: "Qual alternativa está correta?",
+          options: [
+            'Mostra "Tem resto"',
+            'Mostra "Divisivel por 3"',
+            "Mostra erro no Visualg",
+          ],
+          answer: 0,
+          explain:
+            "22 dividido por 3 dá 7 e sobra 1. Como o resto não é 0, mostra Tem resto.",
+        },
+        {
+          type: "mc",
+          title: "Caso 6 — Número sorteado com randi",
+          subtitle: "O sorteio muda o número, mas a lógica continua a mesma.",
+          number: numeroAleatorio1,
+          code: `numero <- randi(39) + 10
+
+se (numero mod 2 = 0) entao
+   escreval("O numero sorteado e par")
+senao
+   escreval("O numero sorteado e impar")
+fimse
+
+// Nesta execução, considere que numero recebeu ${numeroAleatorio1}.`,
+          question: `Considerando que o número sorteado foi ${numeroAleatorio1}, qual é a classificação?`,
+          options:
+            numeroAleatorio1 % 2 === 0
+              ? ["Par", "Ímpar", "Não dá para saber"]
+              : ["Ímpar", "Par", "Não dá para saber"],
+          answer: 0,
+          explain:
+            numeroAleatorio1 % 2 === 0
+              ? `${numeroAleatorio1} mod 2 é 0, então ele é par.`
+              : `${numeroAleatorio1} mod 2 é 1, então ele é ímpar.`,
+        },
+        {
+          type: "input",
+          title: "Caso 7 — Calcule o resto",
+          subtitle: "Agora é você que precisa preencher o laudo.",
+          number: 34,
+          code: `resultado <- 34 mod 6
+escreval(resultado)`,
+          question: "Digite o resultado de 34 mod 6:",
+          answer: "4",
+          explain: "34 dividido por 6 dá 5 e sobra 4.",
+        },
+        {
+          type: "mc",
+          title: "Caso 8 — Múltiplo de 5",
+          subtitle: "Essa pista aparece muito em problemas de programação.",
+          number: 45,
+          code: `numero <- 45
+
+se (numero mod 5 = 0) entao
+   escreval("Multiplo de 5")
+senao
+   escreval("Nao e multiplo de 5")
+fimse`,
+          question: "Qual é a resposta correta?",
+          options: [
+            "Multiplo de 5",
+            "Nao e multiplo de 5",
+            "Ímpar, então não pode ser múltiplo de 5",
+          ],
+          answer: 0,
+          explain:
+            "45 termina em 5 e, mais importante, 45 mod 5 é 0. Portanto, é múltiplo de 5.",
+        },
+        {
+          type: "mc",
+          title: "Caso 9 — Pistas combinadas",
+          subtitle: "O detetive precisa juntar mais de uma condição.",
+          number: 30,
+          code: `numero <- 30
+
+se (numero mod 2 = 0) e (numero mod 5 = 0) entao
+   escreval("Passou no teste")
+senao
+   escreval("Nao passou")
+fimse`,
+          question: "Por que o número passou no teste?",
+          options: [
+            "Porque 30 é par e também é divisível por 5",
+            "Porque 30 é ímpar",
+            "Porque todo número maior que 10 passa",
+          ],
+          answer: 0,
+          explain:
+            "As duas partes são verdadeiras: 30 mod 2 = 0 e 30 mod 5 = 0.",
+        },
+        {
+          type: "mc",
+          title: "Caso 10 — O número secreto",
+          subtitle: "Use as pistas para encontrar o suspeito.",
+          number: "?",
+          code: `// Pistas do número secreto:
+// 1) Está entre 20 e 50
+// 2) É par
+// 3) É divisível por 3
+// 4) Também é divisível por 5`,
+          question: "Qual número atende a todas as pistas?",
+          options: ["30", "36", "40"],
+          answer: 0,
+          explain:
+            "30 é par, está entre 20 e 50, é divisível por 3 e também por 5.",
+        },
+        {
+          type: "input",
+          title: "Caso 11 — Outro sorteio investigado",
+          subtitle: "A função randi sorteou um número. Você calcula o resto.",
+          number: numeroAleatorio2,
+          code: `numero <- randi(79) + 20
+resto <- numero mod 10
+escreval(resto)
+
+// Nesta execução, considere que numero recebeu ${numeroAleatorio2}.`,
+          question: `Digite o resultado de ${numeroAleatorio2} mod 10:`,
+          answer: String(numeroAleatorio2 % 10),
+          explain: `${numeroAleatorio2} mod 10 resulta no último algarismo do número, que é ${numeroAleatorio2 % 10}.`,
+        },
+        {
+          type: "mc",
+          title: "Caso 12 — Laudo final do detetive",
+          subtitle: "Hora de interpretar um algoritmo completo.",
+          number: numeroSecreto,
+          code: `numero <- ${numeroSecreto}
+
+se (numero mod 2 = 0) e (numero mod 3 = 0) entao
+   escreval("Numero especial")
+senao
+   escreval("Numero comum")
+fimse`,
+          question: "O que será mostrado na tela?",
+          options: [
+            "Numero especial",
+            "Numero comum",
+            "Erro, pois mod não pode aparecer duas vezes",
+          ],
+          answer: 0,
+          explain: `${numeroSecreto} é par e divisível por 3. As duas condições são verdadeiras.`,
+        },
+      ];
+
+      let idx = 0;
+      let score = 0;
+      let answered = false;
+      let finalizado = false;
+
+      const app = document.getElementById("app");
+      const scoreEl = document.getElementById("score");
+      const chip = document.getElementById("missionChip");
+      const bar = document.getElementById("bar");
+      const progressText = document.getElementById("progressText");
+
+      function esc(s) {
+        return String(s).replace(
+          /[&<>'"]/g,
+          (m) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              "'": "&#39;",
+              '"': "&quot;",
+            })[m],
+        );
+      }
+
+      function shuffle(a) {
+        const b = [...a];
+        for (let i = b.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [b[i], b[j]] = [b[j], b[i]];
+        }
+        return b;
+      }
+
+      function updateUI() {
+        scoreEl.innerHTML = `<i class="fas fa-star"></i> Pontos: ${score}`;
+        chip.innerHTML = `<i class="fas fa-magnifying-glass"></i> Caso ${Math.min(idx + 1, missions.length)}/${missions.length}`;
+        progressText.textContent = `${Math.min(idx + 1, missions.length)} de ${missions.length}`;
+        bar.style.width =
+          ((idx + (answered ? 1 : 0)) / missions.length) * 100 + "%";
+      }
+
+      function render() {
+        answered = false;
+        updateUI();
+        const m = missions[idx];
+        let html = `
+    <div class="mission-head">
+      <div class="mission-title">
+        <h2>${esc(m.title)}</h2>
+        <p>${esc(m.subtitle)}</p>
+      </div>
+      <div class="mission-badge">${idx + 1} de ${missions.length}</div>
+    </div>
+    <div class="grid-2">
+      <div>
+        <div class="label">Arquivo do caso</div>
+        <div class="case-card">
+          <div class="number-display">${esc(m.number)}</div>
+          <div class="clues">
+            <div class="clue"><i class="fas fa-fingerprint"></i><span>Investigue o número usando divisão inteira e resto.</span></div>
+            <div class="clue"><i class="fas fa-lightbulb"></i><span>Quando o resto é 0, a divisão foi exata.</span></div>
+            <div class="clue"><i class="fas fa-code"></i><span>No Visualg, use <strong>mod</strong> para descobrir o resto.</span></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="label">Código da investigação</div>
+        <pre class="codebox">${esc(m.code)}</pre>
+      </div>
+    </div>
+    <p class="hint"><strong>Desafio:</strong> ${esc(m.question)}</p>
+  `;
+
+        if (m.type === "mc") {
+          const opts = shuffle(m.options.map((t, i) => ({ t, i })));
+          html += `<div class="answers">${opts
+            .map(
+              (o, k) => `
+      <button class="answer-btn" data-real="${o.i}">
+        <span class="answer-pill">${String.fromCharCode(65 + k)}</span>
+        <span>${esc(o.t)}</span>
+      </button>`,
+            )
+            .join("")}</div>`;
+        } else {
+          html += `
+      <div class="input-row">
+        <input id="answerInput" class="text-input" type="text" inputmode="numeric" placeholder="Digite sua resposta" autocomplete="off" />
+        <button id="checkBtn" class="btn btn-secondary" type="button"><i class="fas fa-check"></i> Verificar</button>
+      </div>`;
+        }
+
+        html += `
+    <div id="feedback" class="feedback-area">Analise o caso e responda.</div>
+    <div class="actions">
+      <button id="resetBtn" class="btn btn-secondary" type="button"><i class="fas fa-rotate-left"></i> Reiniciar caso</button>
+      <button id="nextBtn" class="btn btn-primary" type="button" disabled><i class="fas fa-arrow-right"></i> Próximo</button>
+    </div>`;
+
+        app.innerHTML = html;
+        document.getElementById("resetBtn").onclick = render;
+        document.getElementById("nextBtn").onclick = next;
+
+        if (m.type === "mc") {
+          document
+            .querySelectorAll(".answer-btn")
+            .forEach((btn) => (btn.onclick = () => answerMC(btn)));
+        } else {
+          document.getElementById("checkBtn").onclick = answerInput;
+          document
+            .getElementById("answerInput")
+            .addEventListener("keydown", (e) => {
+              if (e.key === "Enter") answerInput();
+            });
+          setTimeout(() => document.getElementById("answerInput")?.focus(), 50);
+        }
+      }
+
+      function answerMC(btn) {
+        if (answered) return;
+        answered = true;
+        const m = missions[idx];
+        const real = Number(btn.dataset.real);
+
+        document.querySelectorAll(".answer-btn").forEach((b) => {
+          b.disabled = true;
+          if (Number(b.dataset.real) === m.answer) b.classList.add("correct");
+        });
+
+        if (real === m.answer) {
+          score++;
+          showFeedback(true, `✔ Correto! ${m.explain}`);
+        } else {
+          btn.classList.add("wrong");
+          showFeedback(false, `✖ Ainda não. ${m.explain}`);
+        }
+
+        document.getElementById("nextBtn").disabled = false;
+        updateUI();
+      }
+
+      function answerInput() {
+        if (answered) return;
+        const m = missions[idx];
+        const input = document.getElementById("answerInput");
+        const valor = (input.value || "").trim().replace(",", ".");
+
+        if (valor === "") {
+          showFeedback(false, "Digite uma resposta antes de verificar.");
+          return;
+        }
+
+        answered = true;
+        input.disabled = true;
+        document.getElementById("checkBtn").disabled = true;
+
+        if (valor === String(m.answer)) {
+          score++;
+          showFeedback(true, `✔ Correto! ${m.explain}`);
+        } else {
+          showFeedback(
+            false,
+            `✖ Ainda não. A resposta correta era ${m.answer}. ${m.explain}`,
+          );
+        }
+
+        document.getElementById("nextBtn").disabled = false;
+        updateUI();
+      }
+
+      function showFeedback(ok, message) {
+        const feedback = document.getElementById("feedback");
+        feedback.className = ok ? "feedback-area ok" : "feedback-area err";
+        feedback.innerHTML = esc(message).replace("✔", "✔").replace("✖", "✖");
+      }
+
+      function next() {
+        if (!answered) return;
+        idx++;
+        if (idx >= missions.length) finish();
+        else render();
+      }
+
+      function obterNomeAluno() {
+        let nome = sessionStorage.getItem("nomeAluno");
+        if (!nome) {
+          nome = prompt(
+            "Digite seu nome completo para registrar sua atividade:",
+          );
+          if (nome && nome.trim()) {
+            nome = nome.trim();
+            sessionStorage.setItem("nomeAluno", nome);
+          } else {
+            nome = "Anônimo";
+          }
+        }
+        return nome;
+      }
+
+      async function registrarResultado(nome, atividade, acertos, total) {
+        const dados = { nome, atividade, acertos, total };
+        await fetch(URL_WEBAPP, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dados),
+        });
+      }
+
+      async function enviarRegistroFinal() {
+        const status = document.getElementById("registroStatus");
+        if (!status || finalizado) return;
+        finalizado = true;
+        const nome = obterNomeAluno();
+        status.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i> Enviando registro para a planilha...';
+        try {
+          await registrarResultado(
+            nome,
+            NOME_ATIVIDADE,
+            score,
+            missions.length,
+          );
+          status.innerHTML = `<span class="ok"><i class="fas fa-check-circle"></i> Registro enviado para a planilha.</span><br><small>Nome: ${esc(nome)} | Acertos: ${score}/${missions.length}</small>`;
+        } catch (e) {
+          console.error(e);
+          status.innerHTML =
+            '<span class="err"><i class="fas fa-triangle-exclamation"></i> Não foi possível enviar o registro. Verifique a conexão e tente novamente.</span>';
+          finalizado = false;
+        }
+      }
+
+      function finish() {
+        bar.style.width = "100%";
+        chip.innerHTML = `<i class="fas fa-magnifying-glass"></i> Finalizado`;
+        app.innerHTML = `
+    <section class="end-screen">
+      <div class="end-card">
+        <div class="end-icon"><i class="fas fa-user-secret"></i></div>
+        <h1>Caso encerrado!</h1>
+        <p>Você investigou restos, números pares e ímpares, divisibilidade, condições compostas e sorteios com <strong>randi</strong>.</p>
+        <div class="end-stats">
+          <div class="end-stat"><strong>${score}</strong><span>Acertos</span></div>
+          <div class="end-stat"><strong>${missions.length}</strong><span>Casos investigados</span></div>
+        </div>
+        <div id="registroStatus" class="registro-box">Preparando registro...</div>
+        <div class="actions" style="justify-content:center">
+          <a class="btn btn-primary" href="objetos.html"><i class="fas fa-cubes"></i> Voltar aos objetos</a>
+        </div>
+      </div>
+    </section>`;
+        enviarRegistroFinal();
+      }
+
+      render();
+    </script>
+  </body>
+</html>
