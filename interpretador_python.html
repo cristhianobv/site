@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interpretador Python | Prof. Cristhiano Vasconcellos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.29.0/full/pyodide.js"></script>
+    <style>
+      :root{
+        --text:#0f172a;
+        --text-soft:#475569;
+        --text-muted:#64748b;
+        --border:rgba(15,23,42,.08);
+        --primary:#22c55e;
+        --primary-active:#15803d;
+        --danger:#dc2626;
+        --warning:#ca8a04;
+        --blue:#0284c7;
+        --shadow-sm:0 8px 24px rgba(15,23,42,.05);
+        --shadow-md:0 18px 40px rgba(15,23,42,.08);
+        --radius-lg:28px;
+        --radius-md:22px;
+        --container:1120px;
+        --transition:220ms cubic-bezier(.2,.8,.2,1);
+      }
+
+      *{box-sizing:border-box;margin:0;padding:0}
+      html{scroll-behavior:smooth}
+      body{
+        font-family:"Inter",sans-serif;
+        color:var(--text);
+        background:
+          radial-gradient(circle at top left,rgba(34,197,94,.08),transparent 24%),
+          radial-gradient(circle at 90% 20%,rgba(14,165,233,.08),transparent 20%),
+          linear-gradient(180deg,#fcfefe 0%,#f8fafc 30%,#f4f8fb 100%);
+        min-height:100vh;
+        overflow-x:hidden;
+      }
+      body::before{
+        content:"";
+        position:fixed;
+        inset:0;
+        background-image:
+          linear-gradient(rgba(15,23,42,.03) 1px,transparent 1px),
+          linear-gradient(90deg,rgba(15,23,42,.03) 1px,transparent 1px);
+        background-size:44px 44px;
+        mask-image:radial-gradient(circle at center,black 35%,transparent 85%);
+        pointer-events:none;
+        z-index:0;
+      }
+      a{color:inherit;text-decoration:none}
+      button,select,textarea,input{font-family:inherit}
+      .container{width:min(var(--container),calc(100% - 36px));margin:0 auto;position:relative;z-index:1}
+      .page-wrap{padding:20px 0 36px}
+      .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px;flex-wrap:wrap}
+      .back-link{display:inline-flex;align-items:center;gap:8px;color:var(--text-soft);font-weight:600;transition:var(--transition)}
+      .back-link:hover{color:var(--text)}
+      .status-chip{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.82);border:1px solid var(--border);color:var(--text-soft);box-shadow:var(--shadow-sm);font-weight:700}
+      .status-chip.ready{color:var(--primary-active)}
+      .status-chip.loading{color:var(--warning)}
+      .status-chip.error{color:var(--danger)}
+      .hero{margin-bottom:16px}
+      .hero h1{font-family:"Space Grotesk",sans-serif;font-size:clamp(2rem,4vw,3rem);line-height:1;letter-spacing:-.05em;margin-bottom:8px}
+      .hero p{color:var(--text-soft);font-size:1rem;line-height:1.65;max-width:850px}
+      .progress-wrap{margin-bottom:18px;background:rgba(255,255,255,.82);border:1px solid var(--border);border-radius:20px;padding:14px 16px;box-shadow:var(--shadow-sm)}
+      .progress-label{display:flex;justify-content:space-between;gap:12px;margin-bottom:8px;color:var(--text-muted);font-size:.9rem;flex-wrap:wrap}
+      .progress{width:100%;height:12px;background:#e2e8f0;border-radius:999px;overflow:hidden}
+      .progress-bar{height:100%;width:34%;background:linear-gradient(135deg,var(--primary) 0%,#34d399 100%);border-radius:inherit;transition:width var(--transition)}
+      .activity-card{background:rgba(255,255,255,.92);border:1px solid var(--border);box-shadow:var(--shadow-md);border-radius:var(--radius-lg);padding:22px;animation:fadeUp 260ms ease both}
+      @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+      .card-header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+      .section-tag{display:inline-flex;align-items:center;gap:8px;background:rgba(34,197,94,.1);color:var(--primary-active);border:1px solid rgba(34,197,94,.16);border-radius:999px;padding:10px 14px;font-size:.9rem;font-weight:700}
+      .question-counter{color:var(--text-muted);font-size:.95rem;font-weight:700}
+      .workspace{display:grid;grid-template-columns:1.08fr .92fr;gap:16px;align-items:start}
+      .panel{background:rgba(255,255,255,.88);border:1px solid var(--border);border-radius:22px;padding:16px;box-shadow:0 8px 24px rgba(15,23,42,.04)}
+      .mini-title{color:var(--text-muted);font-size:.86rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+      .question-title{font-size:1.05rem;line-height:1.7;color:var(--text);margin-bottom:16px;font-weight:600}
+      .select-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+      select{flex:1;min-width:220px;border:1px solid var(--border);border-radius:16px;padding:12px 14px;background:#fff;color:var(--text);font-weight:700;outline:none;box-shadow:var(--shadow-sm)}
+      textarea{
+        width:100%;
+        min-height:430px;
+        resize:vertical;
+        border:0;
+        outline:none;
+        border-radius:var(--radius-md);
+        padding:18px;
+        font-family:"JetBrains Mono",monospace;
+        font-size:14px;
+        line-height:1.65;
+        color:#e2e8f0;
+        background:#0f172a;
+        box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
+        tab-size:4;
+        font-variant-ligatures:none;
+        font-feature-settings:"liga" 0;
+      }
+      .output-box{min-height:430px;background:#0f172a;color:#e2e8f0;border-radius:var(--radius-md);padding:18px;font-family:"JetBrains Mono",monospace;font-size:14px;line-height:1.65;white-space:pre-wrap;overflow:auto;border:1px solid rgba(255,255,255,.06)}
+      .help-box{margin-top:12px;border-radius:18px;padding:14px;border:1px solid var(--border);background:linear-gradient(180deg,#fff,#f8fafc);color:var(--text-soft);line-height:1.6;font-size:.93rem}
+      .help-box strong{color:var(--text)}
+      .actions{margin-top:18px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+      .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:none;cursor:pointer;transition:var(--transition);padding:14px 22px;border-radius:999px;font-weight:800;font-size:.96rem}
+      .btn-primary{background:linear-gradient(135deg,var(--primary) 0%,#34d399 100%);color:#052e16;box-shadow:0 14px 28px rgba(34,197,94,.22)}
+      .btn-secondary{background:rgba(255,255,255,.9);color:var(--text-soft);border:1px solid var(--border);box-shadow:var(--shadow-sm)}
+      .btn-danger{background:rgba(220,38,38,.08);color:var(--danger);border:1px solid rgba(220,38,38,.18)}
+      .btn-primary:hover:not(:disabled),.btn-secondary:hover:not(:disabled),.btn-danger:hover:not(:disabled){transform:translateY(-2px)}
+      .btn:disabled{opacity:.55;cursor:not-allowed;transform:none!important;box-shadow:none}
+      .feedback-area{min-height:26px;margin-top:16px;text-align:center;font-size:1rem;color:var(--text-soft);line-height:1.6}
+      .correct-text{color:#15803d;font-weight:700}.error-text{color:var(--danger);font-weight:700}.warning-text{color:var(--warning);font-weight:800}
+      .shortcut-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+      .shortcut{background:#f8fafc;border:1px solid var(--border);border-radius:16px;padding:12px;color:var(--text-soft);font-size:.9rem;line-height:1.45}
+      .shortcut strong{display:block;color:var(--text);font-family:"JetBrains Mono",monospace;font-size:.88rem;margin-bottom:4px}
+      .confetti{position:fixed;top:-10px;width:10px;height:16px;pointer-events:none;z-index:999;animation:fall 900ms ease-out forwards;border-radius:3px}
+      @keyframes fall{to{transform:translateY(105vh) rotate(480deg);opacity:0}}
+      @media(max-width:900px){.container{width:min(var(--container),calc(100% - 20px))}.page-wrap{padding-top:14px}.workspace{grid-template-columns:1fr}.activity-card{padding:16px;border-radius:22px}textarea,.output-box{min-height:330px}.shortcut-grid{grid-template-columns:1fr}}
+    </style>
+  </head>
+  <body>
+    <main class="page-wrap">
+      <div class="container" id="app">
+        <div class="topbar">
+          <a class="back-link" href="objetos.html"><i class="fas fa-arrow-left"></i> Voltar aos objetos</a>
+          <div id="status" class="status-chip loading"><i class="fas fa-circle-notch fa-spin"></i> Carregando Python...</div>
+        </div>
+
+        <section class="hero">
+          <h1>Interpretador Python</h1>
+          <p>Teste seus primeiros programas em Python direto no navegador. Escreva o código, execute, observe a saída e pratique a transição do <strong>Visualg</strong> para o <strong>Python</strong>.</p>
+        </section>
+
+        <section class="progress-wrap">
+          <div class="progress-label"><span>Ambiente de prática</span><span id="progressText">Preparando o interpretador...</span></div>
+          <div class="progress"><div id="bar" class="progress-bar"></div></div>
+        </section>
+
+        <article class="activity-card">
+          <div class="card-header">
+            <div class="section-tag"><i class="fas fa-code"></i> Do Visualg ao Python</div>
+            <div class="question-counter">Professor Cristhiano Vasconcellos</div>
+          </div>
+
+          <div class="question-title">Escolha um exemplo ou escreva seu próprio código. Quando usar <strong>input()</strong>, o navegador abrirá uma janela para digitar o valor, simulando o comando <strong>leia</strong> do Visualg.</div>
+
+          <section class="workspace">
+            <div class="panel">
+              <div class="mini-title"><i class="fas fa-keyboard"></i> Código Python</div>
+              <div class="select-row">
+                <select id="examples" aria-label="Exemplos de código">
+                  <option value="intro">Exemplo 1: escreva / print</option>
+                  <option value="input">Exemplo 2: leia / input</option>
+                  <option value="ifelse">Exemplo 3: if e else</option>
+                  <option value="while">Exemplo 4: while</option>
+                  <option value="parimpar">Exemplo 5: par ou ímpar</option>
+                  <option value="livre">Código livre</option>
+                </select>
+              </div>
+              <textarea id="code" spellcheck="false"></textarea>
+              <div class="actions">
+                <button id="runBtn" class="btn btn-primary" type="button" disabled><i class="fas fa-play"></i> Executar código</button>
+                <button id="resetBtn" class="btn btn-secondary" type="button"><i class="fas fa-rotate-left"></i> Restaurar exemplo</button>
+                <button id="clearOutputBtn" class="btn btn-secondary" type="button"><i class="fas fa-broom"></i> Limpar saída</button>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="mini-title"><i class="fas fa-terminal"></i> Saída do programa</div>
+              <div id="output" class="output-box">A saída aparecerá aqui depois que você executar o código.</div>
+              <div class="help-box"><strong>Dica:</strong> cuide a indentação depois de <strong>if</strong>, <strong>else</strong> e <strong>while</strong>. Em Python, os espaços indicam quais comandos fazem parte do bloco.</div>
+              <div class="shortcut-grid">
+                <div class="shortcut"><strong>print()</strong>Equivale ao escreva do Visualg.</div>
+                <div class="shortcut"><strong>input()</strong>Equivale ao leia do Visualg.</div>
+                <div class="shortcut"><strong>while</strong>Equivale ao enquanto do Visualg.</div>
+              </div>
+            </div>
+          </section>
+
+          <div id="feedback" class="feedback-area">Aguarde o Python carregar para começar.</div>
+        </article>
+      </div>
+    </main>
+
+    <script>
+      const examples = {
+        intro: `print("Olá, mundo!")`,
+        input: `nome = input("Digite seu nome: ")\nprint("Olá", nome)`,
+        ifelse: `idade = int(input("Digite sua idade: "))\n\nif idade >= 18:\n    print("Maior")\nelse:\n    print("Menor")`,
+        while: `contador = 1\n\nwhile contador <= 5:\n    print(contador)\n    contador = contador + 1`,
+        parimpar: `numero = int(input("Digite um número: "))\n\nif numero % 2 == 0:\n    print("Par")\nelse:\n    print("Ímpar")`,
+        livre: `# Escreva seu código Python aqui\nprint("Meu primeiro programa em Python")`
+      };
+
+      const codeEl = document.getElementById('code');
+      const outputEl = document.getElementById('output');
+      const runBtn = document.getElementById('runBtn');
+      const clearOutputBtn = document.getElementById('clearOutputBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const examplesEl = document.getElementById('examples');
+      const statusEl = document.getElementById('status');
+      const feedbackEl = document.getElementById('feedback');
+      const progressText = document.getElementById('progressText');
+      const bar = document.getElementById('bar');
+
+      let pyodide = null;
+
+      function setStatus(text, type, icon){
+        const icons = {
+          ready:'<i class="fas fa-check-circle"></i>',
+          loading:'<i class="fas fa-circle-notch fa-spin"></i>',
+          error:'<i class="fas fa-triangle-exclamation"></i>'
+        };
+        statusEl.innerHTML = `${icon || icons[type] || ''} ${text}`;
+        statusEl.className = 'status-chip ' + type;
+      }
+
+      function setProgress(text, width){
+        progressText.textContent = text;
+        bar.style.width = width;
+      }
+
+      function setExample(key){
+        codeEl.value = examples[key] || examples.intro;
+      }
+
+      function clearOutput(){
+        outputEl.textContent = '';
+      }
+
+      function appendOutput(text){
+        if(outputEl.textContent === 'A saída aparecerá aqui depois que você executar o código.'){
+          outputEl.textContent = '';
+        }
+        outputEl.textContent += text;
+      }
+
+      function showConfetti(){
+        const colors = ['#22c55e', '#16a34a', '#3b82f6', '#f59e0b', '#ef4444'];
+        for(let i = 0; i < 36; i++){
+          const piece = document.createElement('div');
+          piece.className = 'confetti';
+          piece.style.left = Math.random() * 100 + 'vw';
+          piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+          piece.style.animationDelay = Math.random() * 260 + 'ms';
+          document.body.appendChild(piece);
+          setTimeout(() => piece.remove(), 1300);
+        }
+      }
+
+      function playSuccessSound(){
+        try{
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          const ctx = new AudioContext();
+          const notes = [523.25, 659.25, 783.99];
+          notes.forEach((freq, index) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.frequency.value = freq;
+            osc.type = 'sine';
+            gain.gain.setValueAtTime(0.0001, ctx.currentTime + index * 0.09);
+            gain.gain.exponentialRampToValueAtTime(0.11, ctx.currentTime + index * 0.09 + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + index * 0.09 + 0.16);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime + index * 0.09);
+            osc.stop(ctx.currentTime + index * 0.09 + 0.18);
+          });
+        }catch(e){ }
+      }
+
+      async function initPyodide(){
+        try{
+          setStatus('Carregando Python...', 'loading');
+          setProgress('Carregando o ambiente Python...', '45%');
+          pyodide = await loadPyodide();
+
+          pyodide.setStdout({ batched: (text) => appendOutput(text + '\n') });
+          pyodide.setStderr({ batched: (text) => appendOutput(text + '\n') });
+
+          pyodide.globals.set('input', (message = '') => {
+            const value = prompt(String(message));
+            return value === null ? '' : value;
+          });
+
+          runBtn.disabled = false;
+          setStatus('Python pronto', 'ready');
+          setProgress('Interpretador pronto para uso', '100%');
+          feedbackEl.innerHTML = '<span class="correct-text">Python carregado.</span> Agora você já pode executar os exemplos ou escrever seu próprio programa.';
+        }catch(error){
+          setStatus('Erro ao carregar', 'error');
+          setProgress('Falha ao carregar o interpretador', '100%');
+          feedbackEl.innerHTML = '<span class="error-text">Não foi possível carregar o Python.</span> Verifique a conexão com a internet e tente novamente.';
+          outputEl.textContent = 'Não foi possível carregar o Python. Verifique a conexão com a internet e tente novamente.\n\nDetalhes: ' + error.message;
+        }
+      }
+
+      async function runCode(){
+        if(!pyodide){ return; }
+        clearOutput();
+        runBtn.disabled = true;
+        runBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Executando...';
+        setStatus('Executando...', 'loading');
+        setProgress('Executando o programa...', '72%');
+        feedbackEl.innerHTML = 'Executando o código. Observe a saída do programa.';
+
+        try{
+          await pyodide.runPythonAsync(codeEl.value);
+          if(outputEl.textContent.trim() === ''){
+            outputEl.textContent = 'Programa executado sem exibir mensagens.';
+          }
+          showConfetti();
+          playSuccessSound();
+          setStatus('Python pronto', 'ready');
+          setProgress('Programa executado com sucesso', '100%');
+          feedbackEl.innerHTML = '<span class="correct-text">✔ Código executado com sucesso!</span>';
+        }catch(error){
+          outputEl.textContent = 'Erro no programa:\n\n' + error.message;
+          setStatus('Erro no código', 'error');
+          setProgress('Erro encontrado no programa', '100%');
+          feedbackEl.innerHTML = '<span class="error-text">✖ O programa apresentou erro.</span> Leia a mensagem na saída e revise o código.';
+        }finally{
+          runBtn.disabled = false;
+          runBtn.innerHTML = '<i class="fas fa-play"></i> Executar código';
+        }
+      }
+
+      codeEl.addEventListener('keydown', (event) => {
+        if(event.key === 'Tab'){
+          event.preventDefault();
+          const start = codeEl.selectionStart;
+          const end = codeEl.selectionEnd;
+          codeEl.value = codeEl.value.substring(0, start) + '    ' + codeEl.value.substring(end);
+          codeEl.selectionStart = codeEl.selectionEnd = start + 4;
+        }
+      });
+
+      examplesEl.addEventListener('change', () => {
+        setExample(examplesEl.value);
+        feedbackEl.innerHTML = 'Exemplo carregado. Clique em <strong>Executar código</strong> para testar.';
+      });
+      resetBtn.addEventListener('click', () => setExample(examplesEl.value));
+      clearOutputBtn.addEventListener('click', () => {
+        outputEl.textContent = 'A saída aparecerá aqui depois que você executar o código.';
+        feedbackEl.innerHTML = 'Saída limpa. Você pode executar o código novamente.';
+      });
+      runBtn.addEventListener('click', runCode);
+
+      setExample('intro');
+      initPyodide();
+    </script>
+  </body>
+</html>
