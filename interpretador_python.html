@@ -736,28 +736,164 @@ const COOLDOWN_IA = 30000;
       async function checkChallenge(){if(!pyodide){return}const ch=currentChallenge();if(!codeEl.value.trim()){challengeResult.className='challenge-result bad';challengeResult.textContent='Digite sua solução antes de verificar.';return}checkChallengeBtn.disabled=true;checkChallengeBtn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> Verificando...';let details=[];let ok=true;try{for(const test of ch.tests){const output=await executePython(codeEl.value,test.inputs);const outNorm=normalize(output);const passed=test.expect.every(exp=>outNorm.includes(normalize(exp)));if(!passed)ok=false;details.push((passed?'✔ ':'✖ ')+test.label+(passed?'':' Saída obtida: '+(output||'(sem saída)')))}}catch(error){ok=false;details.push('✖ O código apresentou erro: '+String(error).split('\n')[0])}if(ok){setDone(ch.id);challengeResult.className='challenge-result ok';challengeResult.innerHTML='✔ Desafio concluído!<br>'+details.map(escapeHTML).join('<br>');feedbackEl.innerHTML='<span class="correct-text">Muito bem!</span> O desafio foi validado com testes automáticos.';showConfetti()}else{challengeResult.className='challenge-result bad';challengeResult.innerHTML='Ainda não passou em todos os testes.<br>'+details.map(escapeHTML).join('<br>');feedbackEl.innerHTML='<span class="warning-text">Revise o código.</span> Use a saída e os testes como pista, sem apagar sua tentativa.'}checkChallengeBtn.disabled=false;checkChallengeBtn.innerHTML='<i class="fas fa-check"></i> Verificar'}
 
 
+      function detectarTopicosLocais(codigo, erro){
+        const texto=(codigo+'\n'+erro).toLowerCase();
+        const topicos=[];
+        if(erro.includes('IndentationError'))topicos.push('indentacao');
+        if(erro.includes('SyntaxError'))topicos.push('sintaxe');
+        if(erro.includes('NameError'))topicos.push('variavel');
+        if(erro.includes('ValueError'))topicos.push('conversao');
+        if(erro.includes('EOFError'))topicos.push('entrada');
+        if(texto.includes('input('))topicos.push('entrada');
+        if(texto.includes('int(')||texto.includes('float('))topicos.push('conversao');
+        if(/\bif\b/.test(texto)||/\belse\b/.test(texto))topicos.push('decisao');
+        if(/\bwhile\b/.test(texto))topicos.push('repeticao');
+        if(texto.includes('%'))topicos.push('resto');
+        if(texto.includes('contador'))topicos.push('contador');
+        if(texto.includes('soma')||texto.includes('total')||texto.includes('acumulador'))topicos.push('acumulador');
+        return [...new Set(topicos)];
+      }
+
+      function primeiraLinhaErro(erro){
+        return String(erro||'').split('\n').map(l=>l.trim()).filter(Boolean).slice(-1)[0]||String(erro||'').split('\n')[0]||'';
+      }
+
+      function erroEhDoAssistente(erro){
+        const texto=String(erro||'').toLowerCase();
+        return texto.includes('limite da ia')
+          || texto.includes('limite foi atingido')
+          || texto.includes('quota')
+          || texto.includes('temporariamente indispon')
+          || texto.includes('resource_exhausted')
+          || texto.includes('rate limit')
+          || texto.includes('não foi possível obter resposta do assistente')
+          || texto.includes('nao foi possivel obter resposta do assistente')
+          || texto.includes('assistente está temporariamente indisponível')
+          || texto.includes('assistente esta temporariamente indisponivel');
+      }
+
+      function gerarAjudaLocal(codigo, erro, modo){
+        const erroLimpo=erroEhDoAssistente(erro)?'':(erro||lastError||'');
+        const topicos=detectarTopicosLocais(codigo, erroLimpo);
+        const linhas=[];
+        const erroCurto=primeiraLinhaErro(erroLimpo);
+
+        linhas.push('🧠 Análise automática');
+        linhas.push('');
+
+        if(modo==='visualg'){
+          linhas.push('Comparando com Visualg:');
+          if(codigo.includes('print('))linhas.push('• print() em Python faz o papel do escreva/escreval.');
+          if(codigo.includes('input('))linhas.push('• input() em Python faz o papel do leia, mas ele lê texto. Para número, use int() ou float().');
+          if(/\bif\b/.test(codigo))linhas.push('• if em Python corresponde ao se do Visualg. A condição termina com dois-pontos (:).');
+          if(/\belse\b/.test(codigo))linhas.push('• else corresponde ao senao. Ele também precisa de dois-pontos (:).');
+          if(/\bwhile\b/.test(codigo))linhas.push('• while corresponde ao enquanto. Lembre de atualizar o contador dentro do bloco.');
+          if(codigo.includes('%'))linhas.push('• O operador % é o resto da divisão, parecido com mod/resto no Visualg.');
+          linhas.push('• Em Python não existe fimse/fimenquanto: quem define o bloco é a indentação.');
+          return linhas.join('\n');
+        }
+
+        if(erroCurto){
+          linhas.push('Erro percebido: '+erroCurto);
+          linhas.push('');
+        }
+
+        if(topicos.includes('indentacao')){
+          linhas.push('• Parece ser problema de indentação. Confira se os comandos dentro de if, else ou while estão deslocados 4 espaços para a direita.');
+        }
+        if(topicos.includes('sintaxe')){
+          linhas.push('• Parece erro de sintaxe. Verifique se faltou dois-pontos (:) depois de if, else ou while e se parênteses/aspas foram fechados.');
+        }
+        if(topicos.includes('variavel')){
+          linhas.push('• Alguma variável pode ter sido usada antes de receber valor, ou foi escrita com nomes diferentes. Em Python, nome, Nome e NOME são variáveis diferentes.');
+        }
+        if(topicos.includes('conversao')){
+          linhas.push('• Se você vai calcular com um valor lido por input(), converta para número com int() ou float().');
+        }
+        if(topicos.includes('entrada')){
+          linhas.push('• O input() abre uma janela para digitar o valor. Cuide para digitar números quando o código usa int() ou float().');
+        }
+        if(topicos.includes('decisao')){
+          linhas.push('• Em decisões, revise a condição: use == para comparar, >=, <=, > ou < quando necessário. Não esqueça o : no final.');
+        }
+        if(topicos.includes('repeticao')){
+          linhas.push('• Em while, confira três partes: valor inicial do contador, condição de parada e atualização do contador dentro do laço.');
+        }
+        if(topicos.includes('resto')){
+          linhas.push('• Para par/ímpar ou múltiplos, use o resto: numero % 2 == 0 ou numero % 5 == 0.');
+        }
+        if(topicos.includes('contador')){
+          linhas.push('• Se estiver usando contador, veja se ele começa no valor certo e se aumenta com contador = contador + 1.');
+        }
+        if(topicos.includes('acumulador')){
+          linhas.push('• Se estiver somando valores, inicialize a soma com 0 antes do while e atualize dentro do laço.');
+        }
+
+        if(linhas.length<=3){
+          if(modo==='erro')linhas.push('• Não identifiquei um erro específico. Execute o código e observe a mensagem na saída para ter uma pista mais precisa.');
+          else if(modo==='revisao')linhas.push('• Revise se o programa tem entrada, processamento e saída. Depois teste com valores simples, como 1, 2, 5 e 10.');
+          else linhas.push('• Comece conferindo variáveis, parênteses, aspas, dois-pontos e indentação. Esses são os erros mais comuns no início.');
+        }
+
+        linhas.push('');
+        linhas.push('Pista final: faça uma pequena alteração por vez e execute novamente para descobrir onde o problema aparece.');
+        return linhas.join('\n');
+      }
+
+
+      function gerarAjudaAutomaticaCurta(modo){
+        if(modo==='visualg'){
+          return '🧠 Análise automática\n\nComparando com Visualg:\n\n• input() corresponde ao leia.\n• Para números, use int() ou float().\n• Em Python os blocos são definidos pela indentação.';
+        }
+        if(modo==='erro'){
+          return '🧠 Análise automática\n\nRevise estes pontos:\n\n• nomes das variáveis;\n• int() ou float() para números;\n• indentação dos blocos;\n• parênteses, aspas e dois-pontos (:).';
+        }
+        if(modo==='revisao'){
+          return '🧠 Análise automática\n\nConfira se seu programa tem:\n\n• entrada de dados;\n• processamento correto;\n• saída esperada na tela;\n• indentação correta nos blocos.';
+        }
+        return '🧠 Análise automática\n\nLeia o enunciado novamente e confira:\n\n• entrada de dados;\n• processamento;\n• saída esperada.\n\nFaça uma alteração por vez e execute novamente.';
+      }
+
+      function setAiButtonCooldown(seconds){
+        let remaining=seconds;
+        aiHelpBtn.disabled=true;
+        aiHelpBtn.innerHTML=`<i class="fas fa-hourglass-half"></i> Pedir ajuda (${remaining}s)`;
+        const timer=setInterval(()=>{
+          remaining--;
+          if(remaining<=0){
+            clearInterval(timer);
+            aiHelpBtn.disabled=false;
+            aiHelpBtn.innerHTML='<i class="fas fa-wand-magic-sparkles"></i> Pedir ajuda';
+          }else{
+            aiHelpBtn.innerHTML=`<i class="fas fa-hourglass-half"></i> Pedir ajuda (${remaining}s)`;
+          }
+        },1000);
+      }
+
       async function requestAIHelp(){
         const codigo=codeEl.value.trim();
-        const agora = Date.now();
-const restante = COOLDOWN_IA - (agora - ultimaConsultaIA);
+        const agora=Date.now();
+        const restante=COOLDOWN_IA-(agora-ultimaConsultaIA);
 
-if (restante > 0) {
-  aiAnswer.textContent =
-    `Aguarde ${Math.ceil(restante / 1000)} segundos antes de solicitar nova ajuda.`;
-  return;
-}
+        if(restante>0){
+          aiAnswer.textContent=`Aguarde ${Math.ceil(restante/1000)} segundos antes de solicitar nova ajuda. Enquanto isso, revise a saída do programa e a indentação do código.`;
+          return;
+        }
         if(!codigo){
           aiAnswer.textContent='Escreva ou carregue algum código antes de pedir ajuda.';
           return;
         }
+
+        ultimaConsultaIA=Date.now();
         aiHelpBtn.disabled=true;
         aiHelpBtn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> Analisando...';
-        aiAnswer.textContent='O assistente está analisando seu código...';
+        aiAnswer.textContent='🤖 Assistente de código\nAnalisando seu código...';
+
         try{
           if(!ASSISTENTE_API_URL||ASSISTENTE_API_URL.includes('SEU-PROJETO')){
             throw new Error('Configure a constante ASSISTENTE_API_URL com a URL da sua Vercel Function.');
           }
-          ultimaConsultaIA = Date.now();const response=await fetch(ASSISTENTE_API_URL,{
+          const response=await fetch(ASSISTENTE_API_URL,{
             method:'POST',
             headers:{'Content-Type':'application/json'},
             body:JSON.stringify({
@@ -770,14 +906,14 @@ if (restante > 0) {
           });
           const data=await response.json().catch(()=>null);
           if(!response.ok||!data||!data.ok){
-            throw new Error((data&&data.erro)?data.erro:'Não foi possível obter resposta do assistente.');
+            const detalhe=(data&&data.erro)?data.erro:'Não foi possível obter resposta do assistente.';
+            throw new Error(detalhe);
           }
-          aiAnswer.textContent=data.resposta;
+          aiAnswer.textContent='🤖 Assistente de código\n'+data.resposta;
         }catch(error){
-          aiAnswer.textContent='Não consegui chamar o assistente agora. Detalhe: '+String(error.message||error);
+          aiAnswer.textContent=gerarAjudaAutomaticaCurta(aiMode.value);
         }finally{
-          aiHelpBtn.disabled=false;
-          aiHelpBtn.innerHTML='<i class="fas fa-wand-magic-sparkles"></i> Pedir ajuda';
+          setAiButtonCooldown(Math.ceil(COOLDOWN_IA/1000));
         }
       }
 
