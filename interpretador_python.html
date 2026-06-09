@@ -8,115 +8,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.29.0/full/pyodide.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.29.4/full/pyodide.js"></script>
     <style>
-      :root{
-        --text:#0f172a;
-        --text-soft:#475569;
-        --text-muted:#64748b;
-        --border:rgba(15,23,42,.08);
-        --primary:#22c55e;
-        --primary-active:#15803d;
-        --danger:#dc2626;
-        --warning:#ca8a04;
-        --blue:#0284c7;
-        --shadow-sm:0 8px 24px rgba(15,23,42,.05);
-        --shadow-md:0 18px 40px rgba(15,23,42,.08);
-        --radius-lg:28px;
-        --radius-md:22px;
-        --container:1120px;
-        --transition:220ms cubic-bezier(.2,.8,.2,1);
-      }
-
-      *{box-sizing:border-box;margin:0;padding:0}
-      html{scroll-behavior:smooth}
-      body{
-        font-family:"Inter",sans-serif;
-        color:var(--text);
-        background:
-          radial-gradient(circle at top left,rgba(34,197,94,.08),transparent 24%),
-          radial-gradient(circle at 90% 20%,rgba(14,165,233,.08),transparent 20%),
-          linear-gradient(180deg,#fcfefe 0%,#f8fafc 30%,#f4f8fb 100%);
-        min-height:100vh;
-        overflow-x:hidden;
-      }
-      body::before{
-        content:"";
-        position:fixed;
-        inset:0;
-        background-image:
-          linear-gradient(rgba(15,23,42,.03) 1px,transparent 1px),
-          linear-gradient(90deg,rgba(15,23,42,.03) 1px,transparent 1px);
-        background-size:44px 44px;
-        mask-image:radial-gradient(circle at center,black 35%,transparent 85%);
-        pointer-events:none;
-        z-index:0;
-      }
-      a{color:inherit;text-decoration:none}
-      button,select,textarea,input{font-family:inherit}
-      .container{width:min(var(--container),calc(100% - 36px));margin:0 auto;position:relative;z-index:1}
-      .page-wrap{padding:20px 0 36px}
-      .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px;flex-wrap:wrap}
-      .back-link{display:inline-flex;align-items:center;gap:8px;color:var(--text-soft);font-weight:600;transition:var(--transition)}
-      .back-link:hover{color:var(--text)}
-      .status-chip{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.82);border:1px solid var(--border);color:var(--text-soft);box-shadow:var(--shadow-sm);font-weight:700}
-      .status-chip.ready{color:var(--primary-active)}
-      .status-chip.loading{color:var(--warning)}
-      .status-chip.error{color:var(--danger)}
-      .hero{margin-bottom:16px}
-      .hero h1{font-family:"Space Grotesk",sans-serif;font-size:clamp(2rem,4vw,3rem);line-height:1;letter-spacing:-.05em;margin-bottom:8px}
-      .hero p{color:var(--text-soft);font-size:1rem;line-height:1.65;max-width:850px}
-      .progress-wrap{margin-bottom:18px;background:rgba(255,255,255,.82);border:1px solid var(--border);border-radius:20px;padding:14px 16px;box-shadow:var(--shadow-sm)}
-      .progress-label{display:flex;justify-content:space-between;gap:12px;margin-bottom:8px;color:var(--text-muted);font-size:.9rem;flex-wrap:wrap}
-      .progress{width:100%;height:12px;background:#e2e8f0;border-radius:999px;overflow:hidden}
-      .progress-bar{height:100%;width:34%;background:linear-gradient(135deg,var(--primary) 0%,#34d399 100%);border-radius:inherit;transition:width var(--transition)}
-      .activity-card{background:rgba(255,255,255,.92);border:1px solid var(--border);box-shadow:var(--shadow-md);border-radius:var(--radius-lg);padding:22px;animation:fadeUp 260ms ease both}
-      @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-      .card-header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px;flex-wrap:wrap}
-      .section-tag{display:inline-flex;align-items:center;gap:8px;background:rgba(34,197,94,.1);color:var(--primary-active);border:1px solid rgba(34,197,94,.16);border-radius:999px;padding:10px 14px;font-size:.9rem;font-weight:700}
-      .question-counter{color:var(--text-muted);font-size:.95rem;font-weight:700}
-      .workspace{display:grid;grid-template-columns:1.08fr .92fr;gap:16px;align-items:start}
-      .panel{background:rgba(255,255,255,.88);border:1px solid var(--border);border-radius:22px;padding:16px;box-shadow:0 8px 24px rgba(15,23,42,.04)}
-      .mini-title{color:var(--text-muted);font-size:.86rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:flex;align-items:center;gap:8px}
-      .question-title{font-size:1.05rem;line-height:1.7;color:var(--text);margin-bottom:16px;font-weight:600}
-      .select-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
-      select{flex:1;min-width:220px;border:1px solid var(--border);border-radius:16px;padding:12px 14px;background:#fff;color:var(--text);font-weight:700;outline:none;box-shadow:var(--shadow-sm)}
-      textarea{
-        width:100%;
-        min-height:430px;
-        resize:vertical;
-        border:0;
-        outline:none;
-        border-radius:var(--radius-md);
-        padding:18px;
-        font-family:"JetBrains Mono",monospace;
-        font-size:14px;
-        line-height:1.65;
-        color:#e2e8f0;
-        background:#0f172a;
-        box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
-        tab-size:4;
-        font-variant-ligatures:none;
-        font-feature-settings:"liga" 0;
-      }
-      .output-box{min-height:430px;background:#0f172a;color:#e2e8f0;border-radius:var(--radius-md);padding:18px;font-family:"JetBrains Mono",monospace;font-size:14px;line-height:1.65;white-space:pre-wrap;overflow:auto;border:1px solid rgba(255,255,255,.06)}
-      .help-box{margin-top:12px;border-radius:18px;padding:14px;border:1px solid var(--border);background:linear-gradient(180deg,#fff,#f8fafc);color:var(--text-soft);line-height:1.6;font-size:.93rem}
-      .help-box strong{color:var(--text)}
-      .actions{margin-top:18px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
-      .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:none;cursor:pointer;transition:var(--transition);padding:14px 22px;border-radius:999px;font-weight:800;font-size:.96rem}
-      .btn-primary{background:linear-gradient(135deg,var(--primary) 0%,#34d399 100%);color:#052e16;box-shadow:0 14px 28px rgba(34,197,94,.22)}
-      .btn-secondary{background:rgba(255,255,255,.9);color:var(--text-soft);border:1px solid var(--border);box-shadow:var(--shadow-sm)}
-      .btn-danger{background:rgba(220,38,38,.08);color:var(--danger);border:1px solid rgba(220,38,38,.18)}
-      .btn-primary:hover:not(:disabled),.btn-secondary:hover:not(:disabled),.btn-danger:hover:not(:disabled){transform:translateY(-2px)}
-      .btn:disabled{opacity:.55;cursor:not-allowed;transform:none!important;box-shadow:none}
-      .feedback-area{min-height:26px;margin-top:16px;text-align:center;font-size:1rem;color:var(--text-soft);line-height:1.6}
-      .correct-text{color:#15803d;font-weight:700}.error-text{color:var(--danger);font-weight:700}.warning-text{color:var(--warning);font-weight:800}
-      .shortcut-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
-      .shortcut{background:#f8fafc;border:1px solid var(--border);border-radius:16px;padding:12px;color:var(--text-soft);font-size:.9rem;line-height:1.45}
-      .shortcut strong{display:block;color:var(--text);font-family:"JetBrains Mono",monospace;font-size:.88rem;margin-bottom:4px}
-      .confetti{position:fixed;top:-10px;width:10px;height:16px;pointer-events:none;z-index:999;animation:fall 900ms ease-out forwards;border-radius:3px}
-      @keyframes fall{to{transform:translateY(105vh) rotate(480deg);opacity:0}}
-      @media(max-width:900px){.container{width:min(var(--container),calc(100% - 20px))}.page-wrap{padding-top:14px}.workspace{grid-template-columns:1fr}.activity-card{padding:16px;border-radius:22px}textarea,.output-box{min-height:330px}.shortcut-grid{grid-template-columns:1fr}}
+      :root{--text:#0f172a;--text-soft:#475569;--text-muted:#64748b;--border:rgba(15,23,42,.08);--primary:#22c55e;--primary-active:#15803d;--danger:#dc2626;--warning:#ca8a04;--blue:#0284c7;--shadow-sm:0 8px 24px rgba(15,23,42,.05);--shadow-md:0 18px 40px rgba(15,23,42,.08);--radius-lg:28px;--radius-md:22px;--container:1120px;--transition:220ms cubic-bezier(.2,.8,.2,1)}
+      *{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{font-family:"Inter",sans-serif;color:var(--text);background:radial-gradient(circle at top left,rgba(34,197,94,.08),transparent 24%),radial-gradient(circle at 90% 20%,rgba(14,165,233,.08),transparent 20%),linear-gradient(180deg,#fcfefe 0%,#f8fafc 30%,#f4f8fb 100%);min-height:100vh;overflow-x:hidden}body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(15,23,42,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(15,23,42,.03) 1px,transparent 1px);background-size:44px 44px;mask-image:radial-gradient(circle at center,black 35%,transparent 85%);pointer-events:none;z-index:0}a{color:inherit;text-decoration:none}button,select,textarea,input{font-family:inherit}.container{width:min(var(--container),calc(100% - 36px));margin:0 auto;position:relative;z-index:1}.page-wrap{padding:20px 0 36px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px;flex-wrap:wrap}.back-link{display:inline-flex;align-items:center;gap:8px;color:var(--text-soft);font-weight:600;transition:var(--transition)}.back-link:hover{color:var(--text)}.status-chip{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.82);border:1px solid var(--border);color:var(--text-soft);box-shadow:var(--shadow-sm);font-weight:700}.status-chip.ready{color:var(--primary-active)}.status-chip.loading{color:var(--warning)}.status-chip.error{color:var(--danger)}.hero{margin-bottom:16px}.hero h1{font-family:"Space Grotesk",sans-serif;font-size:clamp(2rem,4vw,3rem);line-height:1;letter-spacing:-.05em;margin-bottom:8px}.hero p{color:var(--text-soft);font-size:1rem;line-height:1.65;max-width:850px}.progress-wrap{margin-bottom:18px;background:rgba(255,255,255,.82);border:1px solid var(--border);border-radius:20px;padding:14px 16px;box-shadow:var(--shadow-sm)}.progress-label{display:flex;justify-content:space-between;gap:12px;margin-bottom:8px;color:var(--text-muted);font-size:.9rem;flex-wrap:wrap}.progress{width:100%;height:12px;background:#e2e8f0;border-radius:999px;overflow:hidden}.progress-bar{height:100%;width:34%;background:linear-gradient(135deg,var(--primary) 0%,#34d399 100%);border-radius:inherit;transition:width var(--transition)}.activity-card{background:rgba(255,255,255,.92);border:1px solid var(--border);box-shadow:var(--shadow-md);border-radius:var(--radius-lg);padding:22px;animation:fadeUp 260ms ease both}@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.card-header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px;flex-wrap:wrap}.section-tag{display:inline-flex;align-items:center;gap:8px;background:rgba(34,197,94,.1);color:var(--primary-active);border:1px solid rgba(34,197,94,.16);border-radius:999px;padding:10px 14px;font-size:.9rem;font-weight:700}.question-counter{color:var(--text-muted);font-size:.95rem;font-weight:700}.question-title{font-size:1.05rem;line-height:1.7;color:var(--text);margin-bottom:16px;font-weight:600}.workspace{display:grid;grid-template-columns:1.08fr .92fr;gap:16px;align-items:start}.panel{background:rgba(255,255,255,.88);border:1px solid var(--border);border-radius:22px;padding:16px;box-shadow:0 8px 24px rgba(15,23,42,.04)}.mini-title{color:var(--text-muted);font-size:.86rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:flex;align-items:center;gap:8px}.select-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}select{flex:1;min-width:220px;border:1px solid var(--border);border-radius:16px;padding:12px 14px;background:#fff;color:var(--text);font-weight:700;outline:none;box-shadow:var(--shadow-sm)}.examples-library{margin:0 0 16px;background:rgba(255,255,255,.75);border:1px solid var(--border);border-radius:22px;padding:14px;box-shadow:var(--shadow-sm)}.examples-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}.examples-header strong{display:flex;align-items:center;gap:8px;color:var(--text);font-weight:800}.examples-header span{color:var(--text-muted);font-size:.9rem}.example-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.example-card{border:1px solid rgba(15,23,42,.08);background:rgba(255,255,255,.92);border-radius:18px;padding:12px;cursor:pointer;text-align:left;transition:var(--transition);box-shadow:0 6px 18px rgba(15,23,42,.04);color:var(--text-soft);font-weight:800;display:flex;align-items:center;gap:10px}.example-card i{width:32px;height:32px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:rgba(34,197,94,.1);color:var(--primary-active);flex:0 0 auto}.example-card:hover{transform:translateY(-2px);border-color:rgba(34,197,94,.28);box-shadow:0 12px 24px rgba(15,23,42,.07);color:var(--text)}.example-card.active{border-color:rgba(34,197,94,.45);background:rgba(34,197,94,.07);color:var(--primary-active)}textarea{width:100%;min-height:430px;resize:vertical;border:0;outline:none;border-radius:var(--radius-md);padding:18px;font-family:"JetBrains Mono",monospace;font-size:14px;line-height:1.65;color:#e2e8f0;background:#0f172a;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);tab-size:4;font-variant-ligatures:none;font-feature-settings:"liga" 0}.output-box{min-height:430px;background:#0f172a;color:#e2e8f0;border-radius:var(--radius-md);padding:18px;font-family:"JetBrains Mono",monospace;font-size:14px;line-height:1.65;white-space:pre-wrap;overflow:auto;border:1px solid rgba(255,255,255,.06)}.help-box{margin-top:12px;border-radius:18px;padding:14px;border:1px solid var(--border);background:linear-gradient(180deg,#fff,#f8fafc);color:var(--text-soft);line-height:1.6;font-size:.93rem}.help-box strong{color:var(--text)}.actions{margin-top:18px;display:flex;justify-content:center;gap:12px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:none;cursor:pointer;transition:var(--transition);padding:14px 22px;border-radius:999px;font-weight:800;font-size:.96rem}.btn-primary{background:linear-gradient(135deg,var(--primary) 0%,#34d399 100%);color:#052e16;box-shadow:0 14px 28px rgba(34,197,94,.22)}.btn-secondary{background:rgba(255,255,255,.9);color:var(--text-soft);border:1px solid var(--border);box-shadow:var(--shadow-sm)}.btn-primary:hover:not(:disabled),.btn-secondary:hover:not(:disabled){transform:translateY(-2px)}.btn:disabled{opacity:.55;cursor:not-allowed;transform:none!important;box-shadow:none}.save-status{display:inline-flex;align-items:center;gap:8px;color:var(--text-muted);font-size:.88rem;font-weight:700;margin-top:10px}.save-status i{color:var(--primary-active)}.feedback-area{min-height:26px;margin-top:16px;text-align:center;font-size:1rem;color:var(--text-soft);line-height:1.6}.correct-text{color:#15803d;font-weight:700}.error-text{color:var(--danger);font-weight:700}.warning-text{color:var(--warning);font-weight:800}.shortcut-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}.shortcut{background:#f8fafc;border:1px solid var(--border);border-radius:16px;padding:12px;color:var(--text-soft);font-size:.9rem;line-height:1.45}.shortcut strong{display:block;color:var(--text);font-family:"JetBrains Mono",monospace;font-size:.88rem;margin-bottom:4px}.challenge-box{margin:0 0 16px;background:rgba(255,255,255,.78);border:1px solid var(--border);border-radius:22px;padding:14px;box-shadow:var(--shadow-sm)}.challenge-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}.challenge-top strong{display:flex;align-items:center;gap:8px}.challenge-compact{display:grid;grid-template-columns:minmax(220px,.9fr) 1.1fr auto;gap:10px;align-items:center}.challenge-desc{color:var(--text-soft);font-size:.94rem;line-height:1.55}.challenge-result{margin-top:10px;padding:12px 14px;border-radius:18px;background:#f8fafc;border:1px solid var(--border);color:var(--text-soft);line-height:1.55;font-size:.94rem}.challenge-result.ok{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.2);color:var(--primary-active);font-weight:700}.challenge-result.bad{background:rgba(220,38,38,.05);border-color:rgba(220,38,38,.16);color:var(--danger);font-weight:700}
+.ai-assistant{margin-top:14px;border-radius:20px;border:1px solid rgba(34,197,94,.16);background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(248,250,252,.94));box-shadow:0 8px 24px rgba(15,23,42,.04);overflow:hidden}.ai-assistant summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;font-weight:900;color:var(--text)}.ai-assistant summary::-webkit-details-marker{display:none}.ai-summary-title{display:flex;align-items:center;gap:10px}.ai-summary-title i{width:34px;height:34px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;background:rgba(34,197,94,.1);color:var(--primary-active)}.ai-summary-hint{color:var(--text-muted);font-size:.86rem;font-weight:700}.ai-body{padding:0 16px 16px}.ai-controls{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}.ai-answer{margin-top:10px;min-height:90px;max-height:280px;overflow:auto;border-radius:18px;background:#f8fafc;border:1px solid var(--border);padding:14px;color:var(--text-soft);line-height:1.65;font-size:.94rem;white-space:pre-wrap}.ai-answer strong{color:var(--text)}.ai-note{margin-top:10px;color:var(--text-muted);font-size:.86rem;line-height:1.55}@media(max-width:900px){.ai-controls{grid-template-columns:1fr}.ai-controls .btn{width:100%}}
+.hidden{display:none!important}.confetti{position:fixed;top:-10px;width:10px;height:16px;pointer-events:none;z-index:999;animation:fall 900ms ease-out forwards;border-radius:3px}@keyframes fall{to{transform:translateY(105vh) rotate(480deg);opacity:0}}@media(max-width:900px){.container{width:min(var(--container),calc(100% - 20px))}.page-wrap{padding-top:14px}.workspace,.challenge-compact{grid-template-columns:1fr}.activity-card{padding:16px;border-radius:22px}textarea,.output-box{min-height:330px}.shortcut-grid{grid-template-columns:1fr}.example-grid{grid-template-columns:1fr 1fr}}@media(max-width:560px){.example-grid{grid-template-columns:1fr}.btn{width:100%}}
     </style>
   </head>
   <body>
@@ -139,37 +36,73 @@
 
         <article class="activity-card">
           <div class="card-header">
-            <div class="section-tag"><i class="fas fa-code"></i> Do Visualg ao Python</div>
+            <div class="section-tag"><i class="fas fa-code"></i> Programação I · Do Visualg ao Python</div>
             <div class="question-counter">Professor Cristhiano Vasconcellos</div>
           </div>
 
-          <div class="question-title">Escolha um exemplo ou escreva seu próprio código. Quando usar <strong>input()</strong>, o navegador abrirá uma janela para digitar o valor, simulando o comando <strong>leia</strong> do Visualg.</div>
+          <div class="question-title">Escolha um exemplo, resolva um desafio ou escreva seu próprio código. Quando usar <strong>input()</strong>, o navegador abrirá uma janela para digitar o valor, simulando o comando <strong>leia</strong> do Visualg.</div>
+
+          <section class="examples-library">
+            <div class="examples-header">
+              <strong><i class="fas fa-book-open"></i> Biblioteca de exemplos</strong>
+              <span>Clique em um exemplo para carregar no editor.</span>
+            </div>
+            <div id="exampleGrid" class="example-grid"></div>
+          </section>
+
+          <section class="challenge-box">
+            <div class="challenge-top">
+              <strong><i class="fas fa-bullseye"></i> Desafios rápidos</strong>
+              <span class="save-status" id="challengeScore"><i class="fas fa-star"></i> 0 de 5 concluídos</span>
+            </div>
+            <div class="challenge-compact">
+              <select id="challengeSelect" aria-label="Desafios"></select>
+              <div id="challengeDesc" class="challenge-desc"></div>
+              <button id="checkChallengeBtn" class="btn btn-secondary" type="button" disabled><i class="fas fa-check"></i> Verificar</button>
+            </div>
+            <div id="challengeResult" class="challenge-result">Escolha um desafio, escreva sua solução no editor e clique em verificar.</div>
+          </section>
 
           <section class="workspace">
             <div class="panel">
               <div class="mini-title"><i class="fas fa-keyboard"></i> Código Python</div>
               <div class="select-row">
-                <select id="examples" aria-label="Exemplos de código">
-                  <option value="intro">Exemplo 1: escreva / print</option>
-                  <option value="input">Exemplo 2: leia / input</option>
-                  <option value="ifelse">Exemplo 3: if e else</option>
-                  <option value="while">Exemplo 4: while</option>
-                  <option value="parimpar">Exemplo 5: par ou ímpar</option>
-                  <option value="livre">Código livre</option>
-                </select>
+                <select id="examples" aria-label="Exemplos de código"></select>
               </div>
               <textarea id="code" spellcheck="false"></textarea>
               <div class="actions">
                 <button id="runBtn" class="btn btn-primary" type="button" disabled><i class="fas fa-play"></i> Executar código</button>
                 <button id="resetBtn" class="btn btn-secondary" type="button"><i class="fas fa-rotate-left"></i> Restaurar exemplo</button>
                 <button id="clearOutputBtn" class="btn btn-secondary" type="button"><i class="fas fa-broom"></i> Limpar saída</button>
+                <button id="exportBtn" class="btn btn-secondary" type="button"><i class="fas fa-file-arrow-down"></i> Baixar .py</button>
               </div>
+              <div id="saveStatus" class="save-status"><i class="fas fa-floppy-disk"></i> Salvamento automático ativado neste navegador.</div>
             </div>
 
             <div class="panel">
               <div class="mini-title"><i class="fas fa-terminal"></i> Saída do programa</div>
               <div id="output" class="output-box">A saída aparecerá aqui depois que você executar o código.</div>
               <div class="help-box"><strong>Dica:</strong> cuide a indentação depois de <strong>if</strong>, <strong>else</strong> e <strong>while</strong>. Em Python, os espaços indicam quais comandos fazem parte do bloco.</div>
+              <details class="ai-assistant" id="aiAssistantBox">
+                <summary>
+                  <span class="ai-summary-title"><i class="fas fa-robot"></i> Assistente de código</span>
+                  <span class="ai-summary-hint">Dicas sem entregar a resposta pronta</span>
+                </summary>
+                <div class="ai-body">
+                  <div class="ai-controls">
+                    <select id="aiMode" aria-label="Tipo de ajuda do assistente">
+                      <option value="dica">Me dê uma dica</option>
+                      <option value="erro">Explique o erro</option>
+                      <option value="revisao">Revise meu código</option>
+                      <option value="visualg">Compare com Visualg</option>
+                    </select>
+                    <button id="aiHelpBtn" class="btn btn-secondary" type="button"><i class="fas fa-wand-magic-sparkles"></i> Pedir ajuda</button>
+                  </div>
+                  <div id="aiAnswer" class="ai-answer">Execute o código ou escreva sua tentativa e peça uma dica. O assistente foi configurado para orientar, não para resolver tudo pelo aluno.</div>
+                  <div class="ai-note"><strong>Observação:</strong> para funcionar no GitHub Pages, configure a constante <strong>ASSISTENTE_API_URL</strong> com a URL da sua Vercel Function. A chave da API fica protegida na Vercel.</div>
+                </div>
+              </details>
+
               <div class="shortcut-grid">
                 <div class="shortcut"><strong>print()</strong>Equivale ao escreva do Visualg.</div>
                 <div class="shortcut"><strong>input()</strong>Equivale ao leia do Visualg.</div>
@@ -185,170 +118,162 @@
 
     <script>
       const examples = {
-        intro: `print("Olá, mundo!")`,
-        input: `nome = input("Digite seu nome: ")\nprint("Olá", nome)`,
-        ifelse: `idade = int(input("Digite sua idade: "))\n\nif idade >= 18:\n    print("Maior")\nelse:\n    print("Menor")`,
-        while: `contador = 1\n\nwhile contador <= 5:\n    print(contador)\n    contador = contador + 1`,
-        parimpar: `numero = int(input("Digite um número: "))\n\nif numero % 2 == 0:\n    print("Par")\nelse:\n    print("Ímpar")`,
-        livre: `# Escreva seu código Python aqui\nprint("Meu primeiro programa em Python")`
+        ola:{title:'Olá Mundo',icon:'fas fa-hand-sparkles',code:'print("Olá, mundo!")'},
+        entrada_saida:{title:'Entrada e saída',icon:'fas fa-keyboard',code:'nome = input("Digite seu nome: ")\nprint("Olá", nome)'},
+        variaveis:{title:'Variáveis',icon:'fas fa-box',code:'nome = "Ana"\nidade = 15\n\nprint("Nome:", nome)\nprint("Idade:", idade)'},
+        if_simples:{title:'If simples',icon:'fas fa-code-branch',code:'idade = int(input("Digite sua idade: "))\n\nif idade >= 18:\n    print("Você é maior de idade")\n\nprint("Fim do programa")'},
+        if_else:{title:'If e else',icon:'fas fa-road',code:'idade = int(input("Digite sua idade: "))\n\nif idade >= 18:\n    print("Maior")\nelse:\n    print("Menor")'},
+        par_impar:{title:'Par ou ímpar',icon:'fas fa-divide',code:'numero = int(input("Digite um número: "))\n\nif numero % 2 == 0:\n    print("Par")\nelse:\n    print("Ímpar")'},
+        while_basico:{title:'While básico',icon:'fas fa-repeat',code:'contador = 1\n\nwhile contador <= 5:\n    print(contador)\n    contador = contador + 1'},
+        contador:{title:'Contador',icon:'fas fa-list-ol',code:'contador = 1\n\nwhile contador <= 10:\n    print("Repetição", contador)\n    contador = contador + 1\n\nprint("Fim")'},
+        acumulador:{title:'Acumulador',icon:'fas fa-calculator',code:'contador = 1\nsoma = 0\n\nwhile contador <= 5:\n    numero = int(input("Digite um número: "))\n    soma = soma + numero\n    contador = contador + 1\n\nprint("Soma:", soma)'},
+        media_notas:{title:'Média de notas',icon:'fas fa-graduation-cap',code:'nota1 = float(input("Digite a primeira nota: "))\nnota2 = float(input("Digite a segunda nota: "))\n\nmedia = (nota1 + nota2) / 2\n\nprint("Média:", media)\n\nif media >= 6:\n    print("Aprovado")\nelse:\n    print("Reprovado")'},
+        aleatorio:{title:'Número aleatório',icon:'fas fa-dice',code:'import random\n\nnumero = random.randint(1, 100)\n\nprint("Número sorteado:", numero)'},
+        sorteios:{title:'Sorteio com while',icon:'fas fa-wand-magic-sparkles',code:'import random\n\ncontador = 1\nsoma = 0\n\nwhile contador <= 10:\n    numero = random.randint(1, 100)\n    print("Número sorteado:", numero)\n    soma = soma + numero\n\n    if numero % 2 == 0:\n        print("Par")\n    else:\n        print("Ímpar")\n\n    contador = contador + 1\n\nprint("Fim dos sorteios")\nprint("Soma dos números:", soma)\nprint("Média:", soma / 10)'},
+        livre:{title:'Código livre',icon:'fas fa-pen-to-square',code:'# Escreva seu código Python aqui\nprint("Meu primeiro programa em Python")'}
       };
 
-      const codeEl = document.getElementById('code');
-      const outputEl = document.getElementById('output');
-      const runBtn = document.getElementById('runBtn');
-      const clearOutputBtn = document.getElementById('clearOutputBtn');
-      const resetBtn = document.getElementById('resetBtn');
-      const examplesEl = document.getElementById('examples');
-      const statusEl = document.getElementById('status');
-      const feedbackEl = document.getElementById('feedback');
-      const progressText = document.getElementById('progressText');
-      const bar = document.getElementById('bar');
+      const challenges = [
+        {id:'ola',title:'Desafio 1 · Olá Mundo',desc:'Faça um programa que mostre a mensagem Olá Mundo.',starter:'# Desafio 1
+# Mostre a mensagem: Olá Mundo
+',tests:[{inputs:[],expect:['olá mundo'],label:'A saída deve conter Olá Mundo.'}]},
+        {id:'nome',title:'Desafio 2 · Nome',desc:'Leia um nome e mostre esse nome na tela.',starter:'# Desafio 2
+# Leia um nome e mostre esse nome na tela
+',tests:[{inputs:['Ana'],expect:['ana'],label:'Quando o nome for Ana, a saída deve mostrar Ana.'}]},
+        {id:'idade',title:'Desafio 3 · Maior ou menor',desc:'Leia uma idade. Mostre Maior para 18 ou mais e Menor caso contrário.',starter:'# Desafio 3
+# Leia uma idade e informe Maior ou Menor
+',tests:[{inputs:['18'],expect:['maior'],label:'Com idade 18, deve mostrar Maior.'},{inputs:['15'],expect:['menor'],label:'Com idade 15, deve mostrar Menor.'}]},
+        {id:'par',title:'Desafio 4 · Par ou ímpar',desc:'Leia um número. Mostre Par quando o número for par e Ímpar quando for ímpar.',starter:'# Desafio 4
+# Leia um número e informe se ele é Par ou Ímpar
+',tests:[{inputs:['8'],expect:['par'],label:'Com número 8, deve mostrar Par.'},{inputs:['7'],expect:['ímpar'],label:'Com número 7, deve mostrar Ímpar.'}]},
+        {id:'while5',title:'Desafio 5 · While de 1 até 5',desc:'Mostre os números de 1 até 5 usando while.',starter:'# Desafio 5
+# Mostre os números de 1 até 5 usando while
+',tests:[{inputs:[],expect:['1','2','3','4','5'],label:'A saída deve mostrar 1, 2, 3, 4 e 5.'}]},
+        {id:'positivo_negativo',title:'Desafio 6 · Positivo ou negativo',desc:'Leia um número. Mostre Positivo para números maiores ou iguais a zero e Negativo para menores que zero.',starter:'# Desafio 6
+# Leia um número e informe se ele é Positivo ou Negativo
+',tests:[{inputs:['5'],expect:['positivo'],label:'Com número 5, deve mostrar Positivo.'},{inputs:['-2'],expect:['negativo'],label:'Com número -2, deve mostrar Negativo.'},{inputs:['0'],expect:['positivo'],label:'Com número 0, deve mostrar Positivo.'}]},
+        {id:'maior_dois',title:'Desafio 7 · Maior de dois números',desc:'Leia dois números e mostre qual deles é o maior.',starter:'# Desafio 7
+# Leia dois números e mostre o maior
+',tests:[{inputs:['8','3'],expect:['8'],label:'Com 8 e 3, deve mostrar 8.'},{inputs:['4','9'],expect:['9'],label:'Com 4 e 9, deve mostrar 9.'}]},
+        {id:'media_duas_notas',title:'Desafio 8 · Média de duas notas',desc:'Leia duas notas, calcule a média e mostre Aprovado para média maior ou igual a 6. Caso contrário, mostre Reprovado.',starter:'# Desafio 8
+# Leia duas notas, calcule a média e informe Aprovado ou Reprovado
+',tests:[{inputs:['7','5'],expect:['aprovado'],label:'Com notas 7 e 5, a média é 6 e deve mostrar Aprovado.'},{inputs:['4','5'],expect:['reprovado'],label:'Com notas 4 e 5, deve mostrar Reprovado.'}]},
+        {id:'contador10',title:'Desafio 9 · While de 1 até 10',desc:'Mostre os números de 1 até 10 usando while.',starter:'# Desafio 9
+# Mostre os números de 1 até 10 usando while
+',tests:[{inputs:[],expect:['1','2','3','4','5','6','7','8','9','10'],label:'A saída deve conter os números de 1 até 10.'}]},
+        {id:'soma_1_5',title:'Desafio 10 · Soma de 1 até 5',desc:'Use while para somar os números de 1 até 5 e mostre o resultado final.',starter:'# Desafio 10
+# Some os números de 1 até 5 usando while
+',tests:[{inputs:[],expect:['15'],label:'A soma de 1 até 5 deve ser 15.'}]},
+        {id:'tabuada',title:'Desafio 11 · Tabuada',desc:'Leia um número e mostre a tabuada dele de 1 até 5.',starter:'# Desafio 11
+# Leia um número e mostre a tabuada de 1 até 5
+',tests:[{inputs:['3'],expect:['3','6','9','12','15'],label:'Com número 3, deve aparecer 3, 6, 9, 12 e 15.'}]},
+        {id:'contador_pares',title:'Desafio 12 · Pares de 1 até 10',desc:'Mostre apenas os números pares de 1 até 10 usando while.',starter:'# Desafio 12
+# Mostre os pares de 1 até 10 usando while
+',tests:[{inputs:[],expect:['2','4','6','8','10'],label:'A saída deve conter 2, 4, 6, 8 e 10.'}]},
+        {id:'soma_tres',title:'Desafio 13 · Soma de três números',desc:'Leia três números e mostre a soma deles.',starter:'# Desafio 13
+# Leia três números e mostre a soma
+',tests:[{inputs:['2','3','4'],expect:['9'],label:'Com 2, 3 e 4, a soma deve ser 9.'},{inputs:['10','5','1'],expect:['16'],label:'Com 10, 5 e 1, a soma deve ser 16.'}]},
+        {id:'senha',title:'Desafio 14 · Senha simples',desc:'Leia uma senha. Se for 1234, mostre Acesso permitido. Caso contrário, mostre Acesso negado.',starter:'# Desafio 14
+# Leia uma senha e verifique se ela é 1234
+',tests:[{inputs:['1234'],expect:['permitido'],label:'Com senha 1234, deve mostrar Acesso permitido.'},{inputs:['1111'],expect:['negado'],label:'Com senha 1111, deve mostrar Acesso negado.'}]},
+        {id:'maior_menor_media',title:'Desafio 15 · Média com situação',desc:'Leia uma nota. Mostre Excelente para nota maior ou igual a 9, Aprovado para nota maior ou igual a 6 e Reprovado para o restante.',starter:'# Desafio 15
+# Leia uma nota e mostre Excelente, Aprovado ou Reprovado
+',tests:[{inputs:['9'],expect:['excelente'],label:'Com nota 9, deve mostrar Excelente.'},{inputs:['7'],expect:['aprovado'],label:'Com nota 7, deve mostrar Aprovado.'},{inputs:['4'],expect:['reprovado'],label:'Com nota 4, deve mostrar Reprovado.'}]},
+        {id:'contagem_regressiva',title:'Desafio 16 · Contagem regressiva',desc:'Mostre os números de 5 até 1 usando while.',starter:'# Desafio 16
+# Mostre os números de 5 até 1 usando while
+',tests:[{inputs:[],expect:['5','4','3','2','1'],label:'A saída deve conter 5, 4, 3, 2 e 1.'}]},
+        {id:'acumulador_3_numeros',title:'Desafio 17 · Acumulador',desc:'Leia três números usando while e mostre a soma final.',starter:'# Desafio 17
+# Leia três números usando while e mostre a soma final
+',tests:[{inputs:['1','2','3'],expect:['6'],label:'Com 1, 2 e 3, a soma deve ser 6.'},{inputs:['5','5','5'],expect:['15'],label:'Com 5, 5 e 5, a soma deve ser 15.'}]},
+        {id:'media_3_numeros',title:'Desafio 18 · Média de três números',desc:'Leia três números e mostre a média.',starter:'# Desafio 18
+# Leia três números e mostre a média
+',tests:[{inputs:['6','6','6'],expect:['6'],label:'Com 6, 6 e 6, a média deve ser 6.'},{inputs:['3','6','9'],expect:['6'],label:'Com 3, 6 e 9, a média deve ser 6.'}]},
+        {id:'multiplo_5',title:'Desafio 19 · Múltiplo de 5',desc:'Leia um número e informe se ele é múltiplo de 5.',starter:'# Desafio 19
+# Leia um número e informe se ele é múltiplo de 5
+',tests:[{inputs:['10'],expect:['múltiplo'],label:'Com número 10, deve informar que é múltiplo de 5.'},{inputs:['12'],expect:['não'],label:'Com número 12, deve informar que não é múltiplo de 5.'}]},
+        {id:'aleatorio',title:'Desafio 20 · Número aleatório',desc:'Sorteie um número entre 1 e 10 e mostre o número sorteado.',starter:'# Desafio 20
+# Sorteie um número entre 1 e 10 e mostre o número sorteado
+# Dica: use import random e random.randint(1, 10)
+',tests:[{inputs:[],expect:['número'],label:'A saída deve indicar o número sorteado. Exemplo: Número sorteado: 7.'}]}
+      ];
 
-      let pyodide = null;
+      const codeEl=document.getElementById('code'),outputEl=document.getElementById('output'),runBtn=document.getElementById('runBtn'),clearOutputBtn=document.getElementById('clearOutputBtn'),exportBtn=document.getElementById('exportBtn'),saveStatusEl=document.getElementById('saveStatus'),resetBtn=document.getElementById('resetBtn'),examplesEl=document.getElementById('examples'),exampleGridEl=document.getElementById('exampleGrid'),statusEl=document.getElementById('status'),feedbackEl=document.getElementById('feedback'),progressText=document.getElementById('progressText'),bar=document.getElementById('bar'),challengeSelect=document.getElementById('challengeSelect'),challengeDesc=document.getElementById('challengeDesc'),checkChallengeBtn=document.getElementById('checkChallengeBtn'),challengeResult=document.getElementById('challengeResult'),challengeScore=document.getElementById('challengeScore'),aiMode=document.getElementById('aiMode'),aiHelpBtn=document.getElementById('aiHelpBtn'),aiAnswer=document.getElementById('aiAnswer');
+      let pyodide=null,saveTimer=null,currentChallengeId=challenges[0].id,lastOutput='',lastError='';
+      const STORAGE_CODE_KEY='programacao1_interpretador_python_codigo_v3',STORAGE_EXAMPLE_KEY='programacao1_interpretador_python_exemplo_v3',STORAGE_DONE_KEY='programacao1_interpretador_python_desafios_v3';
+      const ASSISTENTE_API_URL='const ASSISTENTE_API_URL = "https://project-4pi04-av6dz7eke-cristhiano-s-projects.vercel.app/api/assistente-python";';
 
-      function setStatus(text, type, icon){
-        const icons = {
-          ready:'<i class="fas fa-check-circle"></i>',
-          loading:'<i class="fas fa-circle-notch fa-spin"></i>',
-          error:'<i class="fas fa-triangle-exclamation"></i>'
-        };
-        statusEl.innerHTML = `${icon || icons[type] || ''} ${text}`;
-        statusEl.className = 'status-chip ' + type;
-      }
+      function setStatus(text,type){const icons={ready:'<i class="fas fa-check-circle"></i>',loading:'<i class="fas fa-circle-notch fa-spin"></i>',error:'<i class="fas fa-triangle-exclamation"></i>'};statusEl.innerHTML=`${icons[type]||''} ${text}`;statusEl.className='status-chip '+type}
+      function setProgress(text,width){progressText.textContent=text;bar.style.width=width}
+      function updateSaveStatus(text){saveStatusEl.innerHTML='<i class="fas fa-floppy-disk"></i> '+text}
+      function normalize(text){return String(text).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim()}
+      function escapeHTML(text){return String(text).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}
+      function getDone(){try{return JSON.parse(localStorage.getItem(STORAGE_DONE_KEY)||'[]')}catch(e){return[]}}
+      function setDone(id){const done=new Set(getDone());done.add(id);localStorage.setItem(STORAGE_DONE_KEY,JSON.stringify([...done]));updateChallengeScore()}
+      function updateChallengeScore(){const done=getDone();challengeScore.innerHTML=`<i class="fas fa-star"></i> ${done.length} de ${challenges.length} concluídos`}
 
-      function setProgress(text, width){
-        progressText.textContent = text;
-        bar.style.width = width;
-      }
+      function populateExamples(){examplesEl.innerHTML='';exampleGridEl.innerHTML='';Object.entries(examples).forEach(([key,item])=>{const option=document.createElement('option');option.value=key;option.textContent=item.title;examplesEl.appendChild(option);const button=document.createElement('button');button.type='button';button.className='example-card';button.dataset.example=key;button.innerHTML=`<i class="${item.icon}"></i><span>${item.title}</span>`;button.addEventListener('click',()=>loadExample(key,true));exampleGridEl.appendChild(button)})}
+      function populateChallenges(){challengeSelect.innerHTML='';challenges.forEach(ch=>{const option=document.createElement('option');option.value=ch.id;option.textContent=ch.title;challengeSelect.appendChild(option)});updateChallengePanel();updateChallengeScore()}
+      function currentChallenge(){return challenges.find(ch=>ch.id===currentChallengeId)||challenges[0]}
+      function updateChallengePanel(){const ch=currentChallenge();challengeSelect.value=ch.id;challengeDesc.textContent=ch.desc;challengeResult.className='challenge-result';challengeResult.textContent='Escreva sua solução no editor e clique em verificar.'}
+      function markActiveExample(key){document.querySelectorAll('.example-card').forEach(btn=>btn.classList.toggle('active',btn.dataset.example===key))}
+      function saveCodeLocal(){try{localStorage.setItem(STORAGE_CODE_KEY,codeEl.value);localStorage.setItem(STORAGE_EXAMPLE_KEY,examplesEl.value);updateSaveStatus('Código salvo automaticamente neste navegador.')}catch(error){updateSaveStatus('Não foi possível salvar automaticamente neste navegador.')}}
+      function scheduleAutoSave(){updateSaveStatus('Salvando...');clearTimeout(saveTimer);saveTimer=setTimeout(saveCodeLocal,450)}
+      function loadExample(key,showMessage){const selected=examples[key]?key:'ola';examplesEl.value=selected;codeEl.value=examples[selected].code;markActiveExample(selected);saveCodeLocal();if(showMessage){feedbackEl.innerHTML='<span class="correct-text">Exemplo carregado.</span> Agora clique em <strong>Executar código</strong> para testar.'}}
+      function loadChallengeStarter(){const ch=currentChallenge();codeEl.value=ch.starter;examplesEl.value='livre';markActiveExample('');saveCodeLocal();challengeResult.className='challenge-result';challengeResult.textContent='Modelo do desafio carregado. Complete o código e clique em verificar.';feedbackEl.innerHTML='<span class="correct-text">Desafio carregado.</span> Complete o código no editor.'}
+      function loadSavedCode(){try{const savedCode=localStorage.getItem(STORAGE_CODE_KEY);const savedExample=localStorage.getItem(STORAGE_EXAMPLE_KEY)||'ola';if(savedCode!==null&&savedCode.trim()!==''){codeEl.value=savedCode;examplesEl.value=examples[savedExample]?savedExample:'livre';markActiveExample(examplesEl.value);updateSaveStatus('Código recuperado do salvamento automático.');return true}}catch(error){updateSaveStatus('Não foi possível recuperar o código salvo.')}return false}
+      function exportPythonFile(){const filename=prompt('Nome do arquivo:','meu_programa.py');if(filename===null)return;let safeName=filename.trim()||'meu_programa.py';if(!safeName.toLowerCase().endsWith('.py'))safeName+='.py';safeName=safeName.replace(/[\\/:*?"<>|]/g,'_');const blob=new Blob([codeEl.value],{type:'text/x-python;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=safeName;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);feedbackEl.innerHTML='<span class="correct-text">Arquivo baixado.</span> O código foi salvo como <strong>'+safeName+'</strong>.'}
+      function clearOutput(){outputEl.textContent='A saída aparecerá aqui depois que você executar o código.';feedbackEl.textContent='Saída limpa. O código continua salvo no navegador.'}
+      function showConfetti(){const colors=['#22c55e','#34d399','#0ea5e9','#facc15','#fb7185'];for(let i=0;i<24;i++){const piece=document.createElement('div');piece.className='confetti';piece.style.left=Math.random()*100+'vw';piece.style.background=colors[Math.floor(Math.random()*colors.length)];piece.style.animationDelay=Math.random()*180+'ms';piece.style.transform='rotate('+(Math.random()*180)+'deg)';document.body.appendChild(piece);setTimeout(()=>piece.remove(),1200)}}
 
-      function setExample(key){
-        codeEl.value = examples[key] || examples.intro;
-      }
+      async function executePython(code,inputs=[]){const printed=[];let inputIndex=0;pyodide.setStdout({batched:text=>printed.push(text)});pyodide.setStderr({batched:text=>printed.push(text)});pyodide.setStdin({stdin:()=>inputs[inputIndex++]??''});pyodide.globals.set('input',message=>inputs.length?String(inputs[inputIndex++]??''):String(prompt(String(message||'Digite o valor solicitado pelo programa:'))??''));await pyodide.runPythonAsync(code);return printed.join('\n').trim()}
 
-      function clearOutput(){
-        outputEl.textContent = '';
-      }
+      async function runCode(){if(!pyodide){feedbackEl.innerHTML='<span class="warning-text">Aguarde.</span> O Python ainda está carregando.';return}const code=codeEl.value;if(!code.trim()){feedbackEl.innerHTML='<span class="warning-text">Digite algum código</span> antes de executar.';return}runBtn.disabled=true;outputEl.textContent='Executando...';feedbackEl.textContent='Executando o programa...';setStatus('Executando...', 'loading');setProgress('Executando código...', '72%');try{const output=await executePython(code,[]);lastOutput=output||'(programa executado sem saída)';lastError='';outputEl.textContent=lastOutput;feedbackEl.innerHTML='<span class="correct-text">Programa executado com sucesso.</span>';setStatus('Python pronto','ready');setProgress('Código executado','100%');showConfetti()}catch(error){lastError=String(error);lastOutput=lastError;outputEl.textContent=lastError;feedbackEl.innerHTML='<span class="error-text">O programa apresentou erro.</span> Leia a mensagem acima e revise o código.';setStatus('Erro no código','error');setProgress('Erro na execução','65%')}finally{saveCodeLocal();runBtn.disabled=false}}
 
-      function appendOutput(text){
-        if(outputEl.textContent === 'A saída aparecerá aqui depois que você executar o código.'){
-          outputEl.textContent = '';
+      async function checkChallenge(){if(!pyodide){return}const ch=currentChallenge();if(!codeEl.value.trim()){challengeResult.className='challenge-result bad';challengeResult.textContent='Digite sua solução antes de verificar.';return}checkChallengeBtn.disabled=true;checkChallengeBtn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> Verificando...';let details=[];let ok=true;try{for(const test of ch.tests){const output=await executePython(codeEl.value,test.inputs);const outNorm=normalize(output);const passed=test.expect.every(exp=>outNorm.includes(normalize(exp)));if(!passed)ok=false;details.push((passed?'✔ ':'✖ ')+test.label+(passed?'':' Saída obtida: '+(output||'(sem saída)')))}}catch(error){ok=false;details.push('✖ O código apresentou erro: '+String(error).split('\n')[0])}if(ok){setDone(ch.id);challengeResult.className='challenge-result ok';challengeResult.innerHTML='✔ Desafio concluído!<br>'+details.map(escapeHTML).join('<br>');feedbackEl.innerHTML='<span class="correct-text">Muito bem!</span> O desafio foi validado com testes automáticos.';showConfetti()}else{challengeResult.className='challenge-result bad';challengeResult.innerHTML='Ainda não passou em todos os testes.<br>'+details.map(escapeHTML).join('<br>');feedbackEl.innerHTML='<span class="warning-text">Revise o código.</span> Use a saída e os testes como pista, sem apagar sua tentativa.'}checkChallengeBtn.disabled=false;checkChallengeBtn.innerHTML='<i class="fas fa-check"></i> Verificar'}
+
+
+      async function requestAIHelp(){
+        const codigo=codeEl.value.trim();
+        if(!codigo){
+          aiAnswer.textContent='Escreva ou carregue algum código antes de pedir ajuda.';
+          return;
         }
-        outputEl.textContent += text;
-      }
-
-      function showConfetti(){
-        const colors = ['#22c55e', '#16a34a', '#3b82f6', '#f59e0b', '#ef4444'];
-        for(let i = 0; i < 36; i++){
-          const piece = document.createElement('div');
-          piece.className = 'confetti';
-          piece.style.left = Math.random() * 100 + 'vw';
-          piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-          piece.style.animationDelay = Math.random() * 260 + 'ms';
-          document.body.appendChild(piece);
-          setTimeout(() => piece.remove(), 1300);
-        }
-      }
-
-      function playSuccessSound(){
+        aiHelpBtn.disabled=true;
+        aiHelpBtn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> Analisando...';
+        aiAnswer.textContent='O assistente está analisando seu código...';
         try{
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          const ctx = new AudioContext();
-          const notes = [523.25, 659.25, 783.99];
-          notes.forEach((freq, index) => {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.frequency.value = freq;
-            osc.type = 'sine';
-            gain.gain.setValueAtTime(0.0001, ctx.currentTime + index * 0.09);
-            gain.gain.exponentialRampToValueAtTime(0.11, ctx.currentTime + index * 0.09 + 0.02);
-            gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + index * 0.09 + 0.16);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(ctx.currentTime + index * 0.09);
-            osc.stop(ctx.currentTime + index * 0.09 + 0.18);
-          });
-        }catch(e){ }
-      }
-
-      async function initPyodide(){
-        try{
-          setStatus('Carregando Python...', 'loading');
-          setProgress('Carregando o ambiente Python...', '45%');
-          pyodide = await loadPyodide();
-
-          pyodide.setStdout({ batched: (text) => appendOutput(text + '\n') });
-          pyodide.setStderr({ batched: (text) => appendOutput(text + '\n') });
-
-          pyodide.globals.set('input', (message = '') => {
-            const value = prompt(String(message));
-            return value === null ? '' : value;
-          });
-
-          runBtn.disabled = false;
-          setStatus('Python pronto', 'ready');
-          setProgress('Interpretador pronto para uso', '100%');
-          feedbackEl.innerHTML = '<span class="correct-text">Python carregado.</span> Agora você já pode executar os exemplos ou escrever seu próprio programa.';
-        }catch(error){
-          setStatus('Erro ao carregar', 'error');
-          setProgress('Falha ao carregar o interpretador', '100%');
-          feedbackEl.innerHTML = '<span class="error-text">Não foi possível carregar o Python.</span> Verifique a conexão com a internet e tente novamente.';
-          outputEl.textContent = 'Não foi possível carregar o Python. Verifique a conexão com a internet e tente novamente.\n\nDetalhes: ' + error.message;
-        }
-      }
-
-      async function runCode(){
-        if(!pyodide){ return; }
-        clearOutput();
-        runBtn.disabled = true;
-        runBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Executando...';
-        setStatus('Executando...', 'loading');
-        setProgress('Executando o programa...', '72%');
-        feedbackEl.innerHTML = 'Executando o código. Observe a saída do programa.';
-
-        try{
-          await pyodide.runPythonAsync(codeEl.value);
-          if(outputEl.textContent.trim() === ''){
-            outputEl.textContent = 'Programa executado sem exibir mensagens.';
+          if(!ASSISTENTE_API_URL||ASSISTENTE_API_URL.includes('SEU-PROJETO')){
+            throw new Error('Configure a constante ASSISTENTE_API_URL com a URL da sua Vercel Function.');
           }
-          showConfetti();
-          playSuccessSound();
-          setStatus('Python pronto', 'ready');
-          setProgress('Programa executado com sucesso', '100%');
-          feedbackEl.innerHTML = '<span class="correct-text">✔ Código executado com sucesso!</span>';
+          const response=await fetch(ASSISTENTE_API_URL,{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({
+              modo:aiMode.value,
+              codigo:codigo,
+              saida:lastOutput||outputEl.textContent||'',
+              erro:lastError||'',
+              desafio:challengeDesc?challengeDesc.textContent:''
+            })
+          });
+          const data=await response.json().catch(()=>null);
+          if(!response.ok||!data||!data.ok){
+            throw new Error((data&&data.erro)?data.erro:'Não foi possível obter resposta do assistente.');
+          }
+          aiAnswer.textContent=data.resposta;
         }catch(error){
-          outputEl.textContent = 'Erro no programa:\n\n' + error.message;
-          setStatus('Erro no código', 'error');
-          setProgress('Erro encontrado no programa', '100%');
-          feedbackEl.innerHTML = '<span class="error-text">✖ O programa apresentou erro.</span> Leia a mensagem na saída e revise o código.';
+          aiAnswer.textContent='Não consegui chamar o assistente agora. Confira se a URL da Vercel Function está correta e se a variável GEMINI_API_KEY foi configurada na Vercel. Detalhe: '+String(error.message||error);
         }finally{
-          runBtn.disabled = false;
-          runBtn.innerHTML = '<i class="fas fa-play"></i> Executar código';
+          aiHelpBtn.disabled=false;
+          aiHelpBtn.innerHTML='<i class="fas fa-wand-magic-sparkles"></i> Pedir ajuda';
         }
       }
 
-      codeEl.addEventListener('keydown', (event) => {
-        if(event.key === 'Tab'){
-          event.preventDefault();
-          const start = codeEl.selectionStart;
-          const end = codeEl.selectionEnd;
-          codeEl.value = codeEl.value.substring(0, start) + '    ' + codeEl.value.substring(end);
-          codeEl.selectionStart = codeEl.selectionEnd = start + 4;
-        }
-      });
+      async function initPyodide(){try{setStatus('Carregando Python...','loading');setProgress('Carregando ambiente Python...','45%');pyodide=await loadPyodide();setStatus('Python pronto','ready');setProgress('Interpretador pronto','100%');runBtn.disabled=false;checkChallengeBtn.disabled=false;feedbackEl.innerHTML='<span class="correct-text">Python carregado.</span> Agora você já pode executar exemplos, escrever código ou resolver desafios.'}catch(error){setStatus('Erro ao carregar Python','error');setProgress('Falha ao carregar','30%');feedbackEl.innerHTML='<span class="error-text">Não foi possível carregar o interpretador.</span> Verifique a conexão com a internet e recarregue a página.';outputEl.textContent=String(error)}}
 
-      examplesEl.addEventListener('change', () => {
-        setExample(examplesEl.value);
-        feedbackEl.innerHTML = 'Exemplo carregado. Clique em <strong>Executar código</strong> para testar.';
-      });
-      resetBtn.addEventListener('click', () => setExample(examplesEl.value));
-      clearOutputBtn.addEventListener('click', () => {
-        outputEl.textContent = 'A saída aparecerá aqui depois que você executar o código.';
-        feedbackEl.innerHTML = 'Saída limpa. Você pode executar o código novamente.';
-      });
-      runBtn.addEventListener('click', runCode);
-
-      setExample('intro');
-      initPyodide();
+      codeEl.addEventListener('keydown',event=>{if(event.key==='Tab'){event.preventDefault();const start=codeEl.selectionStart,end=codeEl.selectionEnd;codeEl.value=codeEl.value.substring(0,start)+'    '+codeEl.value.substring(end);codeEl.selectionStart=codeEl.selectionEnd=start+4;scheduleAutoSave()}});
+      codeEl.addEventListener('input',scheduleAutoSave);runBtn.addEventListener('click',runCode);clearOutputBtn.addEventListener('click',clearOutput);exportBtn.addEventListener('click',exportPythonFile);resetBtn.addEventListener('click',()=>loadExample(examplesEl.value,true));examplesEl.addEventListener('change',()=>loadExample(examplesEl.value,true));challengeSelect.addEventListener('change',()=>{currentChallengeId=challengeSelect.value;updateChallengePanel();loadChallengeStarter()});checkChallengeBtn.addEventListener('click',checkChallenge);aiHelpBtn.addEventListener('click',requestAIHelp);
+      populateExamples();populateChallenges();if(!loadSavedCode()){loadExample('ola',false)}initPyodide();
     </script>
   </body>
 </html>
