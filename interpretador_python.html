@@ -679,7 +679,14 @@
 ];
 
       const codeEl=document.getElementById('code'),outputEl=document.getElementById('output'),runBtn=document.getElementById('runBtn'),clearOutputBtn=document.getElementById('clearOutputBtn'),exportBtn=document.getElementById('exportBtn'),saveStatusEl=document.getElementById('saveStatus'),resetBtn=document.getElementById('resetBtn'),examplesEl=document.getElementById('examples'),exampleGridEl=document.getElementById('exampleGrid'),statusEl=document.getElementById('status'),feedbackEl=document.getElementById('feedback'),progressText=document.getElementById('progressText'),bar=document.getElementById('bar'),challengeSelect=document.getElementById('challengeSelect'),challengeDesc=document.getElementById('challengeDesc'),checkChallengeBtn=document.getElementById('checkChallengeBtn'),challengeResult=document.getElementById('challengeResult'),challengeScore=document.getElementById('challengeScore'),aiMode=document.getElementById('aiMode'),aiHelpBtn=document.getElementById('aiHelpBtn'),aiAnswer=document.getElementById('aiAnswer');
-      let pyodide=null,saveTimer=null,currentChallengeId=challenges[0].id,lastOutput='',lastError='';
+      let pyodide=null,
+    saveTimer=null,
+    currentChallengeId=challenges[0].id,
+    lastOutput='',
+    lastError='',
+    ultimaConsultaIA=0;
+
+const COOLDOWN_IA = 30000;
       const STORAGE_CODE_KEY='programacao1_interpretador_python_codigo_v3',STORAGE_EXAMPLE_KEY='programacao1_interpretador_python_exemplo_v3',STORAGE_DONE_KEY='programacao1_interpretador_python_desafios_v3';
       const ASSISTENTE_API_URL = "https://project-4pi04.vercel.app/api/assistente-python";
 
@@ -731,6 +738,14 @@
 
       async function requestAIHelp(){
         const codigo=codeEl.value.trim();
+        const agora = Date.now();
+const restante = COOLDOWN_IA - (agora - ultimaConsultaIA);
+
+if (restante > 0) {
+  aiAnswer.textContent =
+    `Aguarde ${Math.ceil(restante / 1000)} segundos antes de solicitar nova ajuda.`;
+  return;
+}
         if(!codigo){
           aiAnswer.textContent='Escreva ou carregue algum código antes de pedir ajuda.';
           return;
@@ -742,7 +757,7 @@
           if(!ASSISTENTE_API_URL||ASSISTENTE_API_URL.includes('SEU-PROJETO')){
             throw new Error('Configure a constante ASSISTENTE_API_URL com a URL da sua Vercel Function.');
           }
-          const response=await fetch(ASSISTENTE_API_URL,{
+          ultimaConsultaIA = Date.now();const response=await fetch(ASSISTENTE_API_URL,{
             method:'POST',
             headers:{'Content-Type':'application/json'},
             body:JSON.stringify({
