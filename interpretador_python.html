@@ -675,7 +675,7 @@
       const codeEl=document.getElementById('code'),outputEl=document.getElementById('output'),runBtn=document.getElementById('runBtn'),clearOutputBtn=document.getElementById('clearOutputBtn'),exportBtn=document.getElementById('exportBtn'),saveStatusEl=document.getElementById('saveStatus'),resetBtn=document.getElementById('resetBtn'),examplesEl=document.getElementById('examples'),exampleGridEl=document.getElementById('exampleGrid'),statusEl=document.getElementById('status'),feedbackEl=document.getElementById('feedback'),progressText=document.getElementById('progressText'),bar=document.getElementById('bar'),challengeSelect=document.getElementById('challengeSelect'),challengeDesc=document.getElementById('challengeDesc'),checkChallengeBtn=document.getElementById('checkChallengeBtn'),challengeResult=document.getElementById('challengeResult'),challengeScore=document.getElementById('challengeScore'),aiMode=document.getElementById('aiMode'),aiHelpBtn=document.getElementById('aiHelpBtn'),aiAnswer=document.getElementById('aiAnswer');
       let pyodide=null,saveTimer=null,currentChallengeId=challenges[0].id,lastOutput='',lastError='';
       const STORAGE_CODE_KEY='programacao1_interpretador_python_codigo_v3',STORAGE_EXAMPLE_KEY='programacao1_interpretador_python_exemplo_v3',STORAGE_DONE_KEY='programacao1_interpretador_python_desafios_v3';
-      const ASSISTENTE_API_URL = "https://project-4pi04-o8hqbb22v-cristhiano-s-projects.vercel.app/api/assistente-python";
+      const ASSISTENTE_API_URL='https://project-4pi04-o8hqbb22v-cristhiano-s-projects.vercel.app/api/assistente-python';
 
       function setStatus(text,type){const icons={ready:'<i class="fas fa-check-circle"></i>',loading:'<i class="fas fa-circle-notch fa-spin"></i>',error:'<i class="fas fa-triangle-exclamation"></i>'};statusEl.innerHTML=`${icons[type]||''} ${text}`;statusEl.className='status-chip '+type}
       function setProgress(text,width){progressText.textContent=text;bar.style.width=width}
@@ -722,7 +722,6 @@
           }
           const response=await fetch(ASSISTENTE_API_URL,{
             method:'POST',
-            headers:{'Content-Type':'application/json'},
             body:JSON.stringify({
               modo:aiMode.value,
               codigo:codigo,
