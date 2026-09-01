@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Objeto educacional gamificado para aprender vetores no Visualg." />
+  <title>Missão Vetores: Central de Dados | Prof. Cristhiano Vasconcellos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    :root {
+      --text:#0f172a; --text-soft:#475569; --text-muted:#64748b;
+      --border:rgba(15,23,42,.09); --primary:#22c55e; --primary-dark:#15803d;
+      --danger:#dc2626; --warning:#ca8a04; --blue:#0284c7;
+      --shadow-sm:0 8px 24px rgba(15,23,42,.05);
+      --shadow-md:0 18px 40px rgba(15,23,42,.08);
+      --radius-lg:28px; --radius-md:20px; --container:1120px;
+      --transition:220ms cubic-bezier(.2,.8,.2,1);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{
+      min-height:100vh;overflow-x:hidden;font-family:"Inter",sans-serif;color:var(--text);
+      background:
+        radial-gradient(circle at top left,rgba(34,197,94,.08),transparent 24%),
+        radial-gradient(circle at 90% 18%,rgba(14,165,233,.07),transparent 20%),
+        linear-gradient(180deg,#fcfefe 0%,#f8fafc 35%,#f4f8fb 100%);
+    }
+    body::before{
+      content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+      background-image:linear-gradient(rgba(15,23,42,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(15,23,42,.025) 1px,transparent 1px);
+      background-size:44px 44px;mask-image:radial-gradient(circle at center,black 35%,transparent 85%);
+    }
+    a{color:inherit;text-decoration:none}
+    button,select,input{font:inherit}
+    button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid rgba(14,165,233,.3);outline-offset:3px}
+    .hidden{display:none!important}
+    .container{width:min(var(--container),calc(100% - 36px));margin:0 auto;position:relative;z-index:1}
+    .page-wrap{padding:20px 0 36px}
+
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+    .back-link{display:inline-flex;align-items:center;gap:8px;color:var(--text-soft);font-weight:700;transition:var(--transition)}
+    .back-link:hover{color:var(--text);transform:translateX(-2px)}
+    .top-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+    .chip,.focus-btn{display:inline-flex;align-items:center;gap:8px;padding:9px 13px;color:var(--text-soft);background:rgba(255,255,255,.86);border:1px solid var(--border);border-radius:999px;box-shadow:var(--shadow-sm);font-size:.88rem;font-weight:800}
+    .score i{color:#eab308}.focus-btn{cursor:pointer;transition:var(--transition)}
+    .focus-btn:hover{transform:translateY(-1px);border-color:rgba(34,197,94,.3)}
+    .focus-btn.active{color:var(--primary-dark);background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.25)}
+
+    .hero{margin-bottom:14px}
+    .hero h1{margin-bottom:6px;font-family:"Space Grotesk",sans-serif;font-size:clamp(2rem,4vw,3rem);line-height:1;letter-spacing:-.05em}
+    .hero p{max-width:760px;color:var(--text-soft);line-height:1.6}
+    .progress-box{margin-bottom:14px;padding:12px 15px;background:rgba(255,255,255,.84);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-sm)}
+    .progress-label{display:flex;justify-content:space-between;gap:12px;margin-bottom:7px;color:var(--text-muted);font-size:.84rem;font-weight:700;flex-wrap:wrap}
+    .progress{height:10px;overflow:hidden;background:#e2e8f0;border-radius:999px}
+    .progress-bar{height:100%;width:0;background:linear-gradient(135deg,var(--primary),#34d399);border-radius:inherit;transition:width var(--transition)}
+
+    .activity-card{padding:22px;background:rgba(255,255,255,.94);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);animation:fadeUp 250ms ease both}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+    .phase-track{display:flex;justify-content:center;gap:8px;margin-bottom:20px;overflow-x:auto;padding:2px 2px 8px}
+    .phase-dot{width:38px;height:38px;flex:0 0 38px;border:1px solid var(--border);border-radius:50%;color:var(--text-muted);background:#fff;box-shadow:0 5px 14px rgba(15,23,42,.04);cursor:pointer;font-size:.84rem;font-weight:900;transition:var(--transition)}
+    .phase-dot:hover{transform:translateY(-2px);border-color:rgba(34,197,94,.4)}
+    .phase-dot.attempted{color:#854d0e;background:#fef3c7;border-color:#facc15}
+    .phase-dot.active{color:#052e16;background:rgba(34,197,94,.16);border-color:var(--primary)}
+    .phase-dot.done{color:#fff;background:var(--primary-dark);border-color:var(--primary-dark)}
+
+    .phase-head{max-width:840px;margin:0 auto 18px;text-align:center}
+    .phase-meta{display:flex;justify-content:center;gap:8px;margin-bottom:9px;flex-wrap:wrap}
+    .phase-tag,.level-tag{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:999px;font-size:.8rem;font-weight:800}
+    .phase-tag{color:var(--primary-dark);background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.16)}
+    .level-tag{color:#0369a1;background:rgba(2,132,199,.08);border:1px solid rgba(2,132,199,.12)}
+    .phase-head h2{margin-bottom:8px;font-family:"Space Grotesk",sans-serif;font-size:clamp(1.55rem,3vw,2.1rem);letter-spacing:-.035em}
+    .phase-head p{color:var(--text-soft);font-size:1rem;line-height:1.65}
+
+    .work-area{max-width:960px;margin:0 auto}
+    .work-area.with-memory{max-width:none;display:grid;grid-template-columns:minmax(0,1fr) minmax(390px,.9fr);gap:16px;align-items:start}
+    .challenge-panel,.memory-panel{min-width:0;padding:17px;background:#fff;border:1px solid var(--border);border-radius:22px;box-shadow:0 8px 24px rgba(15,23,42,.04)}
+    .panel-title{display:flex;align-items:center;gap:8px;margin-bottom:12px;color:var(--text-muted);font-size:.8rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+    .prompt{margin-bottom:14px;color:var(--text);font-weight:650;line-height:1.65}
+    .prompt strong{color:var(--primary-dark)}
+    .hint{max-width:960px;margin:12px auto 0;overflow:hidden;background:rgba(248,250,252,.9);border:1px solid var(--border);border-radius:15px}
+    .hint summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;color:var(--text-soft);font-size:.88rem;font-weight:800;cursor:pointer;list-style:none}
+    .hint summary::-webkit-details-marker{display:none}
+    .hint p{padding:0 12px 12px;color:var(--text-soft);font-size:.9rem;line-height:1.6}
+
+    .code-block{padding:16px;overflow-x:auto;color:#e2e8f0;background:#0f172a;border-radius:18px;font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.75;white-space:pre;font-variant-ligatures:none}
+    .code-line{display:block;transition:var(--transition)}
+    .code-line.active{margin:0 -7px;padding:0 7px;color:#dcfce7;background:rgba(34,197,94,.18);border-left:3px solid var(--primary)}
+    .code-row{display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap}
+    .indent-1{padding-left:18px}.indent-2{padding-left:36px}
+    .code-select{max-width:100%;padding:7px 9px;color:#052e16;background:#dcfce7;border:1px solid #86efac;border-radius:9px;font-family:"JetBrains Mono",monospace;font-size:.8rem;font-weight:800}
+
+    .answers{display:grid;gap:9px}
+    .answer-btn{width:100%;display:flex;align-items:flex-start;gap:10px;padding:13px 15px;text-align:left;color:var(--text);background:#fff;border:1px solid var(--border);border-radius:17px;box-shadow:0 5px 16px rgba(15,23,42,.035);cursor:pointer;transition:var(--transition);font-weight:650}
+    .answer-btn:hover:not(:disabled){transform:translateY(-2px);border-color:rgba(34,197,94,.4)}
+    .answer-btn:disabled{cursor:default;opacity:1}
+    .answer-btn.correct{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.45)}
+    .answer-btn.wrong{background:rgba(220,38,38,.05);border-color:rgba(220,38,38,.32)}
+    .answer-letter{width:31px;height:31px;flex:0 0 31px;display:inline-flex;align-items:center;justify-content:center;color:var(--primary-dark);background:rgba(34,197,94,.1);border-radius:50%;font-weight:900}
+    .answer-btn code{font-family:"JetBrains Mono",monospace;font-size:.86rem;white-space:normal}
+
+    .compact-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    .field{padding:12px;background:#f8fafc;border:1px solid var(--border);border-radius:16px}
+    .field label{display:block;margin-bottom:7px;color:var(--text-soft);font-size:.82rem;font-weight:800}
+    .field select,.field input{width:100%;padding:10px 11px;color:var(--text);background:#fff;border:1px solid rgba(15,23,42,.14);border-radius:12px;font-weight:750}
+    .numeric-fields{display:flex;justify-content:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+    .numeric-fields input{width:150px;padding:11px 13px;text-align:center;color:var(--text);background:#fff;border:1px solid rgba(15,23,42,.15);border-radius:14px;font-family:"JetBrains Mono",monospace;font-weight:800}
+
+    .memory-title{display:flex;justify-content:space-between;gap:10px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
+    .memory-title strong{font-family:"Space Grotesk",sans-serif;font-size:1rem}
+    .memory-title span{color:var(--text-muted);font-family:"JetBrains Mono",monospace;font-size:.78rem;font-weight:700}
+    .vector-scroll{overflow-x:auto;padding:2px 1px 8px}
+    .vector-grid{display:grid;gap:8px;min-width:440px}
+    .vector-cell{text-align:center}
+    .cell-index{display:block;margin-bottom:5px;color:var(--text-muted);font-family:"JetBrains Mono",monospace;font-size:.7rem;font-weight:800}
+    .cell-value{min-height:62px;display:flex;align-items:center;justify-content:center;color:var(--text);background:#fff;border:2px solid rgba(15,23,42,.09);border-radius:15px;box-shadow:var(--shadow-sm);font-family:"JetBrains Mono",monospace;font-size:1.15rem;font-weight:900;transition:var(--transition)}
+    .vector-cell.current .cell-value{color:#052e16;background:rgba(34,197,94,.14);border-color:var(--primary);transform:translateY(-3px)}
+    .vector-cell.changed .cell-value{color:#075985;background:rgba(14,165,233,.09);border-color:rgba(14,165,233,.45)}
+    .state-line{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+    .state-line:empty{display:none}
+    .state-pill{flex:1 1 92px;padding:9px 10px;color:var(--text-soft);background:#f8fafc;border:1px solid var(--border);border-radius:13px;font-size:.78rem}
+    .state-pill strong{display:block;margin-top:3px;color:var(--text);font-family:"JetBrains Mono",monospace;font-size:.9rem}
+    .step-note{min-height:44px;margin-top:10px;padding:10px 11px;color:var(--text-soft);background:#f8fafc;border:1px solid var(--border);border-radius:13px;font-size:.86rem;line-height:1.5}
+
+    .error-lines{display:grid;gap:7px}
+    .error-line{width:100%;padding:10px 12px;text-align:left;color:#e2e8f0;background:#0f172a;border:2px solid transparent;border-radius:12px;font-family:"JetBrains Mono",monospace;font-size:.82rem;cursor:pointer;transition:var(--transition)}
+    .error-line:hover{background:#172554}
+    .error-line.selected{color:#78350f;background:#fef3c7;border-color:#f59e0b}
+    .error-line.corrected{color:#052e16;background:#dcfce7;border-color:#4ade80}
+    .line-number{display:inline-block;width:25px;opacity:.55}
+    .result-card{margin-top:12px;padding:13px;color:var(--text-soft);background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.22);border-radius:15px;line-height:1.6}
+    .result-card strong{color:var(--primary-dark)}
+
+    .actions{display:flex;justify-content:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 17px;border:0;border-radius:999px;cursor:pointer;transition:var(--transition);font-size:.9rem;font-weight:900}
+    .btn-primary{color:#052e16;background:linear-gradient(135deg,var(--primary),#34d399);box-shadow:0 12px 24px rgba(34,197,94,.2)}
+    .btn-secondary{color:var(--text-soft);background:#fff;border:1px solid var(--border);box-shadow:var(--shadow-sm)}
+    .btn:hover:not(:disabled){transform:translateY(-2px)}
+    .btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+    .feedback{min-height:28px;max-width:960px;margin:14px auto 0;text-align:center;color:var(--text-soft);font-size:.94rem;line-height:1.55}
+    .ok{color:var(--primary-dark);font-weight:800}.error{color:var(--danger);font-weight:800}.warning{color:var(--warning);font-weight:800}
+    .nav-actions{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+    .save-note{margin-top:10px;text-align:center;color:var(--text-muted);font-size:.8rem}
+
+    .end-screen{min-height:72vh;display:flex;align-items:center;justify-content:center}
+    .end-card{width:min(760px,100%);padding:34px;text-align:center;background:rgba(255,255,255,.95);border:1px solid var(--border);border-radius:32px;box-shadow:var(--shadow-md)}
+    .end-icon{width:72px;height:72px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:13px;color:var(--primary-dark);background:rgba(34,197,94,.12);border-radius:50%;font-size:1.8rem}
+    .end-card h1{margin-bottom:9px;font-family:"Space Grotesk",sans-serif;font-size:clamp(2rem,4vw,2.8rem);letter-spacing:-.04em}
+    .end-card p{max-width:620px;margin:0 auto 18px;color:var(--text-soft);line-height:1.65}
+    .end-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:18px}
+    .end-stat{padding:14px;background:#fff;border:1px solid var(--border);border-radius:18px}
+    .end-stat strong{display:block;font-family:"Space Grotesk",sans-serif;font-size:1.55rem}.end-stat span{color:var(--text-muted);font-size:.84rem}
+    .end-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap}.end-secondary{margin-top:12px;color:var(--text-muted);font-size:.85rem}
+
+    .completion-overlay{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.52);backdrop-filter:blur(7px)}
+    .completion-dialog{width:min(650px,100%);padding:30px;text-align:center;background:#fff;border:1px solid var(--border);border-radius:30px;box-shadow:0 28px 70px rgba(15,23,42,.24)}
+    .completion-dialog .end-icon{margin-bottom:12px}.completion-dialog h2{margin-bottom:9px;font-family:"Space Grotesk",sans-serif;font-size:clamp(1.7rem,4vw,2.35rem);letter-spacing:-.04em}.completion-dialog p{max-width:520px;margin:0 auto 18px;color:var(--text-soft);line-height:1.65}
+    .confetti{position:fixed;top:-12px;width:10px;height:16px;z-index:999;pointer-events:none;border-radius:3px;animation:fall 1s ease-out forwards}
+    @keyframes fall{to{transform:translateY(105vh) rotate(520deg);opacity:0}}
+    body.focus-mode .hero,body.focus-mode .progress-box,body.focus-mode .phase-track,body.focus-mode .save-note{display:none!important}
+    body.focus-mode .activity-card{padding:18px;border-radius:20px;box-shadow:0 10px 28px rgba(15,23,42,.05)}
+
+    @media(max-width:900px){
+      .container{width:min(var(--container),calc(100% - 20px))}.work-area.with-memory{grid-template-columns:1fr}.memory-panel{order:-1}.top-actions{width:100%;justify-content:space-between}.focus-btn{flex:1}
+    }
+    @media(max-width:650px){
+      .page-wrap{padding-top:14px}.activity-card{padding:15px;border-radius:22px}.phase-track{justify-content:flex-start}.compact-fields,.end-stats{grid-template-columns:1fr}.btn{width:100%}.nav-actions{flex-direction:column}.hero h1{font-size:2rem}.code-block{font-size:12px}.indent-1,.indent-2{padding-left:0}
+    }
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}.confetti{display:none}}
+  </style>
+</head>
+<body>
+  <main id="app" class="page-wrap">
+    <div class="container">
+      <div class="topbar">
+        <a class="back-link" href="objetos.html"><i class="fas fa-arrow-left"></i> Voltar aos objetos</a>
+        <div class="top-actions">
+          <button id="resetProgressBtn" class="focus-btn hidden" type="button" onclick="restartObject()"><i class="fas fa-rotate-left"></i> Recomeçar</button>
+          <button id="focusBtn" class="focus-btn" type="button" aria-pressed="false"><i class="fas fa-bullseye"></i> Modo foco</button>
+          <div id="score" class="chip score"><i class="fas fa-star"></i> Pontos: 0</div>
+        </div>
+      </div>
+
+      <header class="hero">
+        <h1>Missão Vetores: Central de Dados</h1>
+        <p>Aprenda a guardar, acessar e processar vários valores no Visualg.</p>
+      </header>
+
+      <section class="progress-box" aria-label="Progresso da missão">
+        <div class="progress-label"><span>Progresso</span><span id="progressText">0 de 10 fases</span></div>
+        <div class="progress"><div id="progressBar" class="progress-bar"></div></div>
+      </section>
+
+      <section class="activity-card">
+        <nav id="phaseTrack" class="phase-track" aria-label="Fases da missão"></nav>
+
+        <header class="phase-head">
+          <div class="phase-meta"><span id="phaseTag" class="phase-tag"></span><span id="levelTag" class="level-tag"></span></div>
+          <h2 id="phaseTitle"></h2>
+          <p id="phasePrompt"></p>
+        </header>
+
+        <div id="workArea" class="work-area">
+          <section id="challengePanel" class="challenge-panel"></section>
+          <aside id="memoryPanel" class="memory-panel hidden">
+            <div class="panel-title"><i class="fas fa-memory"></i> Memória do programa</div>
+            <div class="memory-title"><strong id="memoryName"></strong><span id="memoryDeclaration"></span></div>
+            <div class="vector-scroll"><div id="vectorGrid" class="vector-grid"></div></div>
+            <div id="stateLine" class="state-line"></div>
+            <div id="stepNote" class="step-note"></div>
+          </aside>
+        </div>
+
+        <details id="hintBox" class="hint"><summary><span><i class="fas fa-lightbulb"></i> Preciso de uma dica</span><i class="fas fa-chevron-down"></i></summary><p id="hintText"></p></details>
+        <div id="feedback" class="feedback" aria-live="polite"></div>
+
+        <div class="nav-actions">
+          <button id="prevBtn" class="btn btn-secondary" type="button"><i class="fas fa-arrow-left"></i> Fase anterior</button>
+          <button id="nextBtn" class="btn btn-primary" type="button">Próxima fase <i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="save-note"><i class="fas fa-floppy-disk"></i> Progresso salvo neste navegador</div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const URL_WEBAPP="https://script.google.com/macros/s/AKfycbzoeygTm-R27yb8QOcdH0s7fViv6vGPQ5MtDuCgHBt3RhvFVQKlGxf3A7yQUR3RfRqFcw/exec";
+    const NOME_ATIVIDADE="Missão Vetores: Central de Dados";
+    const STORAGE_DONE="programacao1_missao_vetores_visualg_done_v2";
+    const STORAGE_ANSWERED="programacao1_missao_vetores_visualg_answered_v2";
+    const STORAGE_PHASE="programacao1_missao_vetores_visualg_fase_v2";
+    const STORAGE_FOCUS="programacao1_missao_vetores_visualg_foco_v2";
+
+    const phases=[
+      {title:"Leia uma declaração",short:"Declaração",level:"Fundamentos",points:1,type:"declaration",memory:false,
+       prompt:"Observe a declaração e identifique corretamente seus limites e seu tamanho.",
+       hint:"O intervalo 1..6 inclui os dois extremos: 1, 2, 3, 4, 5 e 6."},
+      {title:"Acompanhe as atribuições",short:"Atribuições",level:"Fundamentos",points:2,type:"assignment",memory:true,
+       prompt:"Partindo do vetor mostrado, execute mentalmente os três comandos e escolha o estado final.",
+       hint:"Os comandos são executados de cima para baixo. Um valor alterado pode ser usado pelo comando seguinte.",
+       vector:[2,4,6,8,10],answer:[8,8,6,8,10]},
+      {title:"Calcule usando posições",short:"Acesso",level:"Fundamentos",points:2,type:"access",memory:true,
+       prompt:"Resolva as duas expressões. Cuidado: o conteúdo de uma posição também pode indicar outro índice.",
+       hint:"Em dados[dados[4]], descubra primeiro o conteúdo de dados[4]. Depois use esse resultado como índice.",
+       vector:[4,2,5,1,3],answers:[5,4]},
+      {title:"Complete o preenchimento",short:"Preenchimento",level:"Intermediário",points:2,type:"fill",memory:false,
+       prompt:"Complete o trecho que lê seis notas e armazena cada uma em uma posição diferente.",
+       hint:"Dentro do para, use notas[i]. Assim, a posição muda junto com o valor de i."},
+      {title:"Preveja a saída inversa",short:"Ordem inversa",level:"Intermediário",points:3,type:"reverse",memory:true,
+       prompt:"O laço começa na última posição e anda para trás. Qual será a saída?",
+       hint:"Siga os valores de i: 5, 4, 3, 2 e 1.",vector:[3,6,9,12,15]},
+      {title:"Some apenas os selecionados",short:"Soma condicional",level:"Intermediário",points:3,type:"simulation",mode:"sum",memory:true,
+       prompt:"Execute o algoritmo. Somente valores maiores que 10 entram no acumulador.",
+       hint:"O valor 10 não entra, pois a condição usa > 10, e não >= 10.",vector:[6,14,9,20,11],answer:45},
+      {title:"Conte valores de um intervalo",short:"Contagem",level:"Desafio",points:3,type:"simulation",mode:"range",memory:true,
+       prompt:"Conte quantos elementos estão entre 7 e 12, incluindo os limites.",
+       hint:"A condição precisa ser verdadeira dos dois lados: valor >= 7 e valor <= 12.",vector:[5,8,12,3,10,15],answer:3},
+      {title:"Encontre o maior e sua posição",short:"Maior e posição",level:"Desafio",points:4,type:"simulation",mode:"maxpos",memory:true,
+       prompt:"Além do maior valor, registre a posição em que ele foi encontrado.",
+       hint:"Quando maior muda, posMaior deve receber o valor atual de i.",vector:[12,5,27,9,21,18],answers:[27,3]},
+      {title:"Caça aos erros",short:"Depuração",level:"Desafio",points:4,type:"errors",memory:false,
+       prompt:"O algoritmo possui exatamente três erros. Clique nas três linhas problemáticas e verifique.",
+       hint:"Confira o primeiro índice, o uso de [i] na leitura e o elemento mostrado na saída."},
+      {title:"Analise notas com um vetor",short:"Missão final",level:"Final",points:6,type:"final",memory:false,
+       prompt:"Complete o algoritmo que lê cinco notas, calcula a média e conta quantas ficaram na média ou acima dela.",
+       hint:"São necessários dois percursos: o primeiro calcula a média; o segundo compara cada nota com ela."}
+    ];
+
+    const $=id=>document.getElementById(id);
+    const app=$("app"),scoreEl=$("score"),progressText=$("progressText"),progressBar=$("progressBar"),phaseTrack=$("phaseTrack"),phaseTag=$("phaseTag"),levelTag=$("levelTag"),phaseTitle=$("phaseTitle"),phasePrompt=$("phasePrompt"),workArea=$("workArea"),challengePanel=$("challengePanel"),memoryPanel=$("memoryPanel"),memoryName=$("memoryName"),memoryDeclaration=$("memoryDeclaration"),vectorGrid=$("vectorGrid"),stateLine=$("stateLine"),stepNote=$("stepNote"),hintBox=$("hintBox"),hintText=$("hintText"),feedback=$("feedback"),prevBtn=$("prevBtn"),nextBtn=$("nextBtn"),focusBtn=$("focusBtn"),resetProgressBtn=$("resetProgressBtn");
+
+    let current=loadPhase(),done=new Set(loadDone()),answered=new Set([...loadAnswered(),...done]),errors=0,simStep=0,simState=null,selectedErrorLines=new Set();
+    let resultSent=false,lastResultName="";
+
+    function loadDone(){try{const value=JSON.parse(localStorage.getItem(STORAGE_DONE)||"[]");return Array.isArray(value)?value.filter(i=>Number.isInteger(i)&&i>=0&&i<phases.length):[]}catch(e){return[]}}
+    function loadAnswered(){try{const value=JSON.parse(localStorage.getItem(STORAGE_ANSWERED)||"[]");return Array.isArray(value)?value.filter(i=>Number.isInteger(i)&&i>=0&&i<phases.length):[]}catch(e){return[]}}
+    function loadPhase(){try{const value=Number(localStorage.getItem(STORAGE_PHASE));return Number.isInteger(value)&&value>=0&&value<phases.length?value:0}catch(e){return 0}}
+    function saveProgress(){try{localStorage.setItem(STORAGE_DONE,JSON.stringify([...done]));localStorage.setItem(STORAGE_ANSWERED,JSON.stringify([...answered]));localStorage.setItem(STORAGE_PHASE,String(current))}catch(e){}}
+    function totalPoints(){return phases.reduce((sum,p)=>sum+p.points,0)}
+    function earnedPoints(){return [...done].reduce((sum,i)=>sum+(phases[i]?.points||0),0)}
+    function completed(){return done.has(current)}
+    function attempted(){return answered.has(current)}
+
+    function updateHeader(){
+      const percent=Math.round(answered.size/phases.length*100);
+      scoreEl.innerHTML=`<i class="fas fa-star"></i> Pontos: ${earnedPoints()}`;
+      progressText.textContent=`${answered.size} de ${phases.length} fases respondidas`;
+      progressBar.style.width=`${percent}%`;
+      prevBtn.disabled=current===0;
+      nextBtn.disabled=!attempted();
+      nextBtn.innerHTML=current===phases.length-1?'Concluir missão <i class="fas fa-trophy"></i>':'Próxima fase <i class="fas fa-arrow-right"></i>';
+      resetProgressBtn.classList.toggle("hidden",answered.size!==phases.length);
+    }
+
+    function renderTrack(){
+      phaseTrack.innerHTML=phases.map((p,i)=>{const correct=done.has(i),tried=answered.has(i)&&!correct,status=correct?' · correta':tried?' · respondida sem pontuar':'';return `<button class="phase-dot${tried?' attempted':''}${i===current?' active':''}${correct?' done':''}" type="button" onclick="goTo(${i})" title="${i+1}. ${p.short}${status}" aria-label="Fase ${i+1}: ${p.short}${status}">${correct?'<i class="fas fa-check"></i>':tried?'<i class="fas fa-minus"></i>':i+1}</button>`}).join("");
+    }
+
+    function setMemory(show,name="",values=[],currentIndex=-1,changed=[]){
+      memoryPanel.classList.toggle("hidden",!show);workArea.classList.toggle("with-memory",show);
+      if(!show)return;
+      memoryName.textContent=`Vetor ${name}`;memoryDeclaration.textContent=`${name}: vetor[1..${values.length}] de inteiro`;
+      vectorGrid.style.gridTemplateColumns=`repeat(${values.length},minmax(62px,1fr))`;
+      vectorGrid.style.minWidth=`${Math.max(440,values.length*72)}px`;
+      vectorGrid.innerHTML=values.map((value,i)=>`<div class="vector-cell${i===currentIndex?' current':''}${changed.includes(i)?' changed':''}"><span class="cell-index">[${i+1}]</span><div class="cell-value">${value}</div></div>`).join("");
+    }
+
+    function setState(items,note=""){
+      stateLine.innerHTML=items.map(item=>`<div class="state-pill">${item.label}<strong>${item.value}</strong></div>`).join("");
+      stepNote.innerHTML=note||"Observe o conteúdo armazenado em cada posição.";
+    }
+
+    function renderPhase(){
+      const phase=phases[current];simStep=0;simState=null;selectedErrorLines=new Set();
+      phaseTag.innerHTML=`<i class="fas fa-flag"></i> Fase ${current+1} de ${phases.length}`;
+      levelTag.innerHTML=`<i class="fas fa-signal"></i> ${phase.level} · ${phase.points} ${phase.points===1?'ponto':'pontos'}`;
+      phaseTitle.textContent=phase.title;phasePrompt.innerHTML=phase.prompt;hintText.innerHTML=phase.hint;hintBox.open=false;
+      feedback.innerHTML=completed()?'<span class="ok"><i class="fas fa-check-circle"></i> Resposta correta.</span> Você pode revisar a atividade ou seguir adiante.':attempted()?'<span class="warning"><i class="fas fa-circle-exclamation"></i> Fase já respondida sem pontuar.</span> Você pode tentar novamente ou seguir adiante.':"";
+      setMemory(false);challengePanel.innerHTML="";
+      if(phase.type==="declaration")renderDeclaration();
+      if(phase.type==="assignment")renderAssignment();
+      if(phase.type==="access")renderAccess();
+      if(phase.type==="fill")renderFill();
+      if(phase.type==="reverse")renderReverse();
+      if(phase.type==="simulation")renderSimulation();
+      if(phase.type==="errors")renderErrors();
+      if(phase.type==="final")renderFinal();
+      renderTrack();updateHeader();saveProgress();
+    }
+
+    function renderDeclaration(){
+      challengePanel.innerHTML=`<div class="panel-title"><i class="fas fa-code"></i> Declaração</div><div class="code-block">temperaturas: vetor[1..6] de real</div><div class="prompt" style="margin-top:14px">Complete a leitura da declaração:</div><div class="compact-fields"><div class="field"><label for="firstIndex">Primeiro índice</label><select id="firstIndex" ${completed()?'disabled':''}><option value="">Escolha</option><option>0</option><option value="1">1</option><option>6</option></select></div><div class="field"><label for="lastIndex">Último índice</label><select id="lastIndex" ${completed()?'disabled':''}><option value="">Escolha</option><option>5</option><option value="6">6</option><option>7</option></select></div><div class="field"><label for="elementCount">Quantidade de posições</label><select id="elementCount" ${completed()?'disabled':''}><option value="">Escolha</option><option>5</option><option value="6">6</option><option>7</option></select></div></div><div class="actions"><button class="btn btn-primary" type="button" onclick="checkDeclaration()" ${completed()?'disabled':''}><i class="fas fa-check"></i> Verificar</button></div>`;
+      if(completed()){$("firstIndex").value="1";$("lastIndex").value="6";$("elementCount").value="6"}
+    }
+    function checkDeclaration(){const values=[$("firstIndex").value,$("lastIndex").value,$("elementCount").value];if(values.includes("")){warn("Preencha os três campos.");return}if(values[0]==="1"&&values[1]==="6"&&values[2]==="6")complete("O vetor possui seis posições, de 1 até 6, e armazena valores do tipo real.");else fail("Revise o intervalo 1..6. Os dois limites fazem parte do vetor.")}
+
+    function renderAssignment(){
+      const p=phases[current];setMemory(true,"dados",completed()?p.answer:p.vector,-1,completed()?[0,1,3]:[]);setState([],completed()?"Estado final após os três comandos.":"Estado inicial do vetor.");
+      const options=[[8,8,6,8,10],[8,6,6,8,10],[4,8,6,8,10]];
+      challengePanel.innerHTML=`<div class="panel-title"><i class="fas fa-arrow-right-arrow-left"></i> Execute em ordem</div><div class="code-block">dados[2] &lt;- dados[1] + dados[3]\ndados[4] &lt;- dados[5] - dados[1]\ndados[1] &lt;- dados[2]</div><div class="prompt" style="margin-top:14px">Como fica o vetor ao final?</div><div class="answers">${options.map((o,i)=>`<button class="answer-btn${completed()&&i===0?' correct':''}" type="button" onclick="checkOption(${i},0)" ${completed()?'disabled':''}><span class="answer-letter">${String.fromCharCode(65+i)}</span><code>[${o.join(', ')}]</code></button>`).join("")}</div>`;
+    }
+
+    function renderAccess(){
+      const p=phases[current];setMemory(true,"dados",p.vector);setState([],"Use o índice entre colchetes para localizar cada conteúdo.");
+      challengePanel.innerHTML=`<div class="panel-title"><i class="fas fa-location-crosshairs"></i> Duas consultas</div><div class="prompt"><strong>1.</strong> dados[2] + dados[5]</div><div class="numeric-fields" style="justify-content:flex-start;margin:0 0 14px"><input id="accessOne" type="number" placeholder="Resultado 1" ${completed()?'disabled value="5"':''}></div><div class="prompt"><strong>2.</strong> dados[dados[4]]</div><div class="numeric-fields" style="justify-content:flex-start;margin:0"><input id="accessTwo" type="number" placeholder="Resultado 2" ${completed()?'disabled value="4"':''}></div><div class="actions"><button class="btn btn-primary" type="button" onclick="checkAccess()" ${completed()?'disabled':''}><i class="fas fa-check"></i> Conferir resultados</button></div>`;
+    }
+    function checkAccess(){const one=$("accessOne"),two=$("accessTwo");if(one.value===""||two.value===""){warn("Resolva as duas expressões.");return}if(Number(one.value)===5&&Number(two.value)===4)complete("dados[2] + dados[5] = 2 + 3 = 5. Na segunda expressão, dados[4] vale 1; então consultamos dados[1], que vale 4.");else fail("Uma das respostas não confere. Resolva primeiro os colchetes mais internos.")}
+
+    function renderFill(){
+      challengePanel.innerHTML=`<div class="panel-title"><i class="fas fa-keyboard"></i> Complete o algoritmo</div><div class="code-block"><div class="code-row">var</div><div class="code-row indent-1">notas: vetor[1..6] de real</div><div class="code-row indent-1">i: inteiro</div><div class="code-row">inicio</div><div class="code-row indent-1"><select id="fillLoop" class="code-select" ${completed()?'disabled':''}><option value="">Escolha o laço...</option><option>para i de 0 ate 5 faca</option><option value="ok">para i de 1 ate 6 faca</option><option>para i de 1 ate 5 faca</option></select></div><div class="code-row indent-2"><select id="fillRead" class="code-select" ${completed()?'disabled':''}><option value="">Escolha a leitura...</option><option>leia(notas)</option><option value="ok">leia(notas[i])</option><option>leia(i)</option></select></div><div class="code-row indent-1"><select id="fillEnd" class="code-select" ${completed()?'disabled':''}><option value="">Escolha o fechamento...</option><option>fimse</option><option value="ok">fimpara</option><option>fimenquanto</option></select></div><div class="code-row">fimalgoritmo</div></div><div class="actions"><button class="btn btn-primary" type="button" onclick="checkFill()" ${completed()?'disabled':''}><i class="fas fa-play"></i> Testar trecho</button></div>`;
+      if(completed()){$("fillLoop").value="ok";$("fillRead").value="ok";$("fillEnd").value="ok"}
+    }
+    function checkFill(){const values=[$("fillLoop").value,$("fillRead").value,$("fillEnd").value];if(values.includes("")){warn("Complete as três lacunas.");return}if(values.every(v=>v==="ok"))complete("O laço visita as posições 1 até 6 e leia(notas[i]) guarda cada nota na posição atual.");else fail("O trecho ainda tem uma escolha incorreta. Confira os limites e o uso de [i].")}
+
+    function renderReverse(){
+      const p=phases[current];setMemory(true,"numeros",p.vector);setState([],"O laço começa na posição 5 e termina na posição 1.");
+      const options=["3 6 9 12 15","15 12 9 6 3","15 12 9 6"];
+      challengePanel.innerHTML=`<div class="panel-title"><i class="fas fa-arrow-rotate-left"></i> Leia o laço</div><div class="code-block">para i de 5 ate 1 passo -1 faca\n   escreva(numeros[i], " ")\nfimpara</div><div class="prompt" style="margin-top:14px">Qual será a saída?</div><div class="answers">${options.map((o,i)=>`<button class="answer-btn${completed()&&i===1?' correct':''}" type="button" onclick="checkOption(${i},1)" ${completed()?'disabled':''}><span class="answer-letter">${String.fromCharCode(65+i)}</span><code>${o}</code></button>`).join("")}</div>`;
+    }
+
+    function checkOption(index,correct){
+      if(completed())return;const buttons=[...document.querySelectorAll(".answer-btn")];
+      if(index===correct){buttons.forEach(b=>b.disabled=true);buttons[index].classList.add("correct");if(current===1){setMemory(true,"dados",phases[current].answer,-1,[0,1,3]);setState([],"Os comandos foram executados de cima para baixo.");complete("O estado final é [8, 8, 6, 8, 10].") }else complete("A saída é 15 12 9 6 3, pois o índice diminui de 5 até 1.")}
+      else{buttons[index].classList.add("wrong");buttons[index].disabled=true;fail(current===1?"Esse não é o estado produzido pelos três comandos.":"Essa saída não corresponde à ordem visitada pelo laço.")}
+    }
+
+    function simulationCode(mode){
+      if(mode==="sum")return["soma <- 0","para i de 1 ate 5 faca","   se valores[i] > 10 entao","      soma <- soma + valores[i]","   fimse","fimpara"];
+      if(mode==="range")return["contador <- 0","para i de 1 ate 6 faca","   se valores[i] >= 7 e valores[i] <= 12 entao","      contador <- contador + 1","   fimse","fimpara"];
+      return["maior <- valores[1]","posMaior <- 1","para i de 2 ate 6 faca","   se valores[i] > maior entao","      maior <- valores[i]","      posMaior <- i","   fimse","fimpara"];
+    }
+
+    function renderSimulation(){
+      const p=phases[current],code=simulationCode(p.mode);challengePanel.innerHTML=`<div class="panel-title"><i class="fas fa-code"></i> Execução passo a passo</div><div id="codeBlock" class="code-block">${code.map((line,i)=>`<span class="code-line" data-line="${i}">${escapeHTML(line)}</span>`).join("")}</div><div class="actions"><button class="btn btn-secondary" type="button" onclick="resetSimulation()" ${completed()?'disabled':''}><i class="fas fa-rotate-left"></i> Reiniciar</button><button id="stepBtn" class="btn btn-primary" type="button" onclick="nextStep()" ${completed()?'disabled':''}><i class="fas fa-forward-step"></i> Próximo passo</button></div><div id="simulationAnswer" class="numeric-fields hidden"></div>`;
+      if(completed()){renderCompletedSimulation();return}resetSimulation(false);
+    }
+
+    function resetSimulation(clearFeedback=true){
+      const p=phases[current];simStep=p.mode==="maxpos"?1:0;
+      if(p.mode==="sum")simState={sum:0};
+      if(p.mode==="range")simState={count:0};
+      if(p.mode==="maxpos")simState={max:p.vector[0],pos:1};
+      setMemory(true,"valores",p.vector);renderSimulationState(-1,"Clique em Próximo passo para iniciar.");highlight(-1);
+      $("simulationAnswer").classList.add("hidden");$("simulationAnswer").innerHTML="";$("stepBtn").disabled=false;$("stepBtn").innerHTML='<i class="fas fa-forward-step"></i> Próximo passo';if(clearFeedback)feedback.innerHTML="";
+    }
+
+    function renderSimulationState(index,note){
+      const p=phases[current],items=[];
+      if(index>=0){items.push({label:"i",value:index+1},{label:"valor",value:p.vector[index]})}
+      if(p.mode==="sum")items.push({label:"soma",value:simState.sum});
+      if(p.mode==="range")items.push({label:"contador",value:simState.count});
+      if(p.mode==="maxpos")items.push({label:"maior",value:simState.max},{label:"posição",value:simState.pos});
+      setMemory(true,"valores",p.vector,index);setState(items,note);
+    }
+
+    function nextStep(){
+      const p=phases[current],index=simStep,value=p.vector[index];let note="",line=2;
+      if(p.mode==="sum"){if(value>10){simState.sum+=value;note=`${value} > 10: soma passou a valer <strong>${simState.sum}</strong>.`;line=3}else note=`${value} não é maior que 10. A soma continua ${simState.sum}.`}
+      if(p.mode==="range"){if(value>=7&&value<=12){simState.count++;note=`${value} está no intervalo. Contador: <strong>${simState.count}</strong>.`;line=3}else note=`${value} está fora do intervalo. O contador não muda.`}
+      if(p.mode==="maxpos"){if(value>simState.max){simState.max=value;simState.pos=index+1;note=`Novo maior: <strong>${value}</strong>, na posição <strong>${index+1}</strong>.`;line=4}else{note=`${value} não supera ${simState.max}.`;line=3}}
+      renderSimulationState(index,note);highlight(line);simStep++;
+      if(simStep>=p.vector.length)finishSimulation();
+    }
+
+    function finishSimulation(){
+      const p=phases[current];$("stepBtn").disabled=true;$("stepBtn").innerHTML='<i class="fas fa-check"></i> Execução concluída';
+      $("simulationAnswer").classList.remove("hidden");
+      if(p.mode==="maxpos")$("simulationAnswer").innerHTML=`<input id="answerOne" type="number" placeholder="Maior valor"><input id="answerTwo" type="number" placeholder="Posição"><button class="btn btn-primary" type="button" onclick="checkSimulationAnswer()"><i class="fas fa-check"></i> Conferir</button>`;
+      else $("simulationAnswer").innerHTML=`<input id="answerOne" type="number" placeholder="Resultado final"><button class="btn btn-primary" type="button" onclick="checkSimulationAnswer()"><i class="fas fa-check"></i> Conferir</button>`;
+      feedback.innerHTML='<span class="ok">Execução concluída.</span> Informe o resultado observado.';$("answerOne").focus();
+    }
+
+    function checkSimulationAnswer(){
+      const p=phases[current],one=$("answerOne"),two=$("answerTwo");if(one.value===""||(p.mode==="maxpos"&&two.value==="")){warn("Preencha a resposta final.");return}
+      const correct=p.mode==="maxpos"?Number(one.value)===p.answers[0]&&Number(two.value)===p.answers[1]:Number(one.value)===p.answer;
+      if(correct){document.querySelectorAll("#simulationAnswer input,#simulationAnswer button").forEach(el=>el.disabled=true);const message=p.mode==="sum"?"Os valores 14, 20 e 11 foram somados: resultado 45.":p.mode==="range"?"Os valores 8, 12 e 10 pertencem ao intervalo: contador 3.":"O maior valor é 27 e foi encontrado na posição 3.";complete(message)}else fail("O resultado não corresponde ao último estado da simulação.")
+    }
+
+    function renderCompletedSimulation(){
+      const p=phases[current];setMemory(true,"valores",p.vector);
+      if(p.mode==="sum"){simState={sum:45};setState([{label:"soma",value:45}],"Somente 14, 20 e 11 entraram na soma.")}
+      if(p.mode==="range"){simState={count:3};setState([{label:"contador",value:3}],"8, 12 e 10 pertencem ao intervalo.")}
+      if(p.mode==="maxpos"){simState={max:27,pos:3};setState([{label:"maior",value:27},{label:"posição",value:3}],"Maior valor e sua posição foram registrados juntos.")}
+    }
+
+    function highlight(index){document.querySelectorAll(".code-line").forEach((line,i)=>line.classList.toggle("active",i===index))}
+
+    const errorCode=["notas: vetor[1..5] de inteiro","para i de 0 ate 5 faca","   leia(notas)","fimpara","para i de 1 ate 5 faca","   escreval(notas[5])","fimpara"];
+    const errorIndexes=[1,2,5];
+    function renderErrors(){
+      challengePanel.innerHTML=`<div class="panel-title"><i class="fas fa-bug"></i> Selecione três linhas</div><div id="errorLines" class="error-lines">${errorCode.map((line,i)=>`<button class="error-line" type="button" onclick="toggleErrorLine(${i})" ${completed()?'disabled':''}><span class="line-number">${i+1}</span>${escapeHTML(line)}</button>`).join("")}</div><div class="actions"><button class="btn btn-primary" type="button" onclick="checkErrors()" ${completed()?'disabled':''}><i class="fas fa-bug-slash"></i> Verificar linhas</button></div>`;
+      if(completed())showCorrectedErrors();
+    }
+    function toggleErrorLine(index){if(completed())return;selectedErrorLines.has(index)?selectedErrorLines.delete(index):selectedErrorLines.add(index);[...document.querySelectorAll(".error-line")].forEach((line,i)=>line.classList.toggle("selected",selectedErrorLines.has(i)))}
+    function checkErrors(){if(selectedErrorLines.size!==3){warn("Selecione exatamente três linhas.");return}const correct=errorIndexes.every(i=>selectedErrorLines.has(i));if(correct){showCorrectedErrors();complete("Os índices devem ir de 1 a 5; a leitura e a escrita precisam acessar notas[i].")}else fail("Uma das linhas selecionadas está correta. Revise os limites e os colchetes.")}
+    function showCorrectedErrors(){const corrected=["notas: vetor[1..5] de inteiro","para i de 1 ate 5 faca","   leia(notas[i])","fimpara","para i de 1 ate 5 faca","   escreval(notas[i])","fimpara"];[...document.querySelectorAll(".error-line")].forEach((line,i)=>{line.classList.remove("selected");line.classList.toggle("corrected",errorIndexes.includes(i));line.innerHTML=`<span class="line-number">${i+1}</span>${escapeHTML(corrected[i])}`;line.disabled=true})}
+
+    function renderFinal(){
+      challengePanel.innerHTML=`<div class="panel-title"><i class="fas fa-laptop-code"></i> Algoritmo integrado</div><div class="code-block"><div class="code-row">var</div><div class="code-row indent-1"><select id="finalDeclaration" class="code-select" ${completed()?'disabled':''}><option value="">Declaração...</option><option>notas: real</option><option value="ok">notas: vetor[1..5] de real</option><option>notas: vetor[0..5] de inteiro</option></select></div><div class="code-row indent-1">i, contador: inteiro</div><div class="code-row indent-1">soma, media: real</div><div class="code-row">inicio</div><div class="code-row indent-1">soma &lt;- 0</div><div class="code-row indent-1">para i de 1 ate 5 faca</div><div class="code-row indent-2">leia(notas[i])</div><div class="code-row indent-2"><select id="finalSum" class="code-select" ${completed()?'disabled':''}><option value="">Atualização da soma...</option><option>soma &lt;- notas[i]</option><option value="ok">soma &lt;- soma + notas[i]</option><option>soma &lt;- soma + i</option></select></div><div class="code-row indent-1">fimpara</div><div class="code-row indent-1">media &lt;- soma / 5</div><div class="code-row indent-1">contador &lt;- 0</div><div class="code-row indent-1">para i de 1 ate 5 faca</div><div class="code-row indent-2"><select id="finalCondition" class="code-select" ${completed()?'disabled':''}><option value="">Condição...</option><option>se notas[i] &gt; 5 entao</option><option value="ok">se notas[i] &gt;= media entao</option><option>se i &gt;= media entao</option></select></div><div class="code-row indent-2"><select id="finalCount" class="code-select" ${completed()?'disabled':''}><option value="">Atualização do contador...</option><option>contador &lt;- i</option><option value="ok">contador &lt;- contador + 1</option><option>contador &lt;- contador + notas[i]</option></select></div><div class="code-row indent-2">fimse</div><div class="code-row indent-1">fimpara</div><div class="code-row indent-1">escreval(media, contador)</div><div class="code-row">fimalgoritmo</div></div><div class="actions"><button class="btn btn-primary" type="button" onclick="checkFinal()" ${completed()?'disabled':''}><i class="fas fa-play"></i> Testar algoritmo</button></div><div id="finalResult"></div>`;
+      if(completed()){$("finalDeclaration").value="ok";$("finalSum").value="ok";$("finalCondition").value="ok";$("finalCount").value="ok";showFinalResult()}
+    }
+    function checkFinal(){const controls=[$("finalDeclaration"),$("finalSum"),$("finalCondition"),$("finalCount")],values=controls.map(el=>el.value);if(values.includes("")){warn("Complete as quatro lacunas.");return}if(values.every(v=>v==="ok")){controls.forEach(el=>el.disabled=true);showFinalResult();complete("O primeiro percurso calcula a média; o segundo usa os valores armazenados para fazer as comparações.",true)}else fail("Ainda há uma escolha incorreta. Observe o papel de soma, notas[i], media e contador.")}
+    function showFinalResult(){$("finalResult").innerHTML='<div class="result-card"><strong>Teste:</strong> notas [6, 8, 7, 9, 10] → média 8 → três notas ficaram na média ou acima dela.</div>'}
+
+    function complete(message,celebrate=false){const first=!completed();done.add(current);answered.add(current);challengePanel.querySelectorAll("button,select,input").forEach(el=>el.disabled=true);saveProgress();updateHeader();renderTrack();feedback.innerHTML=`<span class="ok"><i class="fas fa-check-circle"></i> Correto!</span> ${message}`;if(first)confetti(celebrate?46:16)}
+    function fail(message,count=true){if(count)errors++;answered.add(current);saveProgress();updateHeader();renderTrack();feedback.innerHTML=`<span class="error"><i class="fas fa-xmark"></i> Ainda não.</span> ${message} <strong>Você já pode avançar ou tentar novamente.</strong>`}
+    function warn(message){feedback.innerHTML=`<span class="warning"><i class="fas fa-circle-exclamation"></i> ${message}</span>`}
+    function escapeHTML(text){return String(text).replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#039;",'"':"&quot;"})[c])}
+
+    function goTo(index){if(index<0||index>=phases.length)return;current=index;renderPhase();document.querySelector(".activity-card")?.scrollIntoView({behavior:"smooth",block:"start"})}
+    function previous(){if(current>0)goTo(current-1)}
+    function next(){if(!attempted()){warn("Responda à atividade antes de avançar.");return}current<phases.length-1?goTo(current+1):finishObject()}
+    function confetti(amount){const colors=["#22c55e","#34d399","#0ea5e9","#facc15","#fb7185"];for(let i=0;i<amount;i++){const piece=document.createElement("div");piece.className="confetti";piece.style.left=`${Math.random()*100}vw`;piece.style.background=colors[Math.floor(Math.random()*colors.length)];piece.style.animationDelay=`${Math.random()*160}ms`;document.body.appendChild(piece);setTimeout(()=>piece.remove(),1250)}}
+
+    function setFocus(enabled){document.body.classList.toggle("focus-mode",enabled);focusBtn.classList.toggle("active",enabled);focusBtn.setAttribute("aria-pressed",enabled?"true":"false");focusBtn.innerHTML=enabled?'<i class="fas fa-layer-group"></i> Modo completo':'<i class="fas fa-bullseye"></i> Modo foco';try{localStorage.setItem(STORAGE_FOCUS,enabled?"1":"0")}catch(e){}}
+    function studentName(){let name=sessionStorage.getItem("nomeAluno");if(!name){name=prompt("Digite seu nome completo para registrar sua atividade:");if(name&&name.trim()){name=name.trim();sessionStorage.setItem("nomeAluno",name)}else name="Anônimo"}return name}
+    async function registerResult(name){
+      if(resultSent)return true;
+      if(!URL_WEBAPP)return false;
+      const data={nome:name,atividade:NOME_ATIVIDADE,acertos:earnedPoints(),total:totalPoints(),erros:errors};
+      try{
+        await fetch(URL_WEBAPP,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify(data),keepalive:true,cache:"no-store"});
+        resultSent=true;
+        return true;
+      }catch(e){console.error("Erro ao registrar resultado:",e);return false}
+    }
+    async function finishObject(){
+      const points=earnedPoints(),total=totalPoints(),percent=Math.round(points/total*100),name=studentName();
+      lastResultName=name;
+      nextBtn.disabled=true;
+      nextBtn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> Enviando resultado...';
+      const sent=await registerResult(name);
+      confetti(56);
+      const sendStatus=sent
+        ? '<div id="sendStatus" class="result-card"><strong><i class="fas fa-cloud-arrow-up"></i> Resultado enviado para registro.</strong></div>'
+        : '<div id="sendStatus" class="result-card"><strong>Não foi possível enviar o resultado.</strong> Verifique a internet e tente novamente.</div>';
+      const retryButton=sent?'':`<button id="retrySendBtn" class="btn btn-secondary" type="button" onclick="retryResult()"><i class="fas fa-cloud-arrow-up"></i> Tentar enviar novamente</button>`;
+      app.innerHTML=`<div class="container"><section class="end-screen"><div class="end-card"><div class="end-icon"><i class="fas fa-boxes-stacked"></i></div><h1>Missão concluída!</h1><p>Você avançou da leitura de uma declaração até um algoritmo que calcula a média e analisa todos os elementos de um vetor.</p><div class="end-stats"><div class="end-stat"><strong>${points}</strong><span>Pontos</span></div><div class="end-stat"><strong>${total}</strong><span>Total possível</span></div><div class="end-stat"><strong>${percent}%</strong><span>Aproveitamento</span></div></div>${sendStatus}<div class="end-actions"><a class="btn btn-primary" href="objetos.html"><i class="fas fa-cubes"></i> Explorar objetos</a>${retryButton}<button class="btn btn-secondary" type="button" onclick="location.reload()"><i class="fas fa-eye"></i> Revisar</button><button class="btn btn-secondary" type="button" onclick="restartObject()"><i class="fas fa-rotate-right"></i> Refazer</button></div><div class="end-secondary"><a href="index.html">Voltar ao início</a></div></div></section></div>`;
+    }
+    async function retryResult(){
+      const button=$("retrySendBtn"),status=$("sendStatus");
+      if(button){button.disabled=true;button.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> Enviando...'}
+      if(status)status.innerHTML='<strong>Enviando o resultado...</strong>';
+      const sent=await registerResult(lastResultName||studentName());
+      if(sent){
+        if(status)status.innerHTML='<strong><i class="fas fa-cloud-arrow-up"></i> Resultado enviado para registro.</strong>';
+        if(button)button.remove();
+      }else{
+        if(status)status.innerHTML='<strong>O envio ainda não foi concluído.</strong> Verifique a internet e tente novamente.';
+        if(button){button.disabled=false;button.innerHTML='<i class="fas fa-cloud-arrow-up"></i> Tentar enviar novamente'}
+      }
+    }
+    function showCompletedChoice(){
+      if(answered.size!==phases.length||$("completionOverlay"))return;
+      const overlay=document.createElement("div");
+      overlay.id="completionOverlay";
+      overlay.className="completion-overlay";
+      overlay.setAttribute("role","dialog");
+      overlay.setAttribute("aria-modal","true");
+      overlay.setAttribute("aria-labelledby","completionTitle");
+      overlay.innerHTML=`<div class="completion-dialog"><div class="end-icon"><i class="fas fa-check"></i></div><h2 id="completionTitle">Esta missão já foi concluída</h2><p>O navegador preservou suas respostas e sua pontuação. Escolha se deseja começar uma nova tentativa ou apenas revisar o que já foi feito.</p><div class="end-actions"><button class="btn btn-primary" type="button" onclick="restartObject()"><i class="fas fa-rotate-right"></i> Refazer do início</button><button class="btn btn-secondary" type="button" onclick="closeCompletedChoice()"><i class="fas fa-eye"></i> Revisar respostas</button><a class="btn btn-secondary" href="objetos.html"><i class="fas fa-cubes"></i> Voltar aos objetos</a></div></div>`;
+      document.body.appendChild(overlay);
+      overlay.querySelector("button")?.focus();
+    }
+    function closeCompletedChoice(){$("completionOverlay")?.remove()}
+    function restartObject(){
+      if(!confirm("Deseja apagar as respostas e começar a missão novamente?"))return;
+      try{
+        localStorage.removeItem(STORAGE_DONE);
+        localStorage.removeItem(STORAGE_ANSWERED);
+        localStorage.removeItem(STORAGE_PHASE);
+        localStorage.removeItem("programacao1_missao_vetores_visualg_done_v1");
+        localStorage.removeItem("programacao1_missao_vetores_visualg_fase_v1");
+      }catch(e){}
+      location.reload();
+    }
+
+    prevBtn.addEventListener("click",previous);nextBtn.addEventListener("click",next);focusBtn.addEventListener("click",()=>setFocus(!document.body.classList.contains("focus-mode")));
+    try{setFocus(localStorage.getItem(STORAGE_FOCUS)==="1")}catch(e){setFocus(false)}
+    renderPhase();
+    if(answered.size===phases.length)showCompletedChoice();
+  </script>
+</body>
+</html>
