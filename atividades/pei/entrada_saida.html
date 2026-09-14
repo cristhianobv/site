@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Coleta de recicláveis — primeiros passos em C</title>
+
+<style>
+:root{
+  --bg:#f3f6f5;
+  --paper:#fff;
+  --ink:#20352f;
+  --muted:#52665e;
+  --green:#16634d;
+  --soft:#eaf5ef;
+  --line:#cbd9d2;
+  --amber:#fff4db;
+  --amberline:#ad7300;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font:19px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+button,input,select{font:inherit}
+button{
+  cursor:pointer;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:11px 19px;
+  background:white;
+  color:var(--ink);
+  min-height:48px;
+}
+button:hover{border-color:var(--green);background:var(--soft)}
+button:disabled{cursor:default;opacity:.55}
+button.primary{
+  background:var(--green);
+  color:white;
+  border-color:var(--green);
+}
+:focus-visible{outline:3px solid #b06900;outline-offset:4px}
+header,main,footer{max-width:880px;margin:auto;padding:22px}
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+}
+.brand{font-size:16px;font-weight:750;letter-spacing:.03em}
+.teacher{
+  display:block;
+  margin-top:3px;
+  color:var(--muted);
+  font-size:15px;
+  font-weight:500;
+  letter-spacing:0;
+}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.tools button{font-size:15px;padding:8px 12px}
+main{padding-top:4px}
+.card{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:clamp(22px,5vw,42px);
+  box-shadow:0 8px 30px #20352f08;
+}
+h1{
+  font-size:clamp(27px,4vw,37px);
+  line-height:1.2;
+  margin:8px 0 22px;
+}
+h2{font-size:23px;line-height:1.3}
+p{margin:14px 0}
+.eyebrow,.small{font-size:15px;color:var(--muted)}
+progress{
+  width:100%;
+  height:10px;
+  accent-color:var(--green);
+  margin:8px 0 19px;
+}
+pre{
+  background:#182b25;
+  color:#f4faf6;
+  padding:20px;
+  border-radius:12px;
+  overflow:auto;
+  line-height:1.65;
+  font-size:18px;
+  tab-size:4;
+  white-space:pre;
+}
+code{font-family:Consolas,"Liberation Mono",monospace}
+p code,li code,label code{
+  background:var(--soft);
+  padding:2px 6px;
+  border-radius:4px;
+}
+.visual{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:18px;
+  flex-wrap:wrap;
+  margin:25px 0;
+}
+.box{
+  border:2px solid var(--line);
+  border-radius:12px;
+  padding:16px 22px;
+  text-align:center;
+  min-width:145px;
+}
+.box strong{display:block;font-size:35px}
+.box .tag{font:18px Consolas,monospace;color:var(--green)}
+.arrow{font-size:30px;color:var(--green)}
+.note{
+  background:var(--soft);
+  border-left:4px solid var(--green);
+  padding:14px 18px;
+  border-radius:5px;
+}
+.options{display:grid;gap:11px;margin:22px 0}
+.option{
+  display:flex;
+  align-items:center;
+  gap:13px;
+  border:2px solid var(--line);
+  border-radius:10px;
+  padding:14px;
+  cursor:pointer;
+  margin-bottom:10px;
+}
+.option:has(input:checked){
+  border-color:var(--green);
+  background:var(--soft);
+}
+input[type=radio],input[type=checkbox]{
+  width:22px;
+  height:22px;
+  accent-color:var(--green);
+  flex-shrink:0;
+}
+input[type=number]{
+  width:150px;
+  padding:10px;
+  border:2px solid var(--line);
+  border-radius:8px;
+}
+input[type=text]{
+  width:100%;
+  padding:12px;
+  border:2px solid var(--line);
+  border-radius:8px;
+}
+select{
+  max-width:100%;
+  padding:10px;
+  border:2px solid var(--line);
+  border-radius:8px;
+  background:white;
+  color:var(--ink);
+}
+.match{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  align-items:center;
+  gap:12px;
+  margin:15px 0;
+}
+.match label{overflow-wrap:anywhere}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.feedback{
+  margin-top:20px;
+  padding:16px 18px;
+  border-radius:10px;
+  background:var(--amber);
+  border-left:5px solid var(--amberline);
+}
+.feedback.good{background:var(--soft);border-color:var(--green)}
+.feedback:empty{display:none}
+nav{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  margin-top:26px;
+}
+nav button{min-width:125px}
+.console{
+  background:#182b25;
+  color:#f4faf6;
+  border-radius:12px;
+  padding:20px;
+  min-height:115px;
+  white-space:pre-wrap;
+  font-family:Consolas,monospace;
+}
+label.block{display:block;margin:18px 0 8px}
+table{border-collapse:collapse;width:100%;font-size:16px}
+th,td{
+  padding:12px 8px;
+  text-align:left;
+  border-bottom:1px solid var(--line);
+  vertical-align:top;
+}
+.table-wrap{overflow:auto}
+details{margin-top:20px}
+summary{cursor:pointer;font-weight:600}
+footer{font-size:14px;color:var(--muted);text-align:center}
+dialog{
+  border:1px solid var(--line);
+  border-radius:16px;
+  max-width:480px;
+  width:90%;
+  padding:26px;
+  color:var(--ink);
+}
+dialog::backdrop{background:#152a2477}
+.print-only{display:none}
+[hidden]{display:none!important}
+@media(max-width:560px){
+  body{font-size:18px}
+  header,main{padding:14px}
+  .match{grid-template-columns:1fr}
+  .arrow{font-size:23px}
+  .box{min-width:110px;padding:12px}
+  pre{font-size:16px}
+}
+@media print{
+  header,footer,nav,.actions,progress,.no-print{
+    display:none!important;
+  }
+  .print-only{display:block}
+  body{background:white;font-size:12pt}
+  main{max-width:none;padding:0}
+  .card{border:0;box-shadow:none;padding:0}
+  th,td{font-size:10pt}
+  tr{break-inside:avoid}
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="brand">
+    PROGRAMAÇÃO I · C
+    <span class="teacher">Prof. Cristhiano Vasconcellos</span>
+  </div>
+
+  <div class="tools">
+    <button id="summaryButton">Meu percurso</button>
+    <button id="restartButton">Recomeçar</button>
+  </div>
+</header>
+
+<main id="main"></main>
+
+<footer id="storageNote">
+  Seu progresso fica neste navegador. Você pode continuar depois.
+</footer>
+
+<dialog id="restartDialog">
+  <h2>Começar uma nova tentativa?</h2>
+  <p>As respostas, o nome e o resumo atuais serão apagados deste navegador.
+  Se quiser guardar o resultado, baixe o resumo antes.</p>
+  <div class="actions">
+    <button id="cancelRestart">Manter meu progresso</button>
+    <button class="primary" id="confirmRestart">Apagar e recomeçar</button>
+  </div>
+</dialog>
+
+<noscript>
+  Ative o JavaScript do navegador para usar esta atividade.
+</noscript>
+
+<script>
+(() => {
+"use strict";
+
+const $ = id => document.getElementById(id);
+
+// Mantém a chave anterior para aproveitar o progresso já salvo.
+const KEY = "coleta-entrada-saida-c-v1";
+const DESTINO = "cristhiano.vasconcellos@iffarroupilha.edu.br";
+
+const esc = value => String(value).replace(/[&<>"']/g, c =>
+  ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  }[c])
+);
+
+const code = value =>
+  "<pre><code>" + esc(value) + "</code></pre>";
+
+const C = String.raw;
+
+const program = C`#include <stdio.h>
+
+int main() {
+    int latinhas;
+
+    printf("Quantas latinhas foram coletadas? ");
+    scanf("%d", &latinhas);
+
+    printf("Latinhas coletadas: %d\n", latinhas);
+
+    return 0;
+}`;
+
+const fresh = () => ({
+  version:1,
+  page:0,
+  started:new Date().toISOString(),
+  studentName:"",
+  records:{},
+  sim:{stage:0,value:""},
+  tests:{seven:false,nineteen:false}
+});
+
+let state = fresh();
+let resumeAvailable = false;
+let storageAvailable = true;
+let sending = false;
+
+try {
+  const saved = JSON.parse(localStorage.getItem(KEY));
+
+  if (
+    saved &&
+    saved.version === 1 &&
+    Number.isInteger(saved.page) &&
+    saved.records &&
+    typeof saved.records === "object"
+  ) {
+    state = {...fresh(), ...saved};
+    state.sim = {...fresh().sim, ...saved.sim};
+    state.tests = {...fresh().tests, ...saved.tests};
+
+    state.studentName =
+      typeof saved.studentName === "string"
+        ? saved.studentName
+        : "";
+
+    resumeAvailable = true;
+  }
+} catch (_) {}
+
+function save() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(state));
+  } catch (_) {
+    storageAvailable = false;
+  }
+}
+
+function record(id) {
+  const r = state.records[id];
+
+  if (!r || typeof r !== "object") {
+    state.records[id] = {};
+  }
+
+  const target = state.records[id];
+
+  target.attempts = Number.isInteger(target.attempts)
+    ? target.attempts : 0;
+
+  target.hints = Number.isInteger(target.hints)
+    ? target.hints : 0;
+
+  target.answers = Array.isArray(target.answers)
+    ? target.answers : [];
+
+  target.history = Array.isArray(target.history)
+    ? target.history : [];
+
+  target.solved = target.solved === true;
+
+  return target;
+}
+
+function download(name, contents) {
+  const url = URL.createObjectURL(
+    new Blob([contents], {type:"text/plain;charset=utf-8"})
+  );
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+const screens = [
+  {
+    title:"Uma coleta, um registro",
+    kind:"read",
+    body:() => `
+      <p>Uma equipe recolheu latinhas para reciclagem.</p>
+
+      <p>Vamos criar um programa que
+      <strong>recebe a quantidade</strong> e
+      <strong>mostra essa quantidade na tela</strong>.</p>
+
+      <div class="visual">
+        <div class="box">
+          Você digita
+          <strong>12</strong>
+        </div>
+
+        <span class="arrow" aria-hidden="true">→</span>
+
+        <div class="box">
+          A tela mostra
+          <strong>12</strong>
+        </div>
+      </div>
+
+      <p class="note">
+        Faça uma etapa de cada vez. Você pode pedir uma pista,
+        tentar novamente ou continuar e voltar depois.
+      </p>
+    `
+  },
+
+  {
+    title:"Uma variável guarda um valor",
+    kind:"read",
+    body:() => `
+      <p>O programa precisa de um espaço para guardar a quantidade.</p>
+
+      <p>Esse espaço é uma <strong>variável</strong>.
+      Vamos chamá-la de <code>latinhas</code>.</p>
+
+      <div class="visual">
+        <div class="box">
+          <span class="tag">latinhas</span>
+          <strong>12</strong>
+          <span class="small">valor guardado neste exemplo</span>
+        </div>
+      </div>
+
+      ${code("int latinhas;")}
+
+      <p><code>int</code> indica uma variável que guarda um
+      <strong>número inteiro</strong>, como 0, 12 ou 25.</p>
+
+      <p class="small">
+        Essa declaração não coloca automaticamente o número 12
+        na variável. Vamos receber o valor pelo teclado.
+      </p>
+    `
+  },
+
+  {
+    id:"variable",
+    title:"Reconheça o nome e o valor",
+    kind:"quiz",
+    prompt:"Nesta imagem, qual é o nome da variável?",
+    context:"Na imagem, a variável latinhas guarda 18.",
+
+    visual:`
+      <div class="visual">
+        <div class="box">
+          <span class="tag">latinhas</span>
+          <strong>18</strong>
+        </div>
+      </div>
+    `,
+
+    options:["18","latinhas","int"],
+    correct:[1],
+
+    why:"latinhas é o nome da variável. 18 é o valor guardado. int é o tipo usado para números inteiros.",
+
+    hint:"Observe a identificação acima do número. Ela dá nome ao espaço que guarda o valor."
+  },
+
+  {
+    title:"printf mostra uma mensagem",
+    kind:"read",
+    body:() => `
+      <p>Use <code>printf</code> para mostrar uma informação na tela.</p>
+
+      ${code('printf("Coleta de latinhas");')}
+
+      <p class="small">Resultado na tela:</p>
+      <div class="console">Coleta de latinhas</div>
+
+      <p>O texto fica entre aspas no código.
+      <strong>As aspas não aparecem no resultado.</strong></p>
+    `
+  },
+
+  {
+    id:"message",
+    title:"O que aparece na tela?",
+    kind:"quiz",
+    prompt:"Assinale o resultado deste comando.",
+    snippet:'printf("Entrega de reciclaveis");',
+
+    options:[
+      "Entrega de reciclaveis",
+      '"Entrega de reciclaveis"',
+      "printf"
+    ],
+
+    correct:[0],
+
+    why:"printf mostra o texto entre aspas: Entrega de reciclaveis. O nome do comando e as aspas não aparecem.",
+
+    hint:"Leia apenas o texto entre as aspas. É ele que será mostrado."
+  },
+
+  {
+    title:"scanf recebe um número",
+    kind:"read",
+    body:() => `
+      <p>Use <code>scanf</code> para ler o número digitado e guardá-lo.</p>
+
+      ${code('scanf("%d", &latinhas);')}
+
+      <div class="visual">
+        <div class="box">
+          Teclado
+          <strong>12</strong>
+        </div>
+
+        <span class="arrow" aria-hidden="true">→</span>
+
+        <div class="box">
+          <span class="tag">latinhas</span>
+          <strong>12</strong>
+        </div>
+      </div>
+
+      <p><code>%d</code> indica a leitura de um número inteiro.</p>
+
+      <p><code>&amp;latinhas</code> indica onde guardar esse número.</p>
+
+      <p class="note">
+        Neste comando, mantenha o <code>&amp;</code>
+        antes do nome da variável.
+      </p>
+    `
+  },
+
+  {
+    id:"input",
+    title:"Qual valor será guardado?",
+    kind:"quiz",
+
+    prompt:"A pessoa digitou 23 e pressionou Enter. Qual valor fica em latinhas?",
+
+    snippet:'scanf("%d", &latinhas);',
+    options:["12","0","23"],
+    correct:[2],
+
+    why:"scanf lê o número digitado. Como a pessoa digitou 23, latinhas recebe 23.",
+
+    hint:"O valor vem do teclado. Nesta situação, a pessoa digitou 23."
+  },
+
+  {
+    title:"Mostre o valor guardado",
+    kind:"read",
+    body:() => `
+      <p>Agora, <code>latinhas</code> está guardando o número
+      <strong>23</strong>.</p>
+
+      ${code('printf("Latinhas: %d", latinhas);')}
+
+      <p class="small">Resultado na tela:</p>
+      <div class="console">Latinhas: 23</div>
+
+      <p>O <code>%d</code> dá lugar ao número guardado em
+      <code>latinhas</code>.</p>
+
+      <p class="note">
+        Depois das aspas, informamos qual variável fornece o valor.
+        Nesse <code>printf</code>, usamos <code>latinhas</code>
+        sem <code>&amp;</code>.
+      </p>
+    `
+  },
+
+  {
+    id:"output",
+    title:"Leia o resultado",
+    kind:"quiz",
+
+    prompt:"Agora latinhas guarda 31. O que este comando mostra?",
+
+    snippet:'printf("Quantidade: %d", latinhas);',
+
+    options:[
+      "Quantidade: %d",
+      "Quantidade: 31",
+      "Quantidade: latinhas"
+    ],
+
+    correct:[1],
+
+    why:"O %d é substituído pelo valor da variável. Como latinhas guarda 31, aparece Quantidade: 31.",
+
+    hint:"Troque mentalmente %d pelo número 31."
+  },
+
+  {
+    id:"associate",
+    title:"Associe cada comando à sua função",
+    kind:"match",
+
+    prompt:"Escolha uma função para cada linha de código.",
+
+    rows:[
+      "int latinhas;",
+      'printf("Coleta");',
+      'scanf("%d", &latinhas);'
+    ],
+
+    options:[
+      "Receber um número",
+      "Declarar uma variável inteira",
+      "Mostrar uma mensagem"
+    ],
+
+    correct:[1,2,0],
+
+    why:"int declara a variável. printf mostra informações. scanf recebe o número digitado e o guarda na variável.",
+
+    hint:"Comece pela linha com int: ela declara a variável. Depois procure o comando que mostra uma mensagem."
+  },
+
+  {
+    id:"complete",
+    title:"Complete a entrada e a saída",
+    kind:"fill",
+
+    prompt:"Escolha o comando que falta em cada linha.",
+
+    rows:[
+      '____("Digite a quantidade: ");',
+      '____("%d", &latinhas);'
+    ],
+
+    options:["scanf","printf"],
+    correct:[1,0],
+
+    why:"Primeiro printf mostra o pedido. Depois scanf recebe o número e o guarda em latinhas.",
+
+    hint:"A primeira linha fala com a pessoa. A segunda recebe a resposta pelo teclado."
+  },
+
+  {
+    title:"Acompanhe o programa",
+    kind:"sim",
+
+    body:() => `
+      <p>Avance um comando por vez e observe o que muda.</p>
+
+      <p class="small">
+        Simulação guiada deste exemplo; não é um compilador.
+      </p>
+
+      <div id="simCode"></div>
+
+      <div class="visual">
+        <div class="box">
+          <span class="tag">latinhas</span>
+          <strong id="memory">—</strong>
+          <span class="small" id="memoryNote"></span>
+        </div>
+      </div>
+
+      <div class="console" id="console" aria-live="polite"></div>
+
+      <div id="inputArea" hidden>
+        <label class="block" for="quantity">
+          Digite a quantidade de latinhas (0 a 999):
+        </label>
+
+        <input
+          id="quantity"
+          type="number"
+          min="0"
+          max="999"
+          step="1"
+          inputmode="numeric"
+        >
+      </div>
+
+      <p id="simExplanation" class="note" aria-live="polite"></p>
+
+      <div class="actions">
+        <button class="primary" id="simNext">
+          Executar próximo comando
+        </button>
+
+        <button id="simReset">Testar outra quantidade</button>
+      </div>
+    `
+  },
+
+  {
+    id:"transfer",
+    title:"Uma nova coleta",
+    kind:"quiz",
+
+    prompt:"Em uma nova execução, a pessoa digitou 47. Qual será a última mensagem?",
+
+    snippet:C`scanf("%d", &latinhas);
+printf("Latinhas coletadas: %d", latinhas);`,
+
+    options:[
+      "Latinhas coletadas: 12",
+      "Latinhas coletadas: 47",
+      "Latinhas coletadas: %d"
+    ],
+
+    correct:[1],
+
+    why:"Nesta execução, scanf guarda 47. Depois printf mostra esse valor no lugar de %d.",
+
+    hint:"O programa recebe um novo valor a cada execução. Use o número digitado nesta situação."
+  },
+
+  {
+    id:"application",
+    title:"Monte seu pequeno programa",
+    kind:"fill",
+
+    prompt:"Escolha o trecho que completa cada linha.",
+
+    rows:[
+      "____ latinhas;",
+      'scanf("%d", ____);',
+      'printf("Latinhas coletadas: %d", ____);'
+    ],
+
+    choices:[
+      ["printf","int","scanf"],
+      ["latinhas","&latinhas",'"latinhas"'],
+      ['"latinhas"',"&latinhas","latinhas"]
+    ],
+
+    correct:[1,1,2],
+
+    why:"int declara a variável. scanf usa &latinhas para indicar onde guardar o número. printf usa latinhas para mostrar seu valor.",
+
+    hint:"Use int na declaração. No scanf, lembre do &. No printf, use apenas o nome da variável."
+  },
+
+  {
+    title:"Agora execute em C",
+    kind:"practice",
+
+    body:() => `
+      <p>Use este modelo no <strong>Dev-C++</strong>
+      ou em um <strong>compilador online de C</strong>.</p>
+
+      ${code(program)}
+
+      <details>
+        <summary>Entenda as partes prontas do modelo</summary>
+
+        <p class="small">
+          <code>#include &lt;stdio.h&gt;</code> permite usar printf e scanf.
+          O programa começa em <code>main</code>.
+          As chaves delimitam esse bloco.
+          <code>return 0;</code> indica encerramento normal.
+          <code>\\n</code> muda para a próxima linha.
+        </p>
+      </details>
+
+      <div class="actions">
+        <button id="downloadC" class="primary">
+          Baixar programa .c
+        </button>
+      </div>
+
+      <p>Execute duas vezes. Em cada execução, digite um número
+      e pressione Enter.</p>
+
+      <label class="option">
+        <input
+          id="test7"
+          type="checkbox"
+          ${state.tests.seven ? "checked" : ""}
+        >
+
+        <span>
+          Testei com 7. A saída mostrou:
+          <strong>Latinhas coletadas: 7</strong>.
+        </span>
+      </label>
+
+      <label class="option">
+        <input
+          id="test19"
+          type="checkbox"
+          ${state.tests.nineteen ? "checked" : ""}
+        >
+
+        <span>
+          Testei com 19. A saída mostrou:
+          <strong>Latinhas coletadas: 19</strong>.
+        </span>
+      </label>
+
+      <p class="small">
+        Marque somente depois de testar.
+        Esta página não verifica a execução no compilador.
+      </p>
+
+      <details>
+        <summary>Preciso de ajuda para executar</summary>
+
+        <p>No Dev-C++, salve o arquivo com a extensão <code>.c</code>
+        e use a opção de compilar e executar.</p>
+
+        <p>No compilador online, selecione C. Se houver um campo
+        “Entrada” ou “stdin”, coloque ali o número antes de executar.</p>
+
+        <p>Se ocorrer um erro, compare aspas, ponto e vírgula
+        e o <code>&amp;</code> com o modelo acima.</p>
+      </details>
+    `
+  }
+];
+
+const objectives = {
+  variable:"Reconhecer nome e valor",
+  message:"Entender printf com texto",
+  input:"Entender a entrada com scanf",
+  output:"Entender %d na saída",
+  associate:"Associar comandos e funções",
+  complete:"Completar entrada e saída",
+  transfer:"Interpretar uma nova entrada",
+  application:"Completar a aplicação em C"
+};
+
+// Normaliza os registros antigos sem apagar respostas válidas.
+Object.keys(objectives).forEach(id => {
+  if (state.records[id]) record(id);
+});
+
+// Nome próprio, sem conflito com window.status.
+function situation(r) {
+  if (!r || !r.attempts) {
+    return r?.answers?.some(a => a !== null && a !== undefined)
+      ? "Selecionou; falta conferir"
+      : "Ainda não respondeu";
+  }
+
+  if (!r.solved) return "Respondeu; precisa retomar";
+
+  const hints = r.success?.hints ?? r.hints ?? 0;
+  const attempt = r.success?.attempt ?? r.attempts;
+
+  if (hints > 0) return "Resolveu com pista";
+
+  if (attempt > 1) {
+    return "Resolveu após retorno explicativo";
+  }
+
+  return "Resolveu na primeira tentativa, sem pista";
+}
+
+function totals() {
+  const ids = Object.keys(objectives);
+
+  return {
+    total:ids.length,
+
+    answered:ids.filter(id =>
+      (state.records[id]?.attempts || 0) > 0
+    ).length,
+
+    solved:ids.filter(id =>
+      state.records[id]?.solved === true
+    ).length
+  };
+}
+
+function checkAttempt(s, answers) {
+  if (
+    answers.length !== s.correct.length ||
+    answers.some(a => a === null || a === undefined)
+  ) {
+    return null;
+  }
+
+  const r = record(s.id);
+
+  if (r.solved) return true;
+
+  r.answers = [...answers];
+  r.attempts++;
+
+  const correct = answers.every((a, i) =>
+    a === s.correct[i]
+  );
+
+  r.history.push({
+    answers:[...answers],
+    correct,
+    hints:r.hints,
+    time:new Date().toISOString()
+  });
+
+  if (correct) {
+    r.solved = true;
+    r.success = {
+      attempt:r.attempts,
+      hints:r.hints
+    };
+  }
+
+  save();
+  return correct;
+}
+
+function frame(title, contents, progress = true) {
+  $("main").innerHTML = `
+    ${progress ? `
+      <div class="eyebrow">
+        Etapa ${state.page + 1} de ${screens.length}
+      </div>
+
+      <progress
+        aria-label="Posição na atividade"
+        max="${screens.length}"
+        value="${state.page + 1}"
+      ></progress>
+    ` : ""}
+
+    <section class="card">
+      <h1 tabindex="-1" id="heading">${title}</h1>
+      ${contents}
+    </section>
+  `;
+
+  $("storageNote").textContent = storageAvailable
+    ? "Seu progresso fica neste navegador. Você pode continuar depois."
+    : "O navegador não permitiu salvar. Baixe seu resumo antes de fechar.";
+
+  $("heading").focus({preventScroll:true});
+  window.scrollTo(0, 0);
+}
+
+function feedback(message, good = false) {
+  $("feedback").className = "feedback" + (good ? " good" : "");
+  $("feedback").textContent = message;
+}
+
+function fields(s, r) {
+  if (s.kind === "quiz") {
+    return `
+      ${s.visual || ""}
+      ${s.snippet ? code(s.snippet) : ""}
+
+      <div
+        class="options"
+        role="radiogroup"
+        aria-label="${esc(s.prompt)}"
+      >
+        ${s.options.map((o, i) => `
+          <label class="option">
+            <input
+              type="radio"
+              name="answer"
+              value="${i}"
+              ${r.answers[0] === i ? "checked" : ""}
+              ${r.solved ? "disabled" : ""}
+            >
+            <span>${esc(o)}</span>
+          </label>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  return s.rows.map((row, i) => `
+    <div class="match">
+      <label for="answer${i}">
+        <code>${esc(row)}</code>
+      </label>
+
+      <select id="answer${i}" ${r.solved ? "disabled" : ""}>
+        <option value="">Escolha uma opção</option>
+
+        ${(s.choices?.[i] || s.options).map((o, j) => `
+          <option
+            value="${j}"
+            ${r.answers[i] === j ? "selected" : ""}
+          >
+            ${esc(o)}
+          </option>
+        `).join("")}
+      </select>
+    </div>
+  `).join("");
+}
+
+function capture(s) {
+  if (s.kind === "quiz") {
+    const selected = document.querySelector(
+      'input[name="answer"]:checked'
+    );
+
+    return [selected ? Number(selected.value) : null];
+  }
+
+  return s.rows.map((_, i) =>
+    $("answer" + i).value === ""
+      ? null
+      : Number($("answer" + i).value)
+  );
+}
+
+function render() {
+  state.page = Math.min(
+    Math.max(state.page, 0),
+    screens.length - 1
+  );
+
+  const s = screens[state.page];
+  const r = s.id ? record(s.id) : null;
+
+  const content = s.body ? s.body() : `
+    <p>${esc(s.prompt)}</p>
+
+    ${fields(s, r)}
+
+    <div class="actions">
+      <button
+        class="primary"
+        id="check"
+        ${r.solved ? "disabled" : ""}
+      >
+        Conferir resposta
+      </button>
+
+      <button id="hint" ${r.solved ? "disabled" : ""}>
+        Quero uma pista
+      </button>
+    </div>
+
+    <div
+      id="feedback"
+      role="status"
+      aria-live="polite"
+      class="feedback"
+    ></div>
+  `;
+
+  frame(s.title, content + `
+    <nav aria-label="Navegação da atividade">
+      <button id="back" ${state.page === 0 ? "disabled" : ""}>
+        Voltar
+      </button>
+
+      <button id="next" class="primary">
+        ${state.page === screens.length - 1
+          ? "Ver meu resumo"
+          : "Continuar"}
+      </button>
+    </nav>
+
+    ${s.id ? `
+      <p class="small">
+        Você pode continuar mesmo sem acertar e voltar depois.
+      </p>
+    ` : ""}
+  `);
+
+  $("back").onclick = () => {
+    state.page--;
+    save();
+    render();
+  };
+
+  $("next").onclick = () => {
+    if (state.page === screens.length - 1) {
+      save();
+      showSummary();
+      return;
+    }
+
+    state.page++;
+    save();
+    render();
+  };
+
+  if (s.id) {
+    document.querySelectorAll(
+      'input[name="answer"],select'
+    ).forEach(el => {
+      el.addEventListener("change", () => {
+        r.answers = capture(s);
+        save();
+      });
+    });
+
+    $("check").onclick = () => {
+      const answers = capture(s);
+      const correct = checkAttempt(s, answers);
+
+      if (correct === null) {
+        feedback(
+          "Escolha uma opção em cada campo antes de conferir."
+        );
+        return;
+      }
+
+      if (correct) {
+        render();
+        return;
+      }
+
+      const rows = answers.length > 1
+        ? answers.map((a, i) =>
+            "Linha " + (i + 1) + ": " +
+            (a === s.correct[i] ? "correta." : "revise.")
+          ).join(" ") + " "
+        : "";
+
+      feedback(
+        rows + s.why +
+        " Você pode mudar a resposta e tentar novamente."
+      );
+    };
+
+    $("hint").onclick = () => {
+      r.hints++;
+      save();
+      feedback(s.hint);
+    };
+
+    if (r.solved) {
+      feedback("Correto. " + s.why, true);
+    } else if (r.attempts) {
+      feedback(s.why + " Você pode tentar novamente.");
+    }
+  }
+
+  if (s.kind === "sim") setupSimulation();
+
+  if (s.kind === "practice") {
+    $("downloadC").onclick = () =>
+      download("coleta_latinhas.c", program);
+
+    $("test7").onchange = e => {
+      state.tests.seven = e.target.checked;
+      save();
+    };
+
+    $("test19").onchange = e => {
+      state.tests.nineteen = e.target.checked;
+      save();
+    };
+  }
+}
+
+function setupSimulation() {
+  const stages = [
+    {
+      line:"int latinhas;",
+      explanation:
+        "Vamos declarar a variável. Clique para executar essa linha.",
+      output:"O programa ainda não mostrou uma mensagem."
+    },
+
+    {
+      line:'printf("Quantas latinhas foram coletadas? ");',
+      explanation:
+        "A variável foi declarada. Ela ainda não recebeu um valor pelo teclado.",
+      output:"O programa ainda não mostrou uma mensagem."
+    },
+
+    {
+      line:'scanf("%d", &latinhas);',
+      explanation:
+        "printf mostrou a pergunta. Digite a quantidade e clique em Guardar número.",
+      output:"Quantas latinhas foram coletadas? "
+    },
+
+    {
+      line:C`printf("Latinhas coletadas: %d\n", latinhas);`,
+      explanation:
+        "scanf guardou o número digitado. Agora vamos mostrar o valor.",
+      output:
+        "Quantas latinhas foram coletadas? " + state.sim.value
+    },
+
+    {
+      line:C`printf("Latinhas coletadas: %d\n", latinhas);`,
+      explanation:
+        "printf mostrou o valor guardado. Você pode testar outra quantidade ou continuar.",
+      output:
+        "Quantas latinhas foram coletadas? " + state.sim.value +
+        "\nLatinhas coletadas: " + state.sim.value
+    }
+  ];
+
+  const n = Math.max(
+    0,
+    Math.min(Number(state.sim.stage) || 0, 4)
+  );
+
+  state.sim.stage = n;
+
+  $("simCode").innerHTML = code(stages[n].line);
+  $("console").textContent = stages[n].output;
+
+  $("memory").textContent = n >= 3
+    ? state.sim.value
+    : "—";
+
+  $("memoryNote").textContent = n === 0
+    ? "ainda não declarada"
+    : n < 3
+      ? "ainda não recebeu um valor"
+      : "valor guardado";
+
+  $("simExplanation").textContent = stages[n].explanation;
+
+  $("inputArea").hidden = n !== 2;
+  $("quantity").value = state.sim.value;
+
+  $("simNext").disabled = n === 4;
+
+  $("simNext").textContent = n === 2
+    ? "Guardar número"
+    : n === 4
+      ? "Simulação concluída"
+      : "Executar próximo comando";
+
+  $("simNext").onclick = () => {
+    if (n === 2) {
+      const value = $("quantity").value.trim();
+
+      if (!/^\d{1,3}$/.test(value)) {
+        $("simExplanation").textContent =
+          "Digite um número inteiro entre 0 e 999, sem vírgula ou ponto.";
+
+        $("quantity").focus();
+        return;
+      }
+
+      state.sim.value = String(Number(value));
+    }
+
+    state.sim.stage = n + 1;
+    save();
+    setupSimulation();
+
+    if (state.sim.stage === 2) {
+      $("quantity").focus();
+    }
+  };
+
+  $("quantity").onkeydown = e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      $("simNext").click();
+    }
+  };
+
+  $("simReset").onclick = () => {
+    state.sim = {stage:0,value:""};
+    save();
+    setupSimulation();
+  };
+}
+
+function answerLabel(s, value, row) {
+  if (value === null || value === undefined) {
+    return "Sem seleção";
+  }
+
+  return (s.choices?.[row] || s.options)?.[value]
+    ?? "Sem seleção";
+}
+
+function summaryText() {
+  const t = totals();
+
+  const lines = [
+    "COLETA DE RECICLÁVEIS — PRIMEIROS PASSOS EM C",
+    "Professor: Cristhiano Vasconcellos",
+    "Estudante: " + (state.studentName || "Não informado"),
+    "Gerado em: " + new Date().toLocaleString("pt-BR"),
+    "",
+    "Atividades respondidas: " + t.answered + "/" + t.total,
+    "Atividades resolvidas: " + t.solved + "/" + t.total,
+    "Telas de explicação não entram nesses totais.",
+    ""
+  ];
+
+  screens.filter(s => s.id).forEach(s => {
+    const r = state.records[s.id];
+
+    lines.push(
+      objectives[s.id],
+      "Enunciado: " + s.prompt
+    );
+
+    if (s.context) lines.push(s.context);
+    if (s.snippet) lines.push("Código:\n" + s.snippet);
+    if (s.rows) lines.push("Linhas:\n" + s.rows.join("\n"));
+
+    lines.push(
+      "Situação: " + situation(r),
+      "Tentativas: " + (r?.attempts || 0),
+      "Consultas a pistas: " + (r?.hints || 0)
+    );
+
+    (r?.history || []).forEach((h, i) => {
+      lines.push(
+        "Tentativa " + (i + 1) + ": " +
+          h.answers.map((a, j) =>
+            answerLabel(s, a, j)
+          ).join(" | "),
+
+        "Resultado: " + (h.correct ? "correto" : "incorreto"),
+
+        "Pistas consultadas até então: " + (h.hints || 0)
+      );
+    });
+
+    if (r?.answers?.length) {
+      lines.push(
+        "Seleção atual: " +
+        r.answers.map((a, j) =>
+          answerLabel(s, a, j)
+        ).join(" | ")
+      );
+    }
+
+    lines.push("");
+  });
+
+  lines.push(
+    "Simulação: " +
+      (state.sim.stage === 4 ? "concluída" : "não concluída"),
+
+    "Teste com 7: " +
+      (state.tests.seven
+        ? "declarado pelo estudante"
+        : "não marcado"),
+
+    "Teste com 19: " +
+      (state.tests.nineteen
+        ? "declarado pelo estudante"
+        : "não marcado"),
+
+    "",
+    "Os testes no compilador são autodeclarados.",
+    "O registro de acertos não comprova, sozinho, domínio do conteúdo."
+  );
+
+  return lines.join("\n");
+}
+
+function showSummary() {
+  if (sending) return;
+
+  const t = totals();
+
+  frame("Seu percurso", `
+    <p>
+      Você respondeu <strong>${t.answered} de ${t.total}</strong>
+      atividades e resolveu <strong>${t.solved}</strong>.
+    </p>
+
+    <p class="small">
+      As telas de explicação não entram nessa contagem.
+      Uma seleção vira tentativa quando você clica em
+      “Conferir resposta”.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>O que praticou</th>
+            <th>Registro</th>
+            <th>Tentativas</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          ${Object.entries(objectives).map(([id, label]) => `
+            <tr>
+              <td>${esc(label)}</td>
+              <td>${esc(situation(state.records[id]))}</td>
+              <td>${state.records[id]?.attempts || 0}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Simulação:
+      <strong>
+        ${state.sim.stage === 4
+          ? "concluída"
+          : "ainda não concluída"}
+      </strong>.
+    </p>
+
+    <p>
+      Testes no compilador informados por você:
+      <strong>
+        ${Number(state.tests.seven) +
+          Number(state.tests.nineteen)} de 2
+      </strong>.
+    </p>
+
+    <p id="printName" class="print-only">
+      Estudante: ${esc(state.studentName || "Não informado")}
+    </p>
+
+    <form id="formResumo" class="no-print">
+      <label class="block" for="nomeResumo">Seu nome:</label>
+
+      <input
+        id="nomeResumo"
+        type="text"
+        required
+        maxlength="120"
+        autocomplete="name"
+        value="${esc(state.studentName || "")}"
+      >
+
+      <p class="small">
+        Ao enviar, seu nome, respostas, tentativas e consultas a pistas
+        serão encaminhados ao professor pelo FormSubmit.
+      </p>
+
+      <div class="actions">
+        <button type="submit" class="primary" id="enviarResumo">
+          Enviar resumo ao professor
+        </button>
+      </div>
+
+      <p
+        id="retornoEnvio"
+        role="status"
+        aria-live="polite"
+        class="feedback"
+      ></p>
+    </form>
+
+    <div class="actions">
+      <button id="return">Voltar à atividade</button>
+      <button id="report">Baixar resumo</button>
+      <button id="print">Imprimir resumo</button>
+    </div>
+
+    <details class="no-print">
+      <summary>Retomar uma etapa</summary>
+
+      <label class="block" for="jump">Escolha a etapa:</label>
+
+      <select id="jump">
+        ${screens.map((s, i) => `
+          <option
+            value="${i}"
+            ${i === state.page ? "selected" : ""}
+          >
+            ${i + 1}. ${esc(s.title)}
+          </option>
+        `).join("")}
+      </select>
+
+      <button id="go">Abrir etapa</button>
+    </details>
+  `, false);
+
+  const name = $("nomeResumo");
+
+  const saveName = () => {
+    state.studentName = name.value.trim();
+
+    $("printName").textContent =
+      "Estudante: " + (state.studentName || "Não informado");
+
+    save();
+  };
+
+  name.oninput = saveName;
+
+  $("return").onclick = render;
+
+  $("report").onclick = () => {
+    saveName();
+    download("resumo_coleta_c.txt", summaryText());
+  };
+
+  $("print").onclick = () => {
+    saveName();
+    window.print();
+  };
+
+  $("go").onclick = () => {
+    state.page = Number($("jump").value);
+    save();
+    render();
+  };
+
+  $("formResumo").onsubmit = async event => {
+    event.preventDefault();
+
+    if (sending) return;
+
+    saveName();
+
+    const message = $("retornoEnvio");
+    const button = $("enviarResumo");
+
+    if (!state.studentName) {
+      message.textContent = "Digite seu nome antes de enviar.";
+      name.focus();
+      return;
+    }
+
+    if (!/^https?:$/.test(location.protocol)) {
+      message.textContent =
+        "Para enviar, abra a atividade pelo link do site. " +
+        "Se estiver usando o arquivo no computador, baixe o resumo.";
+      return;
+    }
+
+    const report = summaryText();
+    const student = state.studentName;
+
+    // Evita envios repetidos e mudança de tela durante a solicitação.
+    const controls = Array.from(
+      document.querySelectorAll("button,input,select")
+    ).map(el => [el, el.disabled]);
+
+    controls.forEach(([el]) => {
+      el.disabled = true;
+    });
+
+    sending = true;
+    button.textContent = "Enviando...";
+    message.className = "feedback";
+    message.textContent = "Aguarde enquanto o resumo é enviado.";
+
+    const controller = new AbortController();
+
+    const timeout = setTimeout(
+      () => controller.abort(),
+      25000
+    );
+
+    let accepted = false;
+
+    try {
+      const response = await fetch(
+        "https://formsubmit.co/ajax/" + DESTINO,
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":"application/json",
+            "Accept":"application/json"
+          },
+
+          signal:controller.signal,
+
+          body:JSON.stringify({
+            _subject:"Programação I — resumo de " + student,
+            _template:"table",
+            estudante:student,
+            atividade:"Coleta de recicláveis — entrada e saída em C",
+            resumo:report
+          })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Falha no serviço");
+      }
+
+      const data = await response.json();
+
+      if (data.success !== true && data.success !== "true") {
+        throw new Error("Envio não confirmado");
+      }
+
+      accepted = true;
+      message.className = "feedback good";
+
+      message.textContent =
+        "O serviço recebeu seu resumo para encaminhar ao professor. " +
+        "Você também pode baixar uma cópia.";
+
+    } catch (_) {
+      message.className = "feedback";
+
+      message.textContent =
+        "Não foi possível confirmar o envio. Baixe o resumo para não " +
+        "perdê-lo. Você pode tentar novamente; se a primeira tentativa " +
+        "tiver sido recebida, o professor poderá receber duas cópias.";
+
+    } finally {
+      clearTimeout(timeout);
+      sending = false;
+
+      controls.forEach(([el, disabled]) => {
+        el.disabled = disabled;
+      });
+
+      button.disabled = accepted;
+
+      button.textContent = accepted
+        ? "Resumo encaminhado"
+        : "Tentar enviar novamente";
+    }
+  };
+}
+
+function restart() {
+  if (sending) return;
+
+  state = fresh();
+  resumeAvailable = false;
+
+  save();
+  render();
+}
+
+function start() {
+  if (resumeAvailable) {
+    frame("Vamos continuar?", `
+      <p>Há um percurso salvo neste navegador.</p>
+
+      <p>
+        Você estava na etapa
+        <strong>
+          ${Math.max(1, Math.min(state.page + 1, screens.length))}
+          de ${screens.length}
+        </strong>.
+      </p>
+
+      <div class="actions">
+        <button class="primary" id="resume">
+          Continuar meu percurso
+        </button>
+
+        <button id="newAttempt">Começar novamente</button>
+      </div>
+    `, false);
+
+    $("resume").onclick = render;
+
+    $("newAttempt").onclick = () => {
+      $("restartDialog").showModal();
+    };
+
+  } else {
+    render();
+  }
+}
+
+$("summaryButton").onclick = showSummary;
+
+$("restartButton").onclick = () => {
+  if (!sending) $("restartDialog").showModal();
+};
+
+$("cancelRestart").onclick = () => {
+  $("restartDialog").close();
+};
+
+$("confirmRestart").onclick = () => {
+  $("restartDialog").close();
+  restart();
+};
+
+start();
+
+})();
+</script>
+</body>
+</html>
