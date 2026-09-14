@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+
+<title>Programação I — Atividades em C</title>
+
+<style>
+:root{
+  --bg:#f3f6f5;
+  --paper:#ffffff;
+  --ink:#20352f;
+  --muted:#52665e;
+  --green:#16634d;
+  --green-dark:#104c3b;
+  --soft:#eaf5ef;
+  --line:#cbd9d2;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:var(--bg);
+  color:var(--ink);
+  font:18px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+
+a{color:inherit}
+
+:focus-visible{
+  outline:3px solid #b06900;
+  outline-offset:5px;
+}
+
+.skip-link{
+  position:absolute;
+  top:-100px;
+  left:16px;
+  z-index:10;
+  padding:12px 18px;
+  border-radius:8px;
+  background:white;
+  color:var(--ink);
+}
+
+.skip-link:focus{top:12px}
+
+header,main,footer{
+  width:min(100% - 40px,960px);
+  margin-inline:auto;
+}
+
+header{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding-block:30px;
+}
+
+.logo{
+  display:grid;
+  place-items:center;
+  flex-shrink:0;
+  width:52px;
+  height:52px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:var(--paper);
+  color:var(--green);
+  font:700 27px/1 Consolas,monospace;
+}
+
+.brand{
+  font-size:15px;
+  font-weight:750;
+  letter-spacing:.06em;
+}
+
+.teacher{
+  margin:3px 0 0;
+  color:var(--muted);
+  font-size:15px;
+}
+
+.hero{
+  position:relative;
+  overflow:hidden;
+  padding:clamp(28px,6vw,54px);
+  border-radius:24px;
+  background:linear-gradient(125deg,#164c3c,#216c53);
+  color:white;
+}
+
+/* Detalhe decorativo discreto. */
+.hero::after{
+  content:"";
+  position:absolute;
+  width:260px;
+  height:260px;
+  right:-150px;
+  top:-130px;
+  border:40px solid #ffffff08;
+  border-radius:50%;
+  pointer-events:none;
+}
+
+.eyebrow{
+  margin:0 0 12px;
+  color:#d8ede2;
+  font-size:14px;
+  font-weight:650;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+h1{
+  position:relative;
+  margin:0;
+  font-size:clamp(31px,5vw,46px);
+  line-height:1.18;
+  letter-spacing:-.025em;
+}
+
+.intro{
+  max-width:580px;
+  margin:20px 0 0;
+  color:#e5f2eb;
+  font-size:19px;
+}
+
+.section-heading{
+  margin:36px 0 18px;
+  font-size:22px;
+  font-weight:700;
+}
+
+.activities{
+  display:grid;
+  gap:20px;
+}
+
+.activity{
+  display:grid;
+  grid-template-columns:64px minmax(0,1fr);
+  gap:22px;
+  padding:clamp(22px,4vw,32px);
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:var(--paper);
+  box-shadow:0 6px 24px #20352f06;
+}
+
+.activity-number{
+  display:grid;
+  place-items:center;
+  width:64px;
+  height:64px;
+  border-radius:16px;
+  background:var(--soft);
+  color:var(--green);
+  font-size:25px;
+  font-weight:750;
+  font-variant-numeric:tabular-nums;
+}
+
+.activity h3{
+  margin:0 0 10px;
+  font-size:clamp(23px,3.5vw,28px);
+  line-height:1.25;
+  letter-spacing:-.015em;
+}
+
+.description{
+  max-width:650px;
+  margin:0;
+  color:var(--muted);
+}
+
+.topics{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:0;
+  margin:20px 0 24px;
+  list-style:none;
+}
+
+.topics li{
+  padding:5px 12px;
+  border:1px solid #dce8e1;
+  border-radius:8px;
+  background:#f6faf7;
+  color:var(--green-dark);
+  font-size:14px;
+}
+
+.topics code{
+  font-family:Consolas,"Liberation Mono",monospace;
+}
+
+.open-activity{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  min-height:50px;
+  padding:12px 21px;
+  border:2px solid var(--green);
+  border-radius:10px;
+  background:var(--green);
+  color:white;
+  font-size:17px;
+  font-weight:650;
+  text-decoration:none;
+}
+
+.open-activity:hover{
+  background:var(--green-dark);
+  border-color:var(--green-dark);
+}
+
+.open-activity .arrow{
+  font-size:22px;
+  line-height:1;
+}
+
+.guidance{
+  display:flex;
+  align-items:flex-start;
+  gap:14px;
+  margin:26px 0 0;
+  padding:19px 22px;
+  border:1px solid var(--line);
+  border-radius:14px;
+}
+
+.guidance-icon{
+  display:grid;
+  place-items:center;
+  flex-shrink:0;
+  width:26px;
+  height:26px;
+  margin-top:2px;
+  border:1.5px solid var(--green);
+  border-radius:50%;
+  color:var(--green);
+  font-size:16px;
+  font-weight:750;
+}
+
+.guidance p{
+  margin:0;
+  color:var(--muted);
+  font-size:16px;
+}
+
+.guidance strong{color:var(--ink)}
+
+footer{
+  padding-block:30px;
+  color:var(--muted);
+  text-align:center;
+  font-size:14px;
+}
+
+@media(max-width:560px){
+  header,main,footer{
+    width:calc(100% - 28px);
+  }
+
+  header{padding-block:22px}
+
+  .hero{border-radius:18px}
+
+  .activity{
+    grid-template-columns:1fr;
+    gap:16px;
+  }
+
+  .activity-number{
+    width:48px;
+    height:48px;
+    border-radius:12px;
+    font-size:21px;
+  }
+
+  .open-activity{width:100%}
+
+  .guidance{padding:17px}
+}
+</style>
+</head>
+
+<body>
+
+<a class="skip-link" href="#atividades">Ir para as atividades</a>
+
+<header>
+  <div class="logo" aria-hidden="true">C</div>
+
+  <div>
+    <div class="brand">PROGRAMAÇÃO I · ADS</div>
+    <p class="teacher">Prof. Cristhiano Vasconcellos</p>
+  </div>
+</header>
+
+<main>
+  <section class="hero" aria-labelledby="titulo">
+    <p class="eyebrow">Atividades interativas</p>
+
+    <h1 id="titulo">Programação em C,<br>um passo de cada vez.</h1>
+
+    <p class="intro">
+      Observe os exemplos, pratique e teste suas ideias.
+      Você pode voltar e tentar novamente quando precisar.
+    </p>
+  </section>
+
+  <section id="atividades" aria-labelledby="lista-titulo">
+    <h2 class="section-heading" id="lista-titulo">
+      Escolha uma atividade
+    </h2>
+
+    <div class="activities">
+
+      <!-- ATIVIDADE 01 -->
+      <article class="activity" aria-labelledby="atividade-01">
+        <div class="activity-number" aria-hidden="true">01</div>
+
+        <div>
+          <h3 id="atividade-01">Entrada e saída de dados</h3>
+
+          <p class="description">
+            Registre uma coleta de latinhas: receba a quantidade
+            digitada e mostre o resultado na tela.
+          </p>
+
+          <ul class="topics" aria-label="Conteúdos desta atividade">
+            <li>Variáveis inteiras</li>
+            <li><code>printf</code></li>
+            <li><code>scanf</code></li>
+          </ul>
+
+          <a
+            class="open-activity"
+            href="coleta_entrada_saida_c.html"
+            aria-label="Abrir atividade 1: Entrada e saída de dados"
+          >
+            Abrir atividade
+            <span class="arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+      </article>
+
+      <!--
+      PARA ADICIONAR UMA NOVA ATIVIDADE:
+
+      Duplique o bloco <article> acima e altere:
+      1. O número da atividade.
+      2. O título e a descrição.
+      3. Os conteúdos da lista.
+      4. O nome do arquivo no href.
+      5. O id do título e o aria-labelledby, mantendo-os iguais.
+      6. O aria-label do link.
+
+      Insira o novo bloco aqui, dentro de .activities.
+      -->
+
+    </div>
+  </section>
+
+  <aside class="guidance" aria-label="Orientação para as atividades">
+    <span class="guidance-icon" aria-hidden="true">i</span>
+
+    <p>
+      <strong>Faça no seu ritmo.</strong>
+      Ao terminar uma atividade, confira seu percurso e
+      envie o resumo ao professor.
+    </p>
+  </aside>
+</main>
+
+<footer>
+  Instituto Federal Farroupilha · Campus Alegrete
+</footer>
+
+</body>
+</html>
