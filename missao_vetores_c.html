@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Objeto educacional gamificado para aprender vetores na linguagem C." />
+  <title>Missão Vetores em C: Central de Dados | Prof. Cristhiano Vasconcellos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" /></noscript>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" /></noscript>
+  <style>
+    :root {
+      --text:#0f172a; --text-soft:#475569; --text-muted:#64748b;
+      --border:rgba(15,23,42,.09); --primary:#22c55e; --primary-dark:#15803d;
+      --danger:#dc2626; --warning:#ca8a04; --blue:#0284c7;
+      --shadow-sm:0 8px 24px rgba(15,23,42,.05);
+      --shadow-md:0 18px 40px rgba(15,23,42,.08);
+      --radius-lg:28px; --radius-md:20px; --container:1120px;
+      --transition:220ms cubic-bezier(.2,.8,.2,1);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{
+      min-height:100vh;overflow-x:hidden;font-family:"Inter",sans-serif;color:var(--text);
+      background:
+        radial-gradient(circle at top left,rgba(34,197,94,.08),transparent 24%),
+        radial-gradient(circle at 90% 18%,rgba(14,165,233,.07),transparent 20%),
+        linear-gradient(180deg,#fcfefe 0%,#f8fafc 35%,#f4f8fb 100%);
+    }
+    body::before{
+      content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+      background-image:linear-gradient(rgba(15,23,42,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(15,23,42,.025) 1px,transparent 1px);
+      background-size:44px 44px;mask-image:radial-gradient(circle at center,black 35%,transparent 85%);
+    }
+    a{color:inherit;text-decoration:none}
+    button,select,input{font:inherit}
+    button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid rgba(14,165,233,.3);outline-offset:3px}
+    .hidden{display:none!important}
+    .container{width:min(var(--container),calc(100% - 36px));margin:0 auto;position:relative;z-index:1}
+    .page-wrap{padding:20px 0 36px}
+
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+    .back-link{display:inline-flex;align-items:center;gap:8px;color:var(--text-soft);font-weight:700;transition:var(--transition)}
+    .back-link:hover{color:var(--text);transform:translateX(-2px)}
+    .top-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+    .chip,.focus-btn{display:inline-flex;align-items:center;gap:8px;padding:9px 13px;color:var(--text-soft);background:rgba(255,255,255,.86);border:1px solid var(--border);border-radius:999px;box-shadow:var(--shadow-sm);font-size:.88rem;font-weight:800}
+    .score i{color:#eab308}.focus-btn{cursor:pointer;transition:var(--transition)}
+    .focus-btn:hover{transform:translateY(-1px);border-color:rgba(34,197,94,.3)}
+    .focus-btn.active{color:var(--primary-dark);background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.25)}
+
+    .hero{margin-bottom:14px}
+    .hero h1{margin-bottom:6px;font-family:"Space Grotesk",sans-serif;font-size:clamp(2rem,4vw,3rem);line-height:1;letter-spacing:-.05em}
+    .hero p{max-width:760px;color:var(--text-soft);line-height:1.6}
+    .progress-box{margin-bottom:14px;padding:12px 15px;background:rgba(255,255,255,.84);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-sm)}
+    .progress-label{display:flex;justify-content:space-between;gap:12px;margin-bottom:7px;color:var(--text-muted);font-size:.84rem;font-weight:700;flex-wrap:wrap}
+    .progress{height:10px;overflow:hidden;background:#e2e8f0;border-radius:999px}
+    .progress-bar{height:100%;width:0;background:linear-gradient(135deg,var(--primary),#34d399);border-radius:inherit;transition:width var(--transition)}
+
+    .activity-card{padding:22px;background:rgba(255,255,255,.94);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);animation:fadeUp 250ms ease both}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+    .phase-track{display:flex;justify-content:center;gap:8px;margin-bottom:20px;overflow-x:auto;padding:2px 2px 8px}
+    .phase-dot{width:38px;height:38px;flex:0 0 38px;border:1px solid var(--border);border-radius:50%;color:var(--text-muted);background:#fff;box-shadow:0 5px 14px rgba(15,23,42,.04);cursor:pointer;font-size:.84rem;font-weight:900;transition:var(--transition)}
+    .phase-dot:hover{transform:translateY(-2px);border-color:rgba(34,197,94,.4)}
+    .phase-dot.attempted{color:#854d0e;background:#fef3c7;border-color:#facc15}
+    .phase-dot.active{color:#052e16;background:rgba(34,197,94,.16);border-color:var(--primary)}
+    .phase-dot.done{color:#fff;background:var(--primary-dark);border-color:var(--primary-dark)}
+
+    .phase-head{max-width:840px;margin:0 auto 18px;text-align:center}
+    .phase-meta{display:flex;justify-content:center;gap:8px;margin-bottom:9px;flex-wrap:wrap}
+    .phase-tag,.level-tag{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:999px;font-size:.8rem;font-weight:800}
+    .phase-tag{color:var(--primary-dark);background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.16)}
+    .level-tag{color:#0369a1;background:rgba(2,132,199,.08);border:1px solid rgba(2,132,199,.12)}
+    .phase-head h2{margin-bottom:8px;font-family:"Space Grotesk",sans-serif;font-size:clamp(1.55rem,3vw,2.1rem);letter-spacing:-.035em}
+    .phase-head p{color:var(--text-soft);font-size:1rem;line-height:1.65}
+
+    .work-area{max-width:960px;margin:0 auto}
+    .work-area.with-memory{max-width:none;display:grid;grid-template-columns:minmax(0,1fr) minmax(390px,.9fr);gap:16px;align-items:start}
+    .challenge-panel,.memory-panel{min-width:0;padding:17px;background:#fff;border:1px solid var(--border);border-radius:22px;box-shadow:0 8px 24px rgba(15,23,42,.04)}
+    .panel-title{display:flex;align-items:center;gap:8px;margin-bottom:12px;color:var(--text-muted);font-size:.8rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+    .prompt{margin-bottom:14px;color:var(--text);font-weight:650;line-height:1.65}
+    .prompt strong{color:var(--primary-dark)}
+    .hint{max-width:960px;margin:12px auto 0;overflow:hidden;background:rgba(248,250,252,.9);border:1px solid var(--border);border-radius:15px}
+    .hint summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;color:var(--text-soft);font-size:.88rem;font-weight:800;cursor:pointer;list-style:none}
+    .hint summary::-webkit-details-marker{display:none}
+    .hint p{padding:0 12px 12px;color:var(--text-soft);font-size:.9rem;line-height:1.6}
+
+    .code-block{padding:16px;overflow-x:auto;color:#e2e8f0;background:#0f172a;border-radius:18px;font-family:"JetBrains Mono",monospace;font-size:13px;line-height:1.75;white-space:pre;font-variant-ligatures:none}
+    .code-line{display:block;transition:var(--transition)}
+    .code-line.active{margin:0 -7px;padding:0 7px;color:#dcfce7;background:rgba(34,197,94,.18);border-left:3px solid var(--primary)}
+    .code-row{display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap}
+    .indent-1{padding-left:18px}.indent-2{padding-left:36px}
+    .code-select{max-width:100%;padding:7px 9px;color:#052e16;background:#dcfce7;border:1px solid #86efac;border-radius:9px;font-family:"JetBrains Mono",monospace;font-size:.8rem;font-weight:800}
