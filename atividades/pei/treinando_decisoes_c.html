@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Treinando decisões na coleta — prática guiada do if em C</title>
+<style>
+:root{
+  --bg:#f3f6f5;--paper:#fff;--ink:#20352f;--muted:#52665e;
+  --green:#16634d;--green2:#0f513f;--soft:#eaf5ef;--line:#cbd9d2;
+  --amber:#fff4db;--amberline:#ad7300;--blue:#eef5ff;--blueline:#3d6ea8;
+  --danger:#fff0ee;--dangerline:#a23d31;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:19px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select{font:inherit}
+button,.button{cursor:pointer;border:1px solid var(--line);border-radius:11px;padding:11px 18px;background:#fff;color:var(--ink);min-height:48px}
+button:hover,.button:hover{border-color:var(--green);background:var(--soft)}
+button:disabled{cursor:default;opacity:.5}
+button.primary{background:var(--green);color:#fff;border-color:var(--green)}
+button.primary:hover{background:var(--green2)}
+button.ghost{background:transparent}
+:focus-visible{outline:3px solid #b06900;outline-offset:4px}
+header,main,footer{max-width:940px;margin:auto;padding:22px}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{font-size:16px;font-weight:800;letter-spacing:.03em}
+.teacher{display:block;margin-top:3px;color:var(--muted);font-size:15px;font-weight:500;letter-spacing:0}
+.tools{display:flex;gap:8px;flex-wrap:wrap}.tools button{font-size:15px;padding:8px 12px}
+main{padding-top:4px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:clamp(22px,5vw,44px);box-shadow:0 8px 30px #20352f08}
+h1{font-size:clamp(28px,4vw,39px);line-height:1.2;margin:8px 0 22px}
+h2{font-size:24px;line-height:1.3}h3{line-height:1.3}
+p{margin:14px 0}
+.eyebrow,.small{font-size:15px;color:var(--muted)}
+.phasebar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+.phasepill{font-size:14px;font-weight:800;color:var(--green);background:var(--soft);border:1px solid #bad8c9;padding:5px 10px;border-radius:999px}
+progress{width:100%;height:11px;accent-color:var(--green);margin:8px 0 20px}
+pre{background:#182b25;color:#f4faf6;padding:19px;border-radius:12px;overflow:auto;line-height:1.6;font-size:17px;tab-size:4;margin:16px 0}
+code{font-family:Consolas,"Liberation Mono",monospace}p code,label code,li code{background:var(--soft);padding:2px 6px;border-radius:4px}
+.note,.feedback,.tip{padding:14px 17px;border-radius:8px;margin:17px 0}
+.note{background:var(--soft);border-left:5px solid var(--green)}
+.tip{background:var(--blue);border-left:5px solid var(--blueline)}
+.feedback{background:var(--amber);border-left:5px solid var(--amberline)}
+.feedback.good{background:var(--soft);border-color:var(--green)}
+.feedback:empty{display:none}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+nav{display:flex;justify-content:space-between;gap:14px;margin-top:28px}nav button{min-width:125px}
+.options{display:grid;gap:11px;margin:22px 0}.option{display:flex;align-items:flex-start;gap:13px;border:2px solid var(--line);border-radius:11px;padding:14px;cursor:pointer}.option:has(input:checked){border-color:var(--green);background:var(--soft)}
+input[type=radio],input[type=checkbox]{width:22px;height:22px;accent-color:var(--green);flex-shrink:0;margin-top:2px}
+input[type=number],input[type=text],select{padding:11px;border:2px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+input[type=text]{width:100%}input[type=number]{width:130px}
+label.block{display:block;margin:18px 0 8px}
+.visual{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:24px 0}
+.box{border:2px solid var(--line);border-radius:13px;padding:13px 17px;text-align:center;min-width:125px;background:#fff}.box strong{display:block;font-size:32px}.box .tag{font:17px Consolas,monospace;color:var(--green)}.symbol{font-size:29px;color:var(--green)}
+.big-result{font-size:clamp(24px,5vw,36px);font-weight:800;text-align:center;padding:20px;border-radius:14px;background:var(--soft);border:2px solid #bad8c9}
+.break-card{text-align:center;padding:16px 0}.break-icon{font-size:54px;line-height:1}.checklist{display:grid;gap:8px;max-width:520px;margin:20px auto;text-align:left}.checkitem{padding:10px 13px;background:var(--soft);border-radius:9px}
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:20px}.match-col{display:grid;gap:10px;align-content:start}.match-title{font-size:14px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:800}.match-card{width:100%;text-align:left;border:2px solid var(--line);padding:13px 14px;min-height:58px}.match-card.selected{border-color:var(--amberline);background:var(--amber)}.match-card.paired{border-color:var(--green);background:var(--soft)}.pair-label{display:block;font-size:14px;color:var(--muted);margin-top:4px}.match-instruction{background:var(--blue);border-left:5px solid var(--blueline);padding:13px 16px;border-radius:8px}
+.order-list{display:grid;gap:11px;margin:20px 0}.order-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;border:2px solid var(--line);border-radius:11px;padding:10px 10px 10px 14px;background:#fff}.order-code{font-family:Consolas,monospace;font-size:16px;white-space:pre-wrap;overflow-wrap:anywhere}.order-buttons{display:flex;gap:6px}.order-buttons button{min-height:42px;padding:6px 11px;font-weight:900}
+.code-lines{display:grid;gap:8px;margin:20px 0}.code-line{width:100%;display:grid;grid-template-columns:42px minmax(0,1fr);text-align:left;padding:0;border:2px solid var(--line);overflow:hidden}.code-line .ln{padding:12px 10px;background:#edf1ef;text-align:center;font:15px Consolas,monospace;color:var(--muted)}.code-line .src{padding:12px 13px;font:16px Consolas,monospace;white-space:pre-wrap}.code-line.selected{border-color:var(--green);background:var(--soft)}
+.code-option{align-items:stretch}.code-option pre{margin:0;flex:1;font-size:15px;padding:13px}
+.machine{border:2px solid var(--line);border-radius:16px;padding:20px;background:#fbfdfc}.machine-track{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:center;margin:20px 0}.machine-cell{text-align:center;border:2px solid var(--line);border-radius:12px;padding:14px 10px;min-height:112px;display:grid;place-items:center}.machine-cell strong{font-size:28px}.machine-arrow{font-size:28px;color:var(--green)}.true{background:var(--soft);border-color:var(--green)!important}.false{background:var(--danger);border-color:var(--dangerline)!important}.preset{display:flex;gap:8px;flex-wrap:wrap}.preset button{min-width:58px}
+.lab-row{display:flex;align-items:end;gap:15px;flex-wrap:wrap;margin:16px 0}.lab-field label{display:block;font-size:15px;color:var(--muted);font-weight:700;margin-bottom:5px}
+.console{background:#182b25;color:#f4faf6;border-radius:12px;padding:20px;min-height:115px;white-space:pre-wrap;font-family:Consolas,monospace}
+.mission{border:2px dashed #8bb6a2;border-radius:15px;padding:18px;background:#fbfdfc}.badge{display:inline-block;font-size:14px;font-weight:800;background:#fff4db;color:#704900;border:1px solid #e4c475;border-radius:999px;padding:4px 10px;margin-bottom:8px}
+table{border-collapse:collapse;width:100%;font-size:16px}th,td{padding:12px 8px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}.table-wrap{overflow:auto}
+details{margin-top:18px}summary{cursor:pointer;font-weight:700}
+footer{font-size:14px;color:var(--muted);text-align:center}footer a{color:var(--green)}
+dialog{border:1px solid var(--line);border-radius:16px;max-width:500px;width:90%;padding:26px;color:var(--ink)}dialog::backdrop{background:#152a2477}
+[hidden]{display:none!important}.print-only{display:none}
+@media(max-width:700px){.machine-track{grid-template-columns:1fr}.machine-arrow{transform:rotate(90deg)}.match-grid{grid-template-columns:1fr}.match-title{margin-top:8px}}
+@media(max-width:560px){body{font-size:18px}header,main{padding:14px}pre{font-size:15px}.order-item{grid-template-columns:1fr}.order-buttons{justify-content:flex-end}.box{min-width:100px;padding:10px}.symbol{font-size:24px}}
+@media print{header,footer,nav,.actions,progress,.no-print{display:none!important}.print-only{display:block}body{background:#fff;font-size:12pt}main{max-width:none;padding:0}.card{border:0;box-shadow:none;padding:0}th,td{font-size:10pt}tr{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">PROGRAMAÇÃO I · C<span class="teacher">Prof. Cristhiano Vasconcellos</span></div>
+  <div class="tools"><button id="summaryButton">Meu percurso</button><button id="restartButton">Recomeçar</button></div>
+</header>
+<main id="main"></main>
+<footer>
+  <p>Seu progresso fica salvo neste navegador. Você pode parar e continuar depois.</p>
+  <a href="index.html" id="indexLink">Voltar à lista de atividades</a>
+</footer>
+<dialog id="restartDialog">
+  <h2>Começar novamente?</h2>
+  <p>As respostas desta atividade serão apagadas deste navegador. Se quiser guardar o resultado atual, baixe o resumo antes.</p>
+  <div class="actions"><button id="cancelRestart">Manter meu progresso</button><button class="primary" id="confirmRestart">Apagar e recomeçar</button></div>
+</dialog>
+<noscript>Ative o JavaScript do navegador para usar a atividade.</noscript>
+<script>
+(() => {
+"use strict";
+const $=id=>document.getElementById(id);
+const KEY="treinando-decisoes-c-v1";
+const DESTINO="cristhiano.vasconcellos@iffarroupilha.edu.br";
+const TITULO="Treinando decisões na coleta — prática guiada do if em C";
+const esc=v=>String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const C=String.raw;
+const code=v=>`<pre><code>${esc(v)}</code></pre>`;
+const fullProgram=C`#include <stdio.h>
+
+int main() {
+    int latinhas;
+
+    printf("Quantas latinhas foram coletadas? ");
+    scanf("%d", &latinhas);
+
+    printf("Total: %d\\n", latinhas);
+
+    if (latinhas > 5) {
+        printf("Boa coleta!\\n");
+    }
+
+    return 0;
+}`;
+
+const fresh=()=>({
+  version:1,page:0,studentName:"",started:new Date().toISOString(),records:{},
+  matchSelected:null,machine:{tests:0,values:[],last:null},
+  lab:{tests:0,history:[]},practice:{downloaded:false},
+  reflection:{autonomy:"",easiest:[],note:""}
+});
+let state=fresh(),resumeAvailable=false,storageAvailable=true,sending=false;
+try{
+  const saved=JSON.parse(localStorage.getItem(KEY));
+  if(saved&&saved.version===1&&Number.isInteger(saved.page)&&saved.records&&typeof saved.records==="object"){
+    state={...fresh(),...saved};
+    state.machine={...fresh().machine,...(saved.machine||{})};
+    state.lab={...fresh().lab,...(saved.lab||{})};
+    state.practice={...fresh().practice,...(saved.practice||{})};
+    state.reflection={...fresh().reflection,...(saved.reflection||{})};
+    resumeAvailable=true;
+  }
+}catch(_){ }
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(_){storageAvailable=false;}}
+function rec(id){if(!state.records[id]||typeof state.records[id]!=="object")state.records[id]={};const r=state.records[id];r.attempts=Number.isInteger(r.attempts)?r.attempts:0;r.hints=Number.isInteger(r.hints)?r.hints:0;r.helps=Number.isInteger(r.helps)?r.helps:0;r.history=Array.isArray(r.history)?r.history:[];r.solved=r.solved===true;return r;}
+function download(name,text){const u=URL.createObjectURL(new Blob([text],{type:"text/plain;charset=utf-8"}));const a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);}
+function box(name,value,caption=""){return `<div class="box"><span class="tag">${esc(name)}</span><strong>${esc(value)}</strong>${caption?`<span class="small">${esc(caption)}</span>`:""}</div>`;}
+
+const screens=[
+ {phase:1,title:"Treino de decisões",kind:"read",body:()=>`
+   <p>Você já conheceu o <code>if</code>. Agora vamos <strong>treinar a mesma ideia de vários jeitos</strong>.</p>
+   <div class="checklist">
+     <div class="checkitem">🔗 Fazer associações</div><div class="checkitem">🧩 Colocar código em ordem</div>
+     <div class="checkitem">🤖 Testar a Máquina do IF</div><div class="checkitem">🔎 Encontrar partes do código</div>
+     <div class="checkitem">🛠️ Descobrir pequenos erros</div><div class="checkitem">🎯 Cumprir uma missão final</div>
+   </div>
+   <p class="note"><strong>Importante:</strong> você não precisa decorar tudo. Use as pistas quando precisar e tente novamente.</p>`},
+
+ {phase:1,id:"match1",category:"Associação",points:4,title:"Associe cada comando à sua função",kind:"match",
+  left:["printf","scanf","int latinhas;","if"],right:["Tomar uma decisão","Criar uma variável inteira","Mostrar na tela","Receber um valor digitado"],correct:[2,3,1,0],
+  hint:"Pense no que cada comando fez nas atividades anteriores.",help:"printf mostra; scanf recebe; int cria uma variável; if faz uma decisão."},
+
+ {phase:1,id:"q1",category:"Associação",points:1,title:"Qual ideia combina com o if?",kind:"quiz",prompt:"Quando usamos if, o programa pode...",options:["tomar uma decisão","somente criar uma variável","somente mostrar um texto"],correct:0,
+  why:"O if verifica uma condição e permite que o programa tome uma decisão.",hint:"Lembre da frase: SE acontecer isso, faça aquilo.",help:"if significa uma decisão: se uma condição for verdadeira, um comando pode ser executado."},
+
+ {phase:1,title:"Primeira parte concluída",kind:"break",icon:"✅",body:()=>`<p>Você revisou <strong>o que cada comando faz</strong>.</p><div class="checklist"><div class="checkitem">✓ <code>printf</code> mostra</div><div class="checkitem">✓ <code>scanf</code> recebe</div><div class="checkitem">✓ <code>int</code> cria uma variável inteira</div><div class="checkitem">✓ <code>if</code> toma uma decisão</div></div><p>Agora vamos organizar pequenos programas.</p>`},
+
+ {phase:2,id:"ord1",category:"Sequência",points:1,title:"Coloque três passos na ordem",kind:"order",
+  blocks:["int latinhas;",'printf("Quantas latinhas? ");','scanf("%d", &latinhas);'],start:[1,2,0],correct:[0,1,2],
+  hint:"Antes de usar latinhas, o programa precisa criar a variável.",help:"Uma sequência segura é: criar a variável → fazer a pergunta → receber o valor."},
+
+ {phase:2,id:"ord2",category:"Sequência",points:1,title:"Agora organize quatro passos",kind:"order",
+  blocks:["int latinhas;",'printf("Quantas latinhas? ");','scanf("%d", &latinhas);','printf("Total: %d", latinhas);'],start:[3,1,0,2],correct:[0,1,2,3],
+  hint:"O programa não pode mostrar o total antes de receber a quantidade.",help:"Primeiro criamos latinhas, depois perguntamos, recebemos e finalmente mostramos o valor."},
+
+ {phase:2,id:"ord3",category:"Sequência",points:1,title:"Onde entra a decisão?",kind:"order",
+  blocks:["int latinhas;",'scanf("%d", &latinhas);',C`if (latinhas > 5) {
+    printf("Boa coleta!");
+}`],start:[2,0,1],correct:[0,1,2],
+  hint:"Para decidir se latinhas é maior que 5, antes precisamos ter um valor em latinhas.",help:"Crie a variável → receba a quantidade → só então teste a condição com if."},
+
+ {phase:2,title:"Você organizou o programa",kind:"break",icon:"🧩",body:()=>`<p>Boa! Um programa acontece em uma <strong>sequência</strong>.</p><div class="visual">${box("1","CRIAR")}<span class="symbol">→</span>${box("2","RECEBER")}<span class="symbol">→</span>${box("3","DECIDIR")}</div><p class="note">Não é necessário escrever tudo de memória agora. Primeiro é importante entender a ordem.</p>`},
+
+ {phase:3,title:"Máquina do IF",kind:"machine"},
+
+ {phase:3,id:"pred8",category:"Decisão com if",points:1,title:"Preveja antes do computador",kind:"quiz",prompt:"latinhas vale 8. A condição latinhas > 5 é...",visual:()=>`<div class="visual">${box("latinhas",8)}<span class="symbol">→</span>${box("pergunta","8 > 5 ?")}</div>`,options:["Verdadeira","Falsa"],correct:0,
+  why:"8 é maior que 5. A condição é verdadeira.",hint:"Compare os dois números.",help:"O sinal > significa maior que. Pergunte: 8 é maior que 5?"},
+
+ {phase:3,id:"pred5",category:"Decisão com if",points:1,title:"E se o valor for exatamente 5?",kind:"quiz",prompt:"latinhas vale 5. A condição latinhas > 5 é...",visual:()=>`<div class="visual">${box("latinhas",5)}<span class="symbol">→</span>${box("pergunta","5 > 5 ?")}</div>`,options:["Verdadeira","Falsa"],correct:1,
+  why:"5 não é maior que 5. Os valores são iguais.",hint:"O símbolo é >, não >=.",help:"Para ser verdadeiro, o número da esquerda precisa ser maior. 5 é igual a 5, então 5 > 5 é falso."},
+
+ {phase:3,id:"pred3",category:"Decisão com if",points:1,title:"Agora com um valor menor",kind:"quiz",prompt:"latinhas vale 3. O programa mostra Boa coleta!?",snippet:C`if (latinhas > 5) {
+    printf("Boa coleta!");
+}`,options:["Sim","Não"],correct:1,
+  why:"3 não é maior que 5. O comando dentro do if é pulado.",hint:"Primeiro descubra se 3 > 5 é verdadeiro ou falso.",help:"O printf está dentro do if. Ele só acontece quando a condição é verdadeira."},
+
+ {phase:3,title:"Hora de ler o código",kind:"break",icon:"🔎",body:()=>`<p>Você já testou valores e previu decisões.</p><p>Agora vamos fazer algo muito importante em programação: <strong>olhar um código e localizar o que cada parte faz</strong>.</p><p class="tip">Você não precisa escrever o programa. Basta observar com calma.</p>`},
+
+ {phase:4,id:"huntScan",category:"Leitura de código",points:1,title:"Ache a linha que recebe o número",kind:"hunt",prompt:"Clique na linha que recebe a quantidade digitada pelo teclado.",
+  lines:["int latinhas;",'printf("Quantas latinhas? ");','scanf("%d", &latinhas);',"if (latinhas > 5) {",'    printf("Boa coleta!");',"}"],correct:2,
+  why:"scanf recebe o valor digitado e o guarda em latinhas.",hint:"Procure o comando de entrada.",help:"O comando usado para receber um valor pelo teclado é scanf."},
+
+ {phase:4,id:"huntIf",category:"Leitura de código",points:1,title:"Ache a decisão",kind:"hunt",prompt:"Clique na linha em que o programa faz a pergunta: latinhas é maior que 5?",
+  lines:["int latinhas;",'printf("Quantas latinhas? ");','scanf("%d", &latinhas);',"if (latinhas > 5) {",'    printf("Boa coleta!");',"}"],correct:3,
+  why:"A linha do if contém a condição latinhas > 5.",hint:"Procure a palavra que significa SE.",help:"A palavra if inicia a decisão."},
+
+ {phase:4,id:"huntPrint",category:"Leitura de código",points:1,title:"Ache a mensagem da decisão",kind:"hunt",prompt:"Clique na linha que mostra Boa coleta! quando a condição é verdadeira.",
+  lines:["int latinhas;",'printf("Quantas latinhas? ");','scanf("%d", &latinhas);',"if (latinhas > 5) {",'    printf("Boa coleta!");',"}"],correct:4,
+  why:"Esse printf está dentro do if e mostra a mensagem.",hint:"Procure a linha que contém as palavras Boa coleta!.",help:"printf é o comando que mostra mensagens na tela."},
+
+ {phase:4,id:"det1",category:"Detetive de erros",points:1,title:"Detetive: qual scanf está correto?",kind:"codequiz",prompt:"Escolha a versão correta para receber um número em latinhas.",
+  options:['scanf("%d", &latinhas);','scanf("%d", latinhas);'],correct:0,
+  why:"Para essa leitura com scanf, usamos &latinhas.",hint:"Compare o que vem antes do nome latinhas.",help:"Nos exemplos que você treinou, scanf usa & antes da variável inteira: &latinhas."},
+
+ {phase:4,id:"det2",category:"Detetive de erros",points:1,title:"Detetive: qual if está correto?",kind:"codequiz",prompt:"Escolha a forma correta da condição.",
+  options:["if (latinhas > 5)","if latinhas > 5"],correct:0,
+  why:"Na forma que estamos usando em C, a condição do if fica entre parênteses.",hint:"Procure a opção com ( e ).",help:"Escrevemos if (condição). Os parênteses fazem parte da estrutura."},
+
+ {phase:4,title:"Laboratório do IF",kind:"lab"},
+
+ {phase:4,id:"mission",category:"Missão final",points:1,title:"Missão final: monte o programa",kind:"order",mission:true,
+  blocks:["int latinhas;",'printf("Quantas latinhas? ");','scanf("%d", &latinhas);','printf("Total: %d\\n", latinhas);',C`if (latinhas > 5) {
+    printf("Boa coleta!\\n");
+}`],start:[4,1,3,0,2],correct:[0,1,2,3,4],
+  hint:"Pense na história do programa: criar → perguntar → receber → mostrar → decidir.",help:"Uma ordem possível é: criar a variável, perguntar, receber, mostrar o total e depois verificar o if."},
+
+ {phase:4,title:"Teste no C de verdade",kind:"practice"},
+ {phase:4,title:"Como foi para você?",kind:"reflection"}
+];
+
+const scored=screens.filter(s=>s.id);
+const totalPoints=scored.reduce((n,s)=>n+(s.points||1),0);
+scored.forEach(s=>{if(state.records[s.id])rec(s.id);});
+function phaseLabel(s){return s.phase?`Parte ${s.phase} de 4`:"Atividade";}
+function feedback(text,good=false){const f=$("feedback");if(!f)return;f.className="feedback"+(good?" good":"");f.innerHTML=text;}
+function registerResult(s,score,max,answerDesc){const r=rec(s.id);if(r.solved)return true;r.attempts++;const correct=score===max;r.history.push({score,max,correct,answer:answerDesc,hints:r.hints,helps:r.helps,time:new Date().toISOString()});if(r.firstScore===undefined)r.firstScore=score;if(correct){r.solved=true;r.success={attempt:r.attempts,hints:r.hints,helps:r.helps};}save();return correct;}
+function currentScore(){let earned=0,solved=0,hints=0,helps=0;scored.forEach(s=>{const r=state.records[s.id];earned+=Number(r?.firstScore||0);if(r?.solved)solved++;hints+=Number(r?.hints||0);helps+=Number(r?.helps||0);});return{earned,total:totalPoints,solved,totalTasks:scored.length,hints,helps,percent:Math.round(earned*100/totalPoints)};}
+function categoryStats(){const map={};scored.forEach(s=>{const k=s.category||"Outros";if(!map[k])map[k]={earned:0,total:0,solved:0,tasks:0};const r=state.records[s.id];map[k].earned+=Number(r?.firstScore||0);map[k].total+=s.points||1;map[k].tasks++;if(r?.solved)map[k].solved++;});return map;}
+function frame(s,contents,withProgress=true){const idx=Math.max(0,screens.indexOf(s));$("main").innerHTML=`
+  <section class="card">
+    ${withProgress?`<div class="phasebar"><span class="eyebrow">Etapa ${idx+1} de ${screens.length}</span><span class="phasepill">${phaseLabel(s)}</span></div><progress max="${screens.length}" value="${idx+1}"></progress>`:""}
+    <h1>${esc(s.title)}</h1>${contents}
+  </section>`;
+}
+function nextNav(s,allowNext=true){const first=state.page===0,last=state.page===screens.length-1;return `<nav><button id="prev" ${first?"disabled":""}>← Voltar</button><button id="next" class="primary" ${allowNext?"":"disabled"}>${last?"Ver meu percurso":"Continuar →"}</button></nav>`;}
+function bindNav(s){const prev=$("prev"),next=$("next");if(prev)prev.onclick=()=>{if(state.page>0){state.page--;save();render();}};if(next)next.onclick=()=>{if(state.page===screens.length-1){showSummary();return;}state.page++;save();render();};}
+function supportButtons(s,r){return `<div class="actions no-print"><button id="hint">💡 Pista</button><button id="help">❓ Não lembro</button></div>`;}
+function bindSupport(s,r){const h=$("hint"),x=$("help");if(h)h.onclick=()=>{r.hints++;save();feedback(`<strong>Pista:</strong> ${esc(s.hint)}`);};if(x)x.onclick=()=>{r.helps++;save();feedback(`<strong>Vamos relembrar:</strong> ${esc(s.help)}`);};}
+
+function render(){const s=screens[state.page];if(!s){state.page=0;save();return render();}
+  if(s.kind==="read"||s.kind==="break")return renderRead(s);
+  if(s.kind==="quiz"||s.kind==="codequiz")return renderQuiz(s);
+  if(s.kind==="match")return renderMatch(s);
+  if(s.kind==="order")return renderOrder(s);
+  if(s.kind==="machine")return renderMachine(s);
+  if(s.kind==="hunt")return renderHunt(s);
+  if(s.kind==="lab")return renderLab(s);
+  if(s.kind==="practice")return renderPractice(s);
+  if(s.kind==="reflection")return renderReflection(s);
+}
+function renderRead(s){const body=s.body?s.body():"";const contents=s.kind==="break"?`<div class="break-card"><div class="break-icon" aria-hidden="true">${s.icon||"✓"}</div>${body}</div>${nextNav(s)}`:`${body}${nextNav(s)}`;frame(s,contents);bindNav(s);}
+
+function renderQuiz(s){const r=rec(s.id);const selected=r.draft!==undefined?r.draft:null;const vis=s.visual?(typeof s.visual==="function"?s.visual():s.visual):"";const options=s.options.map((o,i)=>`<label class="option ${s.kind==="codequiz"?"code-option":""}"><input type="radio" name="answer" value="${i}" ${selected===i?"checked":""}>${s.kind==="codequiz"?code(o):`<span>${esc(o)}</span>`}</label>`).join("");frame(s,`${s.mission?'<span class="badge">MISSÃO</span>':""}<p>${esc(s.prompt)}</p>${vis}${options}<div class="actions"><button id="check" class="primary">Conferir</button></div>${supportButtons(s,r)}<div id="feedback" class="feedback" role="status" aria-live="polite"></div>${nextNav(s,r.solved)}`);document.querySelectorAll('input[name="answer"]').forEach(el=>el.onchange=()=>{r.draft=Number(el.value);save();});$("check").onclick=()=>{if(r.draft===undefined||r.draft===null){feedback("Escolha uma resposta antes de conferir.");return;}const correct=r.draft===s.correct;registerResult(s,correct?1:0,1,s.options[r.draft]);if(correct){feedback(`<strong>Correto!</strong> ${esc(s.why)}`,true);$("next").disabled=false;}else feedback(`${esc(s.why)} Você pode mudar a resposta e tentar novamente.`);};bindSupport(s,r);bindNav(s);if(r.solved){feedback(`<strong>Resolvido.</strong> ${esc(s.why)}`,true);$("next").disabled=false;}}
+
+function renderMatch(s){const r=rec(s.id);if(!r.draft||typeof r.draft!=="object"||Array.isArray(r.draft))r.draft={};const selected=Number.isInteger(state.matchSelected)?state.matchSelected:null;const left=s.left.map((item,i)=>{const paired=r.draft[i]!==undefined?s.right[r.draft[i]]:"Ainda sem par";return `<button class="match-card ${selected===i?"selected":""} ${r.draft[i]!==undefined?"paired":""}" data-left="${i}"><strong>${esc(item)}</strong><span class="pair-label">→ ${esc(paired)}</span></button>`;}).join("");const used=new Set(Object.values(r.draft).map(Number));const right=s.right.map((item,i)=>`<button class="match-card ${used.has(i)?"paired":""}" data-right="${i}">${esc(item)}</button>`).join("");frame(s,`<div class="match-instruction"><strong>Como fazer:</strong> clique primeiro em um cartão da esquerda e depois no significado correto da direita.</div><div class="match-grid"><div class="match-col"><div class="match-title">Comando</div>${left}</div><div class="match-col"><div class="match-title">O que faz</div>${right}</div></div><div class="actions"><button id="clearPairs">Limpar associações</button><button id="check" class="primary">Conferir</button></div>${supportButtons(s,r)}<div id="feedback" class="feedback" role="status" aria-live="polite"></div>${nextNav(s,r.solved)}`);
+ document.querySelectorAll("[data-left]").forEach(b=>b.onclick=()=>{state.matchSelected=Number(b.dataset.left);save();renderMatch(s);});
+ document.querySelectorAll("[data-right]").forEach(b=>b.onclick=()=>{if(!Number.isInteger(state.matchSelected)){feedback("Primeiro escolha um comando do lado esquerdo.");return;}const ri=Number(b.dataset.right);Object.keys(r.draft).forEach(k=>{if(Number(r.draft[k])===ri)delete r.draft[k];});r.draft[state.matchSelected]=ri;state.matchSelected=null;save();renderMatch(s);});
+ $("clearPairs").onclick=()=>{r.draft={};state.matchSelected=null;save();renderMatch(s);};
+ $("check").onclick=()=>{if(Object.keys(r.draft).length<s.left.length){feedback("Faça todas as associações antes de conferir.");return;}let score=0;s.correct.forEach((v,i)=>{if(Number(r.draft[i])===v)score++;});const desc=s.left.map((x,i)=>`${x} → ${s.right[r.draft[i]]||"?"}`).join(" | ");const correct=registerResult(s,score,s.points,desc);if(correct){feedback(`<strong>Todas as associações estão corretas!</strong>`,true);$("next").disabled=false;}else feedback(`Você acertou <strong>${score} de ${s.points}</strong> associações nesta tentativa. Revise os pares e tente novamente.`);};
+ bindSupport(s,r);bindNav(s);if(r.solved){feedback("Associações resolvidas.",true);$("next").disabled=false;}}
+
+function renderOrder(s){const r=rec(s.id);if(!Array.isArray(r.order)||r.order.length!==s.blocks.length)r.order=[...s.start];const items=r.order.map((blockIndex,pos)=>`<div class="order-item"><div class="order-code">${esc(s.blocks[blockIndex])}</div><div class="order-buttons"><button data-up="${pos}" aria-label="Mover bloco para cima" ${pos===0?"disabled":""}>↑</button><button data-down="${pos}" aria-label="Mover bloco para baixo" ${pos===r.order.length-1?"disabled":""}>↓</button></div></div>`).join("");frame(s,`${s.mission?'<div class="mission"><span class="badge">MISSÃO FINAL</span><p>Organize os cinco blocos para formar um programa coerente.</p></div>':'<p>Use as setas <strong>↑</strong> e <strong>↓</strong> para colocar os blocos na ordem correta.</p>'}<div class="order-list">${items}</div><div class="actions"><button id="check" class="primary">Conferir ordem</button></div>${supportButtons(s,r)}<div id="feedback" class="feedback" role="status" aria-live="polite"></div>${nextNav(s,r.solved)}`);
+ document.querySelectorAll("[data-up]").forEach(b=>b.onclick=()=>{const p=Number(b.dataset.up);[r.order[p-1],r.order[p]]=[r.order[p],r.order[p-1]];save();renderOrder(s);});document.querySelectorAll("[data-down]").forEach(b=>b.onclick=()=>{const p=Number(b.dataset.down);[r.order[p],r.order[p+1]]=[r.order[p+1],r.order[p]];save();renderOrder(s);});
+ $("check").onclick=()=>{const correct=r.order.every((v,i)=>v===s.correct[i]);registerResult(s,correct?1:0,1,r.order.join(","));if(correct){feedback(s.mission?"<strong>Missão concluída!</strong> Você organizou um programa que recebe um valor e toma uma decisão.":"<strong>Ordem correta!</strong>",true);$("next").disabled=false;}else feedback("Ainda não está na ordem correta. Use a pista ou mova os blocos e tente novamente.");};bindSupport(s,r);bindNav(s);if(r.solved){feedback(s.mission?"Missão final concluída!":"Ordem resolvida.",true);$("next").disabled=false;}}
+
+function renderMachine(s){const last=state.machine.last;const val=last===null?"—":last;const good=last!==null&&Number(last)>5;frame(s,`<p>Escolha um número e veja a decisão acontecer passo a passo.</p><div class="machine"><div class="preset"><button data-value="3">Testar 3</button><button data-value="5">Testar 5</button><button data-value="8">Testar 8</button></div><div class="lab-row"><div class="lab-field"><label for="machineValue">Ou digite outro valor</label><input id="machineValue" type="number" min="0" max="99" step="1"></div><button id="runMachine" class="primary">Executar</button></div><div class="machine-track"><div class="machine-cell"><div><span class="small">VALOR</span><br><strong>${esc(val)}</strong><br><code>latinhas</code></div></div><div class="machine-arrow">→</div><div class="machine-cell ${last!==null?(good?"true":"false"):""}"><div><span class="small">PERGUNTA</span><br><strong>${last===null?"—":esc(last+" > 5 ?")}</strong><br>${last===null?"":(good?"VERDADEIRO":"FALSO")}</div></div><div class="machine-arrow">→</div><div class="machine-cell ${last!==null&&good?"true":""}"><div><span class="small">RESULTADO</span><br><strong>${last===null?"—":(good?'“Boa coleta!”':'sem mensagem')}</strong></div></div></div><p class="small">Testes feitos nesta máquina: <strong>${state.machine.tests}</strong>.</p></div><p class="note">Observe: quando a pergunta é verdadeira, o comando dentro do <code>if</code> acontece. Quando é falsa, ele é pulado.</p>${nextNav(s)}`);
+ const run=v=>{const n=Number(v);if(!Number.isInteger(n)||n<0||n>99)return false;state.machine.last=n;state.machine.tests++;state.machine.values.push(n);save();renderMachine(s);return true;};document.querySelectorAll("[data-value]").forEach(b=>b.onclick=()=>run(b.dataset.value));$("runMachine").onclick=()=>{if(!run($("machineValue").value))alert("Digite um número inteiro entre 0 e 99.");};bindNav(s);}
+
+function renderHunt(s){const r=rec(s.id);const selected=r.draft!==undefined?r.draft:null;const lines=s.lines.map((line,i)=>`<button class="code-line ${selected===i?"selected":""}" data-line="${i}"><span class="ln">${i+1}</span><span class="src">${esc(line)}</span></button>`).join("");frame(s,`<p>${esc(s.prompt)}</p><div class="code-lines">${lines}</div><div class="actions"><button id="check" class="primary">Conferir</button></div>${supportButtons(s,r)}<div id="feedback" class="feedback" role="status" aria-live="polite"></div>${nextNav(s,r.solved)}`);document.querySelectorAll("[data-line]").forEach(b=>b.onclick=()=>{r.draft=Number(b.dataset.line);save();renderHunt(s);});$("check").onclick=()=>{if(r.draft===undefined){feedback("Clique em uma linha antes de conferir.");return;}const correct=r.draft===s.correct;registerResult(s,correct?1:0,1,`Linha ${r.draft+1}`);if(correct){feedback(`<strong>Você encontrou!</strong> ${esc(s.why)}`,true);$("next").disabled=false;}else feedback(`${esc(s.why)} Observe novamente e tente.`);};bindSupport(s,r);bindNav(s);if(r.solved){feedback(`<strong>Resolvido.</strong> ${esc(s.why)}`,true);$("next").disabled=false;}}
+
+function renderLab(s){const last=state.lab.history[state.lab.history.length-1];const result=last?`${last.value} > ${last.limit} → ${last.good?"VERDADEIRO":"FALSO"}`:"Faça um teste";frame(s,`<p>Aqui você pode mudar <strong>duas coisas</strong>: a quantidade e o limite da decisão.</p><div class="machine"><div class="lab-row"><div class="lab-field"><label for="labValue">Quantidade de latinhas</label><input id="labValue" type="number" min="0" max="99" value="${last?last.value:8}"></div><div class="lab-field"><label for="labLimit">Limite usado no if</label><input id="labLimit" type="number" min="0" max="99" value="${last?last.limit:5}"></div><button id="labRun" class="primary">Testar</button></div><div class="big-result">${esc(result)}</div><div class="console">${last?esc(`latinhas = ${last.value}\n\nif (latinhas > ${last.limit}) {\n    printf("Boa coleta!");\n}\n\nResultado: ${last.good?'mostra “Boa coleta!”':'não mostra a mensagem'}`):"Escolha os números e clique em Testar."}</div><p class="small">Testes feitos no laboratório: <strong>${state.lab.tests}</strong>.</p></div><details><summary>Três experiências para fazer</summary><p>1. Teste 4 com limite 5.<br>2. Teste 8 com limite 5.<br>3. Mantenha 8 e mude o limite para 10.</p><p>Observe como mudar <strong>um número</strong> pode mudar a decisão.</p></details>${nextNav(s)}`);$("labRun").onclick=()=>{const v=Number($("labValue").value),l=Number($("labLimit").value);if(!Number.isInteger(v)||!Number.isInteger(l)||v<0||l<0||v>99||l>99){alert("Use números inteiros entre 0 e 99.");return;}state.lab.tests++;state.lab.history.push({value:v,limit:l,good:v>l,time:new Date().toISOString()});save();renderLab(s);};bindNav(s);}
+
+function renderPractice(s){frame(s,`<p>Agora você pode testar o mesmo programa no <strong>Dev-C++</strong> ou em um compilador online de C.</p>${code(fullProgram)}<div class="actions"><button id="downloadC" class="primary">Baixar programa .c</button></div><div class="tip"><strong>Missão de teste:</strong><br>1. Execute com 3.<br>2. Execute com 8.<br>3. Troque <code>&gt; 5</code> por <code>&gt; 10</code> e execute novamente com 8.</div><p class="small">Aqui não avaliamos velocidade. O objetivo é observar o que muda.</p>${nextNav(s)}`);$("downloadC").onclick=()=>{state.practice.downloaded=true;save();download("treino_if_coleta.c",fullProgram);};bindNav(s);}
+
+function renderReflection(s){const a=state.reflection.autonomy;const easiest=state.reflection.easiest||[];frame(s,`<p>Marque a opção que mais combina com esta atividade. Não existe resposta certa ou errada.</p><h2>Como você conseguiu fazer?</h2><div class="options"><label class="option"><input type="radio" name="autonomy" value="sozinho" ${a==="sozinho"?"checked":""}><span>Consegui fazer a maior parte sozinho.</span></label><label class="option"><input type="radio" name="autonomy" value="pistas" ${a==="pistas"?"checked":""}><span>Consegui usando algumas pistas da atividade.</span></label><label class="option"><input type="radio" name="autonomy" value="ajuda" ${a==="ajuda"?"checked":""}><span>Precisei pedir ajuda para continuar.</span></label></div><h2>O que ficou mais fácil?</h2><div class="options">${["printf","scanf","comparar números","if"].map(x=>`<label class="option"><input type="checkbox" data-easy="${esc(x)}" ${easiest.includes(x)?"checked":""}><span>${esc(x)}</span></label>`).join("")}</div><label class="block" for="reflectionNote">Se quiser, escreva uma frase sobre a atividade:</label><input id="reflectionNote" type="text" maxlength="180" value="${esc(state.reflection.note||"")}" placeholder="Opcional"><p class="note">Pronto. Clique em <strong>Ver meu percurso</strong> para conferir e enviar o resumo ao professor.</p>${nextNav(s)}`);document.querySelectorAll('input[name="autonomy"]').forEach(el=>el.onchange=()=>{state.reflection.autonomy=el.value;save();});document.querySelectorAll("[data-easy]").forEach(el=>el.onchange=()=>{const v=el.dataset.easy;const set=new Set(state.reflection.easiest||[]);el.checked?set.add(v):set.delete(v);state.reflection.easiest=[...set];save();});$("reflectionNote").oninput=e=>{state.reflection.note=e.target.value;save();};bindNav(s);}
+
+function situation(s,r){if(!r||!r.attempts)return"Ainda não conferiu";if(r.solved){if((r.success?.helps||0)>0)return"Resolveu após relembrar";if((r.success?.hints||0)>0)return"Resolveu com pista";if((r.success?.attempt||1)>1)return"Resolveu após nova tentativa";return"Resolveu na primeira tentativa";}return"Ainda precisa retomar";}
+function summaryText(){const t=currentScore(),cats=categoryStats();const lines=[TITULO.toUpperCase(),"Professor: Cristhiano Vasconcellos","Estudante: "+(state.studentName||"Não informado"),"Gerado em: "+new Date().toLocaleString("pt-BR"),"","RESULTADO GERAL — PRIMEIRA CONFERÊNCIA","Pontos: "+t.earned+"/"+t.total+" — "+t.percent+"%","Atividades resolvidas ao final: "+t.solved+"/"+t.totalTasks,"Pistas consultadas: "+t.hints,"Botão Não lembro: "+t.helps,"","DESEMPENHO POR TIPO"];
+ Object.entries(cats).forEach(([k,v])=>lines.push(`${k}: ${v.earned}/${v.total} ponto(s) na primeira conferência; ${v.solved}/${v.tasks} tarefa(s) resolvida(s) ao final`));
+ lines.push("","INTERAÇÕES","Máquina do IF — testes: "+state.machine.tests+(state.machine.values.length?" | valores: "+state.machine.values.join(", "):""),"Laboratório do IF — testes: "+state.lab.tests,"Programa .c baixado: "+(state.practice.downloaded?"sim":"não"));
+ if(state.lab.history.length)lines.push("Últimos testes do laboratório: "+state.lab.history.slice(-6).map(x=>`${x.value}>${x.limit}=${x.good?"V":"F"}`).join(" | "));
+ lines.push("","AUTOPERCEPÇÃO","Autonomia declarada: "+(state.reflection.autonomy||"não marcada"),"Ficou mais fácil: "+((state.reflection.easiest||[]).join(", ")||"não marcado"),"Comentário: "+(state.reflection.note||"sem comentário"),"","DETALHAMENTO DAS TAREFAS");
+ scored.forEach((s,i)=>{const r=state.records[s.id];lines.push(`${i+1}. ${s.title} [${s.category}]`,`Situação: ${situation(s,r)}`,`Primeira conferência: ${r?.firstScore??0}/${s.points||1}`,`Tentativas de conferência: ${r?.attempts||0}`,`Pistas: ${r?.hints||0} | Não lembro: ${r?.helps||0}`);(r?.history||[]).forEach((h,j)=>lines.push(`  Tentativa ${j+1}: ${h.score}/${h.max} — ${h.correct?"correta":"ainda não completa"}`));lines.push("");});
+ lines.push("OBSERVAÇÃO PEDAGÓGICA","A pontuação registra a primeira conferência. O estudante pode continuar tentando até resolver, permitindo observar tanto o desempenho inicial quanto a aprendizagem após pistas e novas tentativas.");return lines.join("\n");}
+
+function showSummary(){if(sending)return;const t=currentScore(),cats=categoryStats();const rows=Object.entries(cats).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${v.earned}/${v.total}</td><td>${v.solved}/${v.tasks}</td></tr>`).join("");const dummy={title:"Seu percurso",phase:null};frame(dummy,`<p>Na primeira conferência, você fez <strong>${t.earned} de ${t.total} pontos (${t.percent}%)</strong>.</p><p>Depois das novas tentativas, você resolveu <strong>${t.solved} de ${t.totalTasks}</strong> tarefas.</p><div class="table-wrap"><table><thead><tr><th>Tipo de atividade</th><th>Primeira conferência</th><th>Resolvidas ao final</th></tr></thead><tbody>${rows}</tbody></table></div><p>Você consultou <strong>${t.hints}</strong> pista(s) e usou <strong>${t.helps}</strong> vez(es) o botão “Não lembro”.</p><p class="small">Esses dados ajudam o professor a perceber o que já está firme e onde ainda vale praticar.</p><form id="formResumo" class="no-print"><label class="block" for="studentName">Seu nome:</label><input id="studentName" type="text" required maxlength="120" autocomplete="name" value="${esc(state.studentName||"")}"><p class="small">O resumo registra respostas, tentativas, pistas, tipos de tarefa e sua autoavaliação.</p><div class="actions"><button id="sendReport" type="submit" class="primary">Enviar resumo ao professor</button></div><p id="sendMessage" class="feedback" role="status" aria-live="polite"></p></form><div class="actions"><button id="return">Voltar à atividade</button><button id="downloadReport">Baixar resumo</button><button id="printReport">Imprimir resumo</button></div><details class="no-print"><summary>Retomar uma etapa</summary><label class="block" for="jump">Escolha a etapa:</label><select id="jump">${screens.map((s,i)=>`<option value="${i}" ${state.page===i?"selected":""}>${i+1}. ${esc(s.title)}</option>`).join("")}</select><button id="go">Abrir etapa</button></details>`,false);
+ const name=$("studentName");const saveName=()=>{state.studentName=name.value.trim();save();};name.oninput=saveName;$("return").onclick=render;$("downloadReport").onclick=()=>{saveName();download("resumo_treinando_decisoes_c.txt",summaryText());};$("printReport").onclick=()=>{saveName();window.print();};$("go").onclick=()=>{state.page=Number($("jump").value);save();render();};$("formResumo").onsubmit=async e=>{e.preventDefault();if(sending)return;saveName();const message=$("sendMessage"),button=$("sendReport");if(!state.studentName){message.textContent="Digite seu nome antes de enviar.";name.focus();return;}if(!/^https?:$/.test(location.protocol)){message.textContent="Abra a atividade pelo link do site para enviar. Se estiver usando o arquivo no computador, baixe o resumo.";return;}const student=state.studentName,report=summaryText(),controls=Array.from(document.querySelectorAll("button,input,select")).map(el=>[el,el.disabled]);controls.forEach(([el])=>el.disabled=true);sending=true;button.textContent="Enviando...";message.className="feedback";message.textContent="Aguarde enquanto o resumo é enviado.";const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),25000);let accepted=false;try{const response=await fetch("https://formsubmit.co/ajax/"+DESTINO,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},signal:controller.signal,body:JSON.stringify({_subject:"Programação I — Treinando decisões — "+student,_template:"table",_url:location.href.split("#")[0],estudante:student,atividade:TITULO,resumo:report})});let data=null;try{data=await response.json();}catch(_){data=null;}if(!response.ok){throw new Error(data?.message||data?.error||("HTTP "+response.status));}if(data?.success!==true&&data?.success!=="true")throw new Error(data?.message||data?.error||"Envio não confirmado pelo FormSubmit");accepted=true;message.className="feedback good";message.textContent="O serviço recebeu seu resumo para encaminhar ao professor. Você também pode baixar uma cópia.";}catch(error){message.className="feedback";const detail=error?.name==="AbortError"?"Tempo de espera excedido.":(error?.message||"Erro desconhecido.");message.textContent="Não foi possível confirmar o envio. FormSubmit informou: "+detail+" Baixe o resumo para não perdê-lo e tente novamente.";}finally{clearTimeout(timeout);sending=false;controls.forEach(([el,disabled])=>el.disabled=disabled);button.disabled=accepted;button.textContent=accepted?"Resumo encaminhado":"Tentar enviar novamente";}};
+}
+function start(){if(resumeAvailable){const s={title:"Vamos continuar?",phase:null};frame(s,`<p>Existe um percurso salvo desta atividade neste navegador.</p><p>Você estava na etapa <strong>${Math.max(1,Math.min(state.page+1,screens.length))} de ${screens.length}</strong>.</p><div class="actions"><button id="resume" class="primary">Continuar meu percurso</button><button id="newAttempt">Começar novamente</button></div>`,false);$("resume").onclick=render;$("newAttempt").onclick=()=>$("restartDialog").showModal();}else render();}
+$("summaryButton").onclick=showSummary;$("restartButton").onclick=()=>{if(!sending)$("restartDialog").showModal();};$("cancelRestart").onclick=()=>$("restartDialog").close();$("confirmRestart").onclick=()=>{if(sending)return;state=fresh();resumeAvailable=false;save();$("restartDialog").close();render();};$("indexLink").onclick=e=>{if(sending)e.preventDefault();};start();
+})();
+</script>
+</body>
+</html>
