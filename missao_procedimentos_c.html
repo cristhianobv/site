@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Missão Procedimentos em C | Prof. Cristhiano Vasconcellos</title>
+<style>
+:root{
+  --ink:#0f172a;--muted:#526174;--green:#15803d;--bright:#22c55e;--blue:#0369a1;
+  --border:#dae4e8;--soft:#f1f5f9;--warn:#92400e;--danger:#b91c1c
+}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:radial-gradient(ellipse at 10% 0%,#e9f8ed,transparent 40%),radial-gradient(ellipse at 95% 20%,#e6f3fc,transparent 35%),#f7fafb;line-height:1.55}
+button,input,select{font:inherit}
+button,a,input,select,summary{-webkit-tap-highlight-color:transparent}
+button{cursor:pointer}
+button:disabled{cursor:default;opacity:.6}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #0284c7;outline-offset:4px}
+main{max-width:1080px;margin:auto;padding:25px 24px 60px}
+.top,.row,.nav,.actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.top,.nav{justify-content:space-between}
+.top a{color:var(--muted);text-decoration:none;font-size:.88rem}
+.byline{font-size:.74rem;text-transform:uppercase;letter-spacing:.09em;font-weight:700;color:var(--green);margin:35px 0 10px}
+h1{font-family:"Segoe UI",system-ui,sans-serif;font-size:clamp(2rem,4vw,3.1rem);line-height:1.08;letter-spacing:-.045em;max-width:820px;margin:0 0 12px}
+h2{font-size:clamp(1.4rem,3vw,2rem);letter-spacing:-.025em;line-height:1.25;margin:12px 0}
+h3{font-size:1rem}
+.subtitle{color:var(--muted);margin:0 0 28px;max-width:820px}
+.chip,.tag{display:inline-flex;border-radius:999px;padding:7px 13px;background:white;border:1px solid var(--border);font-weight:700;font-size:.84rem}
+.chip{color:var(--green)}
+.tag{background:#eaf7ee;color:var(--green);border:0}
+.small{font-size:.85rem;color:var(--muted)}
+.btn{border:1px solid var(--border);background:white;color:var(--ink);padding:11px 17px;border-radius:13px;font-weight:650;text-decoration:none;display:inline-block}
+.btn:hover:not(:disabled){background:#eff8f2;border-color:#81b99a}
+.primary{background:var(--green);color:white;border-color:var(--green)}
+.primary:hover:not(:disabled){background:#166534;color:white}
+.progressbox{margin:20px 0}
+.progresslabels{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:.83rem;margin-bottom:8px}
+.bar{height:7px;border-radius:9px;background:#e1e9e5;overflow:hidden}
+.bar div{height:100%;background:var(--bright);transition:width .2s}
+.card{background:#fff;border:1px solid var(--border);border-radius:26px;box-shadow:0 14px 44px #15382708;padding:30px}
+.track{display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid #edf0f2;padding-bottom:20px;margin-bottom:24px}
+.dot{width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:#f8fafc;font-weight:700;color:var(--muted)}
+.dot.active{outline:2px solid var(--blue);outline-offset:2px}
+.dot.ok{background:#dcfce7;color:#166534;border-color:#86c99b}
+.dot.tried{background:#fff4dc;color:#92400e}
+.prompt{max-width:860px;color:var(--muted);margin-bottom:24px}
+.workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start}
+.workspace.single{display:block}
+.panel{background:#f8fafc;border:1px solid #e3e9ee;border-radius:18px;padding:20px;min-width:0}
+.panel> :first-child{margin-top:0}
+pre,.code{font-family:"Cascadia Code",Consolas,monospace;font-size:.88rem;line-height:1.8;background:#0f172a;color:#e2e8f0;border-radius:14px;padding:16px;overflow-x:auto;tab-size:2;white-space:pre-wrap}
+code{font-family:"Cascadia Code",Consolas,monospace;color:#075985}
+.code select{font-family:inherit;font-size:.84rem;max-width:200px;padding:4px}
+.choices{display:grid;gap:10px}
+.choice{padding:14px;text-align:left;background:#fff;border:1px solid var(--border);border-radius:13px;min-height:48px}
+.choice.selected{background:#edf9f1;border:2px solid var(--green)}
+input[type=text],select{border:1px solid #b7c7d0;border-radius:9px;background:white;padding:10px;min-height:42px;color:var(--ink);max-width:100%}
+label.field{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.feedback{padding:15px 18px;margin:20px 0;border-radius:13px;background:#f1f5f9}
+.feedback.good{background:#edf9f1;border:1px solid #b5dec2}
+.feedback.bad{background:#fff6e5;border:1px solid #ecd3a3}
+.feedback:empty{display:none}
+.hint{margin-top:23px;background:#f8fafc;border-radius:12px;padding:12px 16px;font-size:.9rem}
+.hint summary{cursor:pointer;font-weight:600}
+.hint p{margin-bottom:0;color:var(--muted)}
+.nav{border-top:1px solid #edf0f2;margin-top:22px;padding-top:22px}
+.status{min-height:26px;font-size:.86rem;color:var(--blue);margin-top:10px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0}
+.stat{border-radius:17px;background:#f2f8f5;text-align:center;padding:18px}
+.stat strong{display:block;font-size:2rem;color:var(--green)}
+.stat span{font-size:.82rem}
+.resultlist{padding:0;list-style:none}
+.resultlist li{border-bottom:1px solid var(--border);padding:10px 0;display:flex;justify-content:space-between;gap:16px;font-size:.88rem}
+.focus header.hero,.focus .byline{display:none}
+.focus .progressbox{margin-top:18px}
+.storagewarn{color:var(--warn);font-size:.8rem}
+.sendbox{border:1px solid var(--border);background:#f8fafc;border-radius:16px;padding:18px;margin:20px 0}
+.sendbox p{margin:6px 0}
+.note{border-left:3px solid #38bdf8;padding-left:14px;color:var(--muted)}
+.warm-intro{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:20px;align-items:start;margin:20px 0}
+.warm-code{margin:0}
+.code-line{display:block;padding:2px 8px;margin:0 -8px;border-radius:7px;transition:.2s}
+.code-line.active{background:#164e63;color:#fff}
+.code-line.return{background:#14532d;color:#fff}
+.warm-flow{display:grid;gap:9px}
+.warm-step{border:1px solid var(--border);background:#fff;border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;transition:.2s}
+.warm-step .n,.flowstep .n{width:28px;height:28px;border-radius:9px;background:#e0f2fe;color:#0369a1;display:grid;place-items:center;font-weight:800;flex:0 0 auto}
+.warm-step.active,.flowstep.active{border-color:#0284c7;background:#f0f9ff}
+.warm-step.done,.flowstep.done{border-color:#86c99b;background:#edf9f1}
+.warm-step strong{display:block;margin-bottom:2px}
+.warm-step span{color:var(--muted);font-size:.87rem}
+.warm-output{margin-top:12px;background:#0f172a;color:#e2e8f0;border-radius:14px;padding:13px 15px;font-family:"Cascadia Code",Consolas,monospace;font-size:.84rem;min-height:74px;white-space:pre-line}
+.orderlist{display:grid;gap:9px}
+.orderrow{display:grid;grid-template-columns:38px 1fr 42px 42px;gap:8px;align-items:center;border:1px solid var(--border);border-radius:14px;background:#fff;padding:8px}
+.ordern{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#eaf7ee;color:var(--green);font-weight:800}
+.ordercode{font-family:"Cascadia Code",Consolas,monospace;font-size:.85rem;white-space:pre-wrap}
+.move{width:38px;height:38px;border:1px solid var(--border);background:#f8fafc;border-radius:10px;font-weight:800}
+.matchgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.matchcol{display:grid;gap:9px}
+.matchitem{padding:12px;border:1px solid var(--border);border-radius:12px;background:#fff;text-align:left;min-height:48px}
+.matchitem.selected{outline:2px solid var(--blue);background:#f0f9ff}
+.matchitem.done{background:#edf9f1;border-color:#86c99b}
+.classify{display:grid;gap:10px}
+.classrow{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:12px;align-items:center;border:1px solid var(--border);background:#fff;border-radius:14px;padding:12px}
+.flowmap{display:grid;gap:9px;margin-top:12px}
+.flowstep{display:flex;align-items:flex-start;gap:12px;border:1px solid var(--border);background:#fff;border-radius:14px;padding:11px 13px;transition:.2s}
+.flowstep>span:last-child{padding-top:3px;line-height:1.45}
+.mini{font-size:.82rem;color:var(--muted)}
+.linebtn{display:block;width:100%;text-align:left;border:1px solid transparent;border-radius:7px;background:transparent;font-family:"Cascadia Code",Consolas,monospace;font-size:.84rem;white-space:pre;padding:5px;color:#e2e8f0}
+.linebtn.selected{background:#78350f;border-color:#fbbf24}
+.debugpanel{background:#0f172a;border-radius:14px;padding:12px;overflow:auto}
+@media(max-width:720px){
+  main{padding:18px 12px 40px}.card{padding:19px 15px;border-radius:20px}.workspace{grid-template-columns:1fr}.stats{gap:7px}.stat{padding:12px 5px}.stat strong{font-size:1.6rem}.nav .btn{flex:1;text-align:center}.code,pre{font-size:.8rem;padding:10px}.byline{margin-top:24px}.dot{width:34px;height:34px}.top{gap:8px}.top .btn{padding:7px 10px;font-size:.8rem}.warm-intro{grid-template-columns:1fr}.orderrow{grid-template-columns:34px 1fr 38px 38px}.matchgrid{grid-template-columns:1fr}.classrow{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <a href="objetos.html">← Voltar aos objetos</a>
+    <div class="actions">
+      <button class="btn" id="focus" type="button">Modo foco</button>
+      <button class="btn" id="restart" type="button">Recomeçar</button>
+      <span class="chip" id="score">★ 0 / 100</span>
+    </div>
+  </div>
+
+  <header class="hero">
+    <p class="byline">Programação I · C · Prof. Cristhiano Vasconcellos</p>
+    <h1>Missão Procedimentos em C:<br>Organize o Programa</h1>
+    <p class="subtitle">Divida programas em tarefas menores, acompanhe chamadas, use parâmetros e descubra o que acontece com as variáveis durante a execução.</p>
+  </header>
+
+  <div id="progress"></div>
+  <section class="card" id="app"></section>
+  <p class="small" id="saveNote">Seu progresso fica salvo neste navegador.</p>
+</main>
+
+<script>
+'use strict';
+
+const URL_WEBAPP = 'https://script.google.com/macros/s/AKfycbzoeygTm-R27yb8QOcdH0s7fViv6vGPQ5MtDuCgHBt3RhvFVQKlGxf3A7yQUR3RfRqFcw/exec';
+const TITLE = 'Missão Procedimentos em C: Organize o Programa';
+const KEY = 'programacao1_missao_procedimentos_c_v1';
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const phases = [
+  {
+    title:'Por que modularizar?',
+    level:'Primeiros passos',
+    prompt:'Qual alternativa representa melhor a ideia de modularização?',
+    hint:'Pense em organização: um problema grande pode ser dividido em tarefas menores.',
+    type:'choice',
+    choices:[
+      'Colocar todo o programa dentro de main(), mesmo que ele fique muito comprido.',
+      'Dividir o programa em partes menores, cada uma responsável por uma tarefa.',
+      'Criar várias variáveis globais para evitar chamadas de procedimentos.'
+    ],
+    answer:[1],
+    explain:'Modularizar é dividir um problema maior em partes menores e organizadas. Em C, nesta etapa, usaremos funções do tipo void como procedimentos.'
+  },
+  {
+    title:'Ele só executa quando é chamado',
+    level:'Procedimentos sem parâmetros',
+    prompt:'Observe o código. Quantas vezes a palavra "Olá!" será mostrada?',
+    hint:'Declarar o procedimento não significa executá-lo. Conte as chamadas mensagem(); dentro de main().',
+    type:'choicecode',
+    code:'#include <stdio.h>\n\nvoid mensagem() {\n    printf("Olá!\\n");\n}\n\nint main() {\n    mensagem();\n    mensagem();\n    return 0;\n}',
+    choices:['Nenhuma vez.','Uma vez.','Duas vezes.'],
+    answer:[2],
+    explain:'A função mensagem() é chamada duas vezes dentro de main(), portanto "Olá!" aparece duas vezes.'
+  },
+  {
+    title:'Complete o primeiro procedimento',
+    level:'Procedimentos sem parâmetros',
+    prompt:'Complete a estrutura abaixo para criar e chamar o procedimento titulo().',
+    hint:'Um procedimento em C usa void quando não devolve valor. A chamada usa somente o nome seguido de ().',
+    type:'blanks',
+    answer:['void','titulo();'],
+    code:'{0} titulo() {\n    printf("PROGRAMAÇÃO I\\n");\n}\n\nint main() {\n    {1}\n    return 0;\n}',
+    options:[['void','int','return'],['titulo();','void titulo();','printf(titulo);']],
+    explain:'A declaração começa com void titulo() e a execução ocorre quando main() faz a chamada titulo();.'
+  },
+  {
+    title:'Associe cada trecho à sua função',
+    level:'Reconhecendo a sintaxe',
+    prompt:'Clique em um trecho da esquerda e depois em sua descrição correspondente à direita.',
+    hint:'Procure primeiro o ponto de entrada, depois as declarações de procedimentos e, por fim, a chamada e a variável local.',
+    type:'match',
+    left:[
+      'int main()',
+      'void mostrar_linha()',
+      'mostrar_linha();',
+      'void mostrar_dobro(int numero)',
+      'int dobro;  // dentro de mostrar_dobro()'
+    ],
+    right:[
+      'Define um procedimento que recebe um valor pelo parâmetro numero.',
+      'É uma variável local do procedimento em que foi declarada.',
+      'É o ponto onde começa a execução do programa.',
+      'Faz a chamada de um procedimento, provocando sua execução.',
+      'Define um procedimento que não devolve valor.'
+    ],
+    answer:[2,4,3,0,1],
+    explain:'main() é o ponto de entrada; void indica ausência de retorno; mostrar_linha(); é uma chamada; numero é um parâmetro; e dobro é local ao procedimento em que foi declarada.'
+  },
+  {
+    title:'Acompanhe a ida e a volta',
+    level:'Fluxo de execução',
+    prompt:'Qual será a saída do programa? Depois de responder, use o simulador para acompanhar a execução.',
+    hint:'main() mostra A, chama mensagem(), que mostra B, e depois main() continua mostrando C.',
+    type:'flowchoice',
+    code:'#include <stdio.h>\n\nvoid mensagem() {\n    printf("B\\n");\n}\n\nint main() {\n    printf("A\\n");\n    mensagem();\n    printf("C\\n");\n    return 0;\n}',
+    choices:['A  C  B','A  B  C','B  A  C'],
+    answer:[1],
+    steps:[
+      'main() executa printf("A").',
+      'main() encontra a chamada mensagem().',
+      'mensagem() executa printf("B").',
+      'mensagem() termina e a execução volta para main().',
+      'main() continua e executa printf("C").'
+    ],
+    explain:'A ordem é A, B, C. A chamada desvia temporariamente a execução para mensagem() e, ao terminar, o programa volta para a linha seguinte em main().'
+  },
+  {
+    title:'Envie um valor para o procedimento',
+    level:'Procedimentos com parâmetros',
+    prompt:'Complete o procedimento para receber um número e mostrar seu dobro. Depois complete a chamada que envia o valor 7.',
+    hint:'O parâmetro deve ser inteiro. Na chamada, coloque o valor entre parênteses.',
+    type:'blanks',
+    answer:['int numero','numero * 2','mostrar_dobro(7);'],
+    code:'void mostrar_dobro({0}) {\n    printf("Dobro = %d\\n", {1});\n}\n\nint main() {\n    {2}\n    return 0;\n}',
+    options:[
+      ['int numero','numero int','void numero'],
+      ['numero * 2','2','numero + 2'],
+      ['mostrar_dobro(7);','mostrar_dobro();','void mostrar_dobro(7);']
+    ],
+    explain:'O parâmetro numero recebe o valor enviado na chamada. Com mostrar_dobro(7), numero vale 7 durante aquela execução.'
+  },
+  {
+    title:'Mais de um parâmetro',
+    level:'Procedimentos com parâmetros',
+    prompt:'Complete o procedimento mostrar_soma() e a chamada para que o programa mostre Soma = 9.',
+    hint:'O procedimento precisa receber dois inteiros. A soma usa os dois parâmetros.',
+    type:'blanks',
+    answer:['int a, int b','a + b','mostrar_soma(4, 5);'],
+    code:'void mostrar_soma({0}) {\n    printf("Soma = %d\\n", {1});\n}\n\nint main() {\n    {2}\n    return 0;\n}',
+    options:[
+      ['int a, int b','int a + int b','a, b'],
+      ['a + b','a','b'],
+      ['mostrar_soma(4, 5);','mostrar_soma(9);','mostrar_soma();']
+    ],
+    explain:'Cada valor enviado na chamada é recebido por um parâmetro correspondente. Aqui, a recebe 4 e b recebe 5.'
+  },
+  {
+    title:'Quem existe onde?',
+    level:'Escopo',
+    prompt:'Classifique cada item de acordo com o lugar em que pode ser usado neste programa.',
+    hint:'Parâmetros e variáveis declaradas dentro de uma função pertencem àquela função. A variável x declarada em main() pertence a main().',
+    type:'classify',
+    code:'#include <stdio.h>\n\nvoid mostrar(int numero) {\n    int dobro = numero * 2;\n    printf("%d\\n", dobro);\n}\n\nint main() {\n    int x = 5;\n    mostrar(x);\n    return 0;\n}',
+    items:[
+      ['numero','mostrar'],
+      ['dobro','mostrar'],
+      ['x','main'],
+      ['mostrar()','global']
+    ],
+    labels:{mostrar:'Somente dentro de mostrar()',main:'Somente dentro de main()',global:'Pode ser chamada a partir de main()'},
+    answer:['mostrar','mostrar','main','global'],
+    explain:'numero e dobro existem dentro de mostrar(). x foi declarada dentro de main(). A função mostrar() foi definida fora de main() e pode ser chamada por ela.'
+  },
+  {
+    title:'Passagem por valor',
+    level:'Entendendo os valores',
+    prompt:'Qual será a saída deste programa?',
+    hint:'numero recebe uma cópia do valor de x. Alterar numero não altera automaticamente x.',
+    type:'choicecode',
+    code:'#include <stdio.h>\n\nvoid alterar(int numero) {\n    numero = 100;\n    printf("Dentro: %d\\n", numero);\n}\n\nint main() {\n    int x = 5;\n    alterar(x);\n    printf("Depois: %d\\n", x);\n    return 0;\n}',
+    choices:[
+      'Dentro: 100  |  Depois: 100',
+      'Dentro: 5  |  Depois: 5',
+      'Dentro: 100  |  Depois: 5'
+    ],
+    answer:[2],
+    explain:'Em C, nesse caso, o valor de x é copiado para numero. O procedimento altera sua cópia, mas x continua valendo 5 em main().'
+  },
+  {
+    title:'Missão final: monte um programa modular',
+    level:'Desafio final',
+    prompt:'Os blocos estão embaralhados. Organize-os para formar um programa válido que mostre um cabeçalho e depois o nome Ana.',
+    hint:'Primeiro vêm include e definição do procedimento. Depois main(), as chamadas e return 0.',
+    type:'order',
+    blocks:[
+      '    mostrar_nome("Ana");',
+      '#include <stdio.h>',
+      '    return 0;',
+      'void cabecalho() {\n    printf("=== ADS ===\\n");\n}',
+      'int main() {',
+      'void mostrar_nome(char nome[]) {\n    printf("Nome: %s\\n", nome);\n}',
+      '    cabecalho();',
+      '}'
+    ],
+    answer:[
+      '#include <stdio.h>',
+      'void cabecalho() {\n    printf("=== ADS ===\\n");\n}',
+      'void mostrar_nome(char nome[]) {\n    printf("Nome: %s\\n", nome);\n}',
+      'int main() {',
+      '    cabecalho();',
+      '    mostrar_nome("Ana");',
+      '    return 0;',
+      '}'
+    ],
+    explain:'O compilador precisa conhecer os procedimentos antes das chamadas neste formato. main() chama cabecalho() e mostrar_nome("Ana"), e depois encerra com return 0.'
+  }
+];
+
+function fresh(){
+  return {
+    version:1,
+    id:Date.now()+'-'+Math.random().toString(36).slice(2),
+    name:'',started:false,current:0,focus:false,finished:false,summary:false,send:'idle',
+    items:phases.map(p=>({tries:0,correct:false,first:false,hint:false,draft:p.type==='order'?[...p.blocks]:[],message:''}))
+  };
+}
+
+let storageOK = true;
+function load(){
+  try{
+    const s = JSON.parse(localStorage.getItem(KEY));
+    if(s && s.version===1 && s.items?.length===10 && s.items.every(x=>Array.isArray(x.draft)&&Number.isInteger(x.tries)) && Number.isInteger(s.current) && s.current>=0 && s.current<10){
+      if(s.send==='sending') s.send='uncertain';
+      return s;
+    }
+  }catch(e){ storageOK=false; }
+  return fresh();
+}
+
+let state = load();
+let pair = null;
+let flowStep = 0;
+let busy = false;
+
+function save(){
+  try{ localStorage.setItem(KEY,JSON.stringify(state)); }
+  catch(e){ storageOK=false; }
+  $('saveNote').textContent = storageOK ? 'Seu progresso fica salvo neste navegador.' : 'O navegador não permitiu salvar o progresso. Mantenha esta aba aberta e baixe o resumo ao terminar.';
+  $('saveNote').classList.toggle('storagewarn',!storageOK);
+}
+
+function points(){ return state.items.filter(x=>x.correct).length*10; }
+function errors(){ return state.items.reduce((s,a)=>s+a.tries-(a.correct?1:0),0); }
+
+function header(){
+  document.body.classList.toggle('focus',state.focus);
+  $('focus').textContent = state.focus ? 'Modo completo' : 'Modo foco';
+  $('focus').setAttribute('aria-pressed',String(state.focus));
+  $('score').textContent = '★ '+points()+' / 100';
+  const n = state.items.filter(x=>x.tries>0).length;
+  $('progress').innerHTML = state.started ? `
+    <div class="progressbox">
+      <div class="progresslabels"><span>${n} de 10 atividades respondidas</span><span>void · parâmetros · escopo · passagem por valor</span></div>
+      <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="10" aria-valuenow="${n}" aria-label="Atividades respondidas"><div style="width:${n*10}%"></div></div>
+    </div>` : '';
+}
+
+function warmup(){
+  header();
+  $('app').innerHTML = `
+    <span class="tag">Aquecimento · sem pontuação</span>
+    <h2>O que acontece quando chamamos um procedimento?</h2>
+    <p class="prompt">A execução começa em <code>main()</code>. Quando o programa encontra <code>cabecalho();</code>, ele vai até o procedimento, executa sua tarefa e depois volta para continuar exatamente na linha seguinte.</p>
+    <div class="warm-intro">
+      <div>
+        <pre class="warm-code"><span class="code-line" data-code-step="3">void cabecalho() {</span>
+<span class="code-line" data-code-step="3">    printf("PROGRAMACAO I\\n");</span>
+<span class="code-line" data-code-step="3">}</span>
+
+<span class="code-line">int main() {</span>
+<span class="code-line" data-code-step="1">    printf("Comecando...\\n");</span>
+<span class="code-line" data-code-step="2">    cabecalho();</span>
+<span class="code-line" data-code-step="4">    printf("Continuando...\\n");</span>
+<span class="code-line">    return 0;</span>
+<span class="code-line">}</span></pre>
+        <div class="actions">
+          <button class="btn primary" id="warmStep" type="button">▶ Executar passo a passo</button>
+          <button class="btn" id="warmReset" type="button" disabled>↺ Reiniciar</button>
+        </div>
+        <div class="warm-output" id="warmOutput">Saída do programa aparecerá aqui.</div>
+      </div>
+      <div>
+        <div class="warm-flow" id="warmFlow">
+          <div class="warm-step" data-step="1"><span class="n">1</span><div><strong>Programa principal</strong><span>main() mostra “Começando...”.</span></div></div>
+          <div class="warm-step" data-step="2"><span class="n">2</span><div><strong>Chamada</strong><span>O programa encontra <code>cabecalho();</code>.</span></div></div>
+          <div class="warm-step" data-step="3"><span class="n">3</span><div><strong>Procedimento em execução</strong><span>cabecalho() mostra “PROGRAMACAO I”.</span></div></div>
+          <div class="warm-step" data-step="4"><span class="n">4</span><div><strong>Retorno</strong><span>A execução volta para main() e continua após a chamada.</span></div></div>
+        </div>
+        <p class="feedback" id="warmFlowText" aria-live="polite">Clique em <strong>Executar passo a passo</strong> para acompanhar a ida e a volta.</p>
+      </div>
+    </div>
+    <p class="note"><strong>Como funciona a missão:</strong> são 10 atividades e até 100 pontos. Se errar, você pode tentar novamente ou seguir adiante. As dicas não descontam pontos.</p>
+    <label class="field">Seu nome completo <input type="text" id="student" autocomplete="name" maxlength="100" value="${esc(state.name)}" placeholder="Nome e sobrenome"></label>
+    <p class="small">Ao concluir, seu nome, pontuação e quantidade de erros serão enviados para o registro do professor.</p>
+    <button class="btn primary" id="start" type="button">Começar a missão →</button>
+    <p id="startmsg" role="status"></p>`;
+
+  let warmStep = 0;
+  const flowTexts = [
+    'main() começou e executou <code>printf("Começando...")</code>.',
+    'Agora main() encontrou <code>cabecalho();</code>. A execução vai para o procedimento.',
+    'Dentro de <code>cabecalho()</code>, o comando mostra <strong>PROGRAMACAO I</strong>.',
+    'O procedimento terminou. A execução retorna para main() e continua na linha seguinte.'
+  ];
+  const outputs = ['Comecando...','Comecando...','Comecando...\nPROGRAMACAO I','Comecando...\nPROGRAMACAO I\nContinuando...'];
+
+  function drawWarm(){
+    $('app').querySelectorAll('[data-step]').forEach(el=>{
+      const n=+el.dataset.step;
+      el.classList.toggle('done',n<warmStep);
+      el.classList.toggle('active',n===warmStep);
+    });
+    $('app').querySelectorAll('[data-code-step]').forEach(el=>{
+      const n=+el.dataset.codeStep;
+      el.classList.toggle('active',n===warmStep);
+      el.classList.toggle('return',warmStep===4&&n===4);
+    });
+    $('warmOutput').textContent = warmStep ? outputs[warmStep-1] : 'Saída do programa aparecerá aqui.';
+    $('warmFlowText').innerHTML = warmStep ? flowTexts[warmStep-1] : 'Clique em <strong>Executar passo a passo</strong> para acompanhar a ida e a volta.';
+    $('warmReset').disabled = warmStep===0;
+    $('warmStep').textContent = warmStep===4 ? '↻ Executar novamente' : (warmStep===0 ? '▶ Executar passo a passo' : 'Próximo passo →');
+  }
+
+  $('warmStep').onclick=()=>{ warmStep=warmStep===4?1:warmStep+1; drawWarm(); };
+  $('warmReset').onclick=()=>{ warmStep=0; drawWarm(); };
+  $('start').onclick=()=>{
+    const name=$('student').value.trim();
+    if(name.length<3){ $('startmsg').textContent='Informe seu nome para identificar o resultado.'; $('student').focus(); return; }
+    state.name=name; state.started=true; save(); render();
+  };
+  drawWarm();
+}
+
+function select(k,options,draft){
+  return `<select aria-label="Lacuna ${k+1}" data-input="${k}"><option value="">Escolha</option>${options.map(o=>`<option value="${esc(o)}" ${String(draft[k])===o?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
+}
+function codeBlanks(p,d){
+  return '<div class="code">'+esc(p.code).replace(/\{(\d+)\}/g,(_,k)=>select(+k,p.options[k],d))+'</div>';
+}
+function choices(p,d){
+  return `<div class="choices">${p.choices.map((x,i)=>`<button type="button" class="choice ${d[0]===i?'selected':''}" data-choice="${i}" aria-pressed="${d[0]===i}">${esc(x)}</button>`).join('')}</div>`;
+}
+
+function body(p,a){
+  const d=a.draft;
+  let work='';
+  if(p.type==='choice') work=choices(p,d);
+  if(p.type==='choicecode') work=`<pre>${esc(p.code)}</pre>${choices(p,d)}`;
+  if(p.type==='blanks') work=codeBlanks(p,d);
+  if(p.type==='match'){
+    const rightOrder=p.right.map((_,i)=>i);
+    work=`
+      <div class="matchgrid">
+        <div class="matchcol">
+          <strong>Trechos de código</strong>
+          ${p.left.map((x,i)=>`<button type="button" class="matchitem ${pair===i?'selected':''} ${d[i]!==undefined?'done':''}" data-pair="${i}"><code>${esc(x)}</code>${d[i]!==undefined?`<br><span class="small">→ ${esc(p.right[d[i]])}</span>`:''}</button>`).join('')}
+        </div>
+        <div class="matchcol">
+          <strong>Descrição</strong>
+          ${rightOrder.map(i=>`<button type="button" class="matchitem" data-match-value="${i}">${esc(p.right[i])}</button>`).join('')}
+        </div>
+      </div>
+      <p class="status">${pair===null?'Escolha primeiro um trecho de código à esquerda.':'Agora escolha a descrição correspondente à direita.'}</p>
+      <button class="btn" type="button" id="clearMatch">Limpar associações</button>`;
+  }
+  if(p.type==='flowchoice'){
+    work=`<div class="workspace"><div><pre>${esc(p.code)}</pre>${choices(p,d)}</div><div class="panel"><strong>Simulador da execução</strong><p class="mini">Depois de responder, avance um passo de cada vez.</p><div class="flowmap" id="flowmap">${p.steps.map((s,i)=>`<div class="flowstep" data-flow="${i}"><span class="n">${i+1}</span><span>${esc(s)}</span></div>`).join('')}</div><div class="actions"><button class="btn" type="button" id="flowReset" ${!a.tries?'disabled':''}>Reiniciar</button><button class="btn primary" type="button" id="flowNext" ${!a.tries?'disabled':''}>Próximo passo</button></div></div></div>`;
+  }
+  if(p.type==='classify'){
+    work=`<pre>${esc(p.code)}</pre><div class="classify">${p.items.map((it,i)=>`<div class="classrow"><div><strong><code>${esc(it[0])}</code></strong></div><select data-input="${i}" aria-label="Classificar item ${i+1}"><option value="">Escolha</option>${Object.entries(p.labels).map(([v,l])=>`<option value="${v}" ${d[i]===v?'selected':''}>${esc(l)}</option>`).join('')}</select></div>`).join('')}</div>`;
+  }
+  if(p.type==='order'){
+    work=`<div class="orderlist">${d.map((x,i)=>`<div class="orderrow"><div class="ordern">${i+1}</div><div class="ordercode">${esc(x)}</div><button class="move" type="button" data-up="${i}" aria-label="Mover bloco ${i+1} para cima">↑</button><button class="move" type="button" data-down="${i}" aria-label="Mover bloco ${i+1} para baixo">↓</button></div>`).join('')}</div>`;
+  }
+  return work;
+}
+
+function render(){
+  if(!state.started){ warmup(); return; }
+  if(state.summary){ summary(); return; }
+  header();
+  const p=phases[state.current], a=state.items[state.current];
+  $('app').innerHTML=`
+    <nav class="track" aria-label="Atividades">${phases.map((x,i)=>`<button type="button" class="dot ${i===state.current?'active':''} ${state.items[i].correct?'ok':state.items[i].tries?'tried':''}" data-go="${i}" aria-label="Atividade ${i+1}: ${x.title}, ${state.items[i].correct?'correta':state.items[i].tries?'respondida, revisar':'não respondida'}" ${i===state.current?'aria-current="step"':''}>${i+1}</button>`).join('')}</nav>
+    <span class="tag">${p.level} · 10 pontos</span>
+    <h2 tabindex="-1" id="phaseTitle">${state.current+1}. ${p.title}</h2>
+    <p class="prompt">${p.prompt}</p>
+    ${body(p,a)}
+    <details class="hint" id="hint" ${a.hint?'open':''}><summary>Preciso de uma dica</summary><p>${p.hint}</p></details>
+    <div class="feedback ${a.correct?'good':a.tries?'bad':''}" role="status" aria-live="polite" id="feedback">${a.correct?'<strong>Correto! +10 pontos nesta atividade.</strong> '+p.explain:a.tries?(state.finished?'<strong>Para revisar:</strong> '+p.explain:'<strong>Ainda não.</strong> '+a.message+' Você pode tentar novamente ou avançar.'):''}</div>
+    <div class="nav">
+      <button class="btn" type="button" id="prev" ${state.current===0?'disabled':''}>← Anterior</button>
+      <button class="btn primary" type="button" id="check" ${a.correct||state.finished?'disabled':''}>${a.correct?'✓ Resolvida':'Conferir resposta'}</button>
+      <button class="btn" type="button" id="next" ${!a.tries?'disabled':''}>${state.current===9?(state.finished?'Ver resumo':'Concluir e registrar'):'Próxima →'}</button>
+    </div>
+    ${state.finished?'<p class="small">Revisão da tentativa concluída. Para responder novamente, use Recomeçar.</p>':''}`;
+
+  $('app').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(+b.dataset.go));
+  $('prev').onclick=()=>go(state.current-1);
+  $('next').onclick=next;
+  $('check').onclick=check;
+  $('hint').ontoggle=()=>{ if($('hint').open&&!a.hint&&!state.finished){a.hint=true;save();} };
+
+  const locked=a.correct||state.finished;
+  $('app').querySelectorAll('[data-input]').forEach(el=>{
+    el.disabled=locked;
+    el.onchange=()=>{ a.draft[+el.dataset.input]=el.value; save(); };
+    el.oninput=el.onchange;
+  });
+  $('app').querySelectorAll('[data-choice]').forEach(el=>{
+    el.disabled=locked;
+    el.onclick=()=>{ a.draft=[+el.dataset.choice]; save(); render(); };
+  });
+  $('app').querySelectorAll('[data-pair]').forEach(el=>{
+    el.disabled=locked;
+    el.onclick=()=>{ pair=+el.dataset.pair; render(); };
+  });
+  $('app').querySelectorAll('[data-match-value]').forEach(el=>{
+    el.disabled=locked;
+    el.onclick=()=>{
+      if(pair===null){ $('feedback').textContent='Primeiro escolha um trecho de código à esquerda.'; return; }
+      const value=+el.dataset.matchValue;
+      Object.keys(a.draft).forEach(k=>{ if(a.draft[k]===value) a.draft[k]=undefined; });
+      a.draft[pair]=value;
+      pair=null;
+      save();render();
+    };
+  });
+  if($('clearMatch')){
+    $('clearMatch').disabled=locked;
+    $('clearMatch').onclick=()=>{ a.draft=[]; pair=null; save();render(); };
+  }
+  $('app').querySelectorAll('[data-up]').forEach(el=>{
+    el.disabled=locked||+el.dataset.up===0;
+    el.onclick=()=>moveOrder(+el.dataset.up,-1);
+  });
+  $('app').querySelectorAll('[data-down]').forEach(el=>{
+    el.disabled=locked||+el.dataset.down===a.draft.length-1;
+    el.onclick=()=>moveOrder(+el.dataset.down,1);
+  });
+
+  if($('flowNext')){
+    $('flowNext').onclick=()=>{ flowStep=Math.min(p.steps.length,flowStep+1); drawFlow(); };
+    $('flowReset').onclick=()=>{ flowStep=0; drawFlow(); };
+    drawFlow();
+  }
+}
+
+function moveOrder(i,delta){
+  const a=state.items[state.current], j=i+delta;
+  if(j<0||j>=a.draft.length) return;
+  [a.draft[i],a.draft[j]]=[a.draft[j],a.draft[i]];
+  save();render();
+}
+
+function drawFlow(){
+  const p=phases[state.current];
+  if(p.type!=='flowchoice'||!$('flowmap')) return;
+  $('flowmap').querySelectorAll('[data-flow]').forEach((el,i)=>{
+    el.classList.toggle('done',i<flowStep-1);
+    el.classList.toggle('active',i===flowStep-1);
+  });
+  $('flowNext').disabled=!state.items[state.current].tries||flowStep>=p.steps.length;
+  $('flowReset').disabled=!state.items[state.current].tries||flowStep===0;
+}
+
+function go(i){
+  if(i<0||i>9||busy) return;
+  state.current=i; state.summary=false; pair=null; flowStep=0; save(); render();
+  $('phaseTitle')?.focus();
+}
+
+function equal(a,b){ return String(a)===String(b); }
+function complete(p,d){
+  if(p.type==='order') return d.length===p.answer.length;
+  return p.answer.every((_,i)=>d[i]!==undefined&&d[i]!==null&&String(d[i]).trim()!=='');
+}
+
+function showConfetti(){
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const layer=document.createElement('div');
+  layer.setAttribute('aria-hidden','true');
+  Object.assign(layer.style,{position:'fixed',inset:'0',overflow:'hidden',pointerEvents:'none',zIndex:'9999'});
+  document.body.appendChild(layer);
+  const colors=['#22c55e','#34d399','#0ea5e9','#facc15','#fb7185'];
+  for(let i=0;i<28;i++){
+    const piece=document.createElement('span');
+    const left=Math.random()*100, delay=Math.random()*140, duration=780+Math.random()*360;
+    Object.assign(piece.style,{position:'absolute',left:left+'vw',top:'-24px',width:(7+Math.random()*6)+'px',height:(10+Math.random()*9)+'px',background:colors[Math.floor(Math.random()*colors.length)],borderRadius:'2px',opacity:'1'});
+    layer.appendChild(piece);
+    piece.animate([
+      {transform:'translate3d(0,0,0) rotate(0deg)',opacity:1},
+      {transform:'translate3d('+(Math.random()*120-60)+'px,105vh,0) rotate('+(360+Math.random()*540)+'deg)',opacity:.15}
+    ],{duration,delay,easing:'cubic-bezier(.2,.7,.2,1)',fill:'forwards'});
+  }
+  setTimeout(()=>layer.remove(),1400);
+}
+
+function check(){
+  const p=phases[state.current], a=state.items[state.current];
+  if(a.correct||state.finished) return;
+  const d=a.draft;
+  if(!complete(p,d)){
+    $('feedback').textContent='Complete sua resposta antes de conferir. Depois de responder, você poderá avançar mesmo se errar.';
+    return;
+  }
+  const ok = p.type==='order' ? p.answer.every((v,i)=>d[i]===v) : p.answer.every((v,i)=>equal(d[i],v));
+  a.tries++;
+  if(a.tries===1) a.first=ok;
+  a.correct=ok;
+  a.message = p.type==='order' ? 'Confira a ordem: include, procedimentos, main(), chamadas e return 0.' :
+              p.type==='match' ? 'Confira o papel de cada trecho: definição, chamada, parâmetro, variável local e main().' :
+              p.type==='flowchoice' ? 'Siga a execução: main() → chamada → procedimento → retorno → main().' :
+              p.type==='classify' ? 'Observe onde cada variável ou parâmetro foi declarado.' : p.hint;
+  save(); render();
+  if(ok) setTimeout(showConfetti,40);
+}
+
+function next(){
+  if(busy||!state.items[state.current].tries) return;
+  if(state.current<9){ go(state.current+1); return; }
+  const pending=state.items.findIndex(a=>!a.tries);
+  if(pending>=0){ $('feedback').textContent=`Falta responder a atividade ${pending+1}. Você pode errar e avançar, mas tente todas antes de concluir.`; return; }
+  if(!state.finished){
+    state.finished=true;
+    state.completedAt=new Date().toISOString();
+    state.summary=true;
+    save();summary();sendResult();
+  }else{
+    state.summary=true;save();summary();
+  }
+}
+
+function report(){
+  const first=state.items.filter(a=>a.first).length;
+  return `${TITLE}\nProf. Cristhiano Vasconcellos\nEstudante: ${state.name}\nConcluída em: ${new Date(state.completedAt).toLocaleString('pt-BR')}\nPontuação: ${points()}/100\nAcertos na primeira tentativa: ${first}/10\nErros nas tentativas: ${errors()}\n\n`+
+    phases.map((p,i)=>`${i+1}. ${p.title}: ${state.items[i].correct?(state.items[i].first?'acertou de primeira':'resolveu após tentar novamente'):'respondeu e precisa revisar'} | tentativas: ${state.items[i].tries} | dica: ${state.items[i].hint?'sim':'não'}`).join('\n');
+}
+
+function download(){
+  const u=URL.createObjectURL(new Blob([report()],{type:'text/plain;charset=utf-8'}));
+  const a=document.createElement('a');
+  a.href=u; a.download='resumo_missao_procedimentos_c.txt'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(u),1000);
+}
+
+function summary(){
+  header();
+  const first=state.items.filter(a=>a.first).length;
+  const later=state.items.filter(a=>a.correct&&!a.first).length;
+  const status={
+    idle:'Seu resultado está pronto para envio.',
+    sending:'Enviando o resultado…',
+    sent:'Resultado encaminhado para registro. Este sistema não confirma a gravação na planilha.',
+    failed:'Não foi possível concluir o envio. Verifique a internet e tente novamente.',
+    uncertain:'O envio anterior não pôde ser confirmado. Confira com o professor antes de reenviar.'
+  }[state.send];
+
+  $('app').innerHTML=`
+    <span class="tag">Percurso concluído</span>
+    <h2>Missão cumprida, ${esc(state.name.split(' ')[0])}!</h2>
+    <p class="prompt">Você praticou procedimentos em C, chamadas, parâmetros, escopo e passagem por valor.</p>
+    <div class="stats">
+      <div class="stat"><strong>${points()}/100</strong><span>Pontos conquistados</span></div>
+      <div class="stat"><strong>${first}</strong><span>Acertos de primeira</span></div>
+      <div class="stat"><strong>${later}</strong><span>Resolvidas após tentar</span></div>
+    </div>
+    <ul class="resultlist">${phases.map((p,i)=>`<li><span>${i+1}. ${p.title}</span><strong>${state.items[i].correct?(state.items[i].first?'✓ De primeira':'✓ Após tentar'):'↻ Revisar'}</strong></li>`).join('')}</ul>
+    <div class="sendbox" role="status">
+      <strong>Registro do professor</strong>
+      <p>${status}</p>
+      <p class="small">${esc(state.name)} · ${points()} de 100 pontos · ${errors()} erro(s) nas tentativas</p>
+      ${['idle','failed','uncertain'].includes(state.send)?'<button class="btn primary" type="button" id="send">'+(state.send==='idle'?'Enviar resultado':'Tentar enviar novamente')+'</button>':''}
+    </div>
+    <p class="note"><strong>Próximo passo:</strong> funções com retorno — quando o módulo precisa devolver um valor para quem o chamou.</p>
+    <div class="actions">
+      <button class="btn primary" type="button" id="review">Revisar atividades</button>
+      <button class="btn" type="button" id="download">Baixar meu resumo</button>
+      <button class="btn" type="button" id="again">Refazer do início</button>
+      <a class="btn" href="objetos.html">Voltar aos objetos</a>
+    </div>`;
+
+  $('review').onclick=()=>go(0);
+  $('download').onclick=download;
+  $('again').onclick=restart;
+  if($('send')) $('send').onclick=sendResult;
+}
+
+async function sendResult(){
+  if(busy||state.send==='sent') return;
+  busy=true; state.send='sending'; save(); summary();
+  const controller=new AbortController(), timer=setTimeout(()=>controller.abort(),18000);
+  try{
+    await fetch(URL_WEBAPP,{
+      method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=UTF-8'},
+      body:JSON.stringify({nome:state.name,atividade:TITLE,acertos:points(),total:100,erros:errors()}),
+      signal:controller.signal,cache:'no-store',keepalive:true
+    });
+    state.send='sent';
+  }catch(e){
+    state.send=e.name==='AbortError'?'uncertain':'failed';
+  }finally{
+    clearTimeout(timer); busy=false; save(); if(state.summary) summary();
+  }
+}
+
+function restart(){
+  if(busy){ alert('Aguarde o envio terminar antes de recomeçar.'); return; }
+  if(!confirm('Começar uma nova tentativa? As respostas e os pontos desta tentativa serão apagados deste navegador.')) return;
+  state=fresh(); pair=null; flowStep=0; save(); render();
+}
+
+$('focus').onclick=()=>{ state.focus=!state.focus; save(); header(); };
+$('restart').onclick=restart;
+save();render();
+</script>
+</body>
+</html>
