@@ -26,6 +26,11 @@
   if(a<0||b<0)throw new Error('Máquina não encontrada.');
   src=src.slice(0,a)+machine+src.slice(b);
   src=src.replace('.machine-track{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;','.machine-track{display:grid;grid-template-columns:1fr auto 1.25fr auto 1fr auto 1.4fr;gap:10px;');
+  src=src.replaceAll('${nextNav(s,r.solved)}','${nextNav(s,true)}');
+  src=src.replaceAll('Você pode mudar a resposta e tentar novamente.','Você pode mudar a resposta e tentar novamente ou continuar e voltar depois.');
+  src=src.replace('Você acertou <strong>${score} de ${s.points}</strong>. Revise e tente novamente.','Você acertou <strong>${score} de ${s.points}</strong>. Você pode revisar e tentar novamente ou continuar e voltar depois.');
+  src=src.replace('Observe novamente e tente.','Observe novamente e tente. Se quiser, você pode continuar e voltar depois.');
+  src=src.replace('Ainda não está na ordem correta. Use a pista ou mova os blocos e tente novamente.','Ainda não está na ordem correta. Use a pista, tente novamente ou continue e volte depois.');
   document.open();document.write(src);document.close();
 })().catch(e=>{document.body.innerHTML='<main style="max-width:760px;margin:40px auto;font:18px system-ui"><h1>Não foi possível abrir a atividade</h1><p>'+String(e.message).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))+'</p></main>';});
 </script>
