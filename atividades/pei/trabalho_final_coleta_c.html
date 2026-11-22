@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Da entrada ao total — trabalho final em C</title>
+<style>
+:root{--bg:#f3f6f5;--paper:#fff;--ink:#20352f;--muted:#52665e;--green:#16634d;--soft:#eaf5ef;--line:#cbd9d2;--amber:#fff4db;--amberline:#ad7300;}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:19px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}button,input{font:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:10px;padding:10px 16px;background:#fff;color:var(--ink);min-height:46px}button:hover{border-color:var(--green);background:var(--soft)}button:disabled{opacity:.5;cursor:default}button.primary{background:var(--green);color:#fff;border-color:var(--green)}button.primary:hover{background:#0f513f}:focus-visible{outline:3px solid #b06900;outline-offset:3px}
+header,main,footer{max-width:900px;margin:auto;padding:20px}header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.brand{font-size:16px;font-weight:800}.teacher{display:block;font-weight:500;color:var(--muted);font-size:15px}.tools{display:flex;gap:8px}.tools button{font-size:15px;padding:7px 11px}main{padding-top:4px}.card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:clamp(20px,4vw,38px);box-shadow:0 8px 28px #20352f08}h1{font-size:clamp(27px,4vw,38px);line-height:1.2;margin:8px 0 18px}h2{font-size:23px;line-height:1.3}.phase{font-size:14px;font-weight:800;color:var(--green);background:var(--soft);border-radius:99px;padding:5px 10px}progress{width:100%;height:10px;accent-color:var(--green);margin:14px 0 20px}.small{font-size:15px;color:var(--muted)}.note,.feedback{padding:12px 15px;border-radius:8px;margin:16px 0}.note{background:var(--soft);border-left:5px solid var(--green)}.feedback{background:var(--amber);border-left:5px solid var(--amberline)}.feedback.good{background:var(--soft);border-color:var(--green)}.options{display:grid;gap:10px;margin:18px 0}.option{display:flex;align-items:flex-start;gap:12px;border:2px solid var(--line);border-radius:10px;padding:12px;cursor:pointer}.option:has(input:checked){border-color:var(--green);background:var(--soft)}input[type=radio]{width:21px;height:21px;accent-color:var(--green);flex:none;margin-top:3px}pre{background:#182b25;color:#f4faf6;padding:17px;border-radius:10px;overflow:auto;font:16px/1.55 Consolas,monospace}.actions,nav{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}nav{justify-content:space-between}footer{text-align:center;font-size:14px;color:var(--muted)}footer a{color:var(--green)}dialog{border:1px solid var(--line);border-radius:14px;max-width:480px;width:90%;padding:22px;color:var(--ink)}dialog::backdrop{background:#152a2477}
+@media(max-width:560px){body{font-size:18px}header,main,footer{padding:14px}}
+
+.answer-input{display:block;width:min(100%,320px);padding:10px 12px;border:2px solid var(--line);border-radius:9px;margin-top:8px}
+.feedback:empty{display:none}
+fieldset{border:0;padding:0;margin:0;min-width:0}
+.block-results{padding-left:24px}
+.block-results li{margin:6px 0}
+</style>
+</head>
+<body>
+<header><div class="brand">PROGRAMAÇÃO I · C<span class="teacher">Prof. Cristhiano Vasconcellos</span></div><div class="tools"><button id="summaryTop">Meu percurso</button><button id="restart">Recomeçar</button></div></header>
+<main id="main"></main>
+<footer><p>Seu progresso fica salvo neste navegador. Você pode parar e continuar depois.</p><a href="index.html" id="backLink">Voltar à lista de atividades</a></footer>
+<dialog id="restartDialog"><h2>Começar novamente?</h2><p>O progresso salvo será apagado.</p><div class="actions"><button id="cancelRestart">Continuar atividade</button><button class="primary" id="confirmRestart">Apagar e recomeçar</button></div></dialog>
+<noscript>Ative o JavaScript para usar esta atividade.</noscript>
+<script>
+(() => {
+"use strict";
+
+const TITLE = "Da entrada ao total — trabalho final em C";
+const KEY = "trabalho-final-coleta-c-v1";
+const DESTINO = "cristhiano.vasconcellos@iffarroupilha.edu.br";
+const $ = id => document.getElementById(id);
+const esc = value => String(value).replace(/[&<>"']/g, char => ({
+  "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+})[char]);
+
+const blocks = [
+  {
+    title: "Registrando a coleta",
+    questions: [
+      { q: "Qual é o nome da variável?", code: "int latinhas = 3;",
+        options: ["int", "latinhas", "3"], answer: "latinhas",
+        hint: "O nome aparece depois do tipo int.", feedback: "A variável se chama latinhas." },
+      { q: "Qual comando lê um número digitado?", options: ["printf", "int", "scanf"],
+        answer: "scanf", hint: "Pense no comando de entrada.", feedback: "scanf lê o que foi digitado." },
+      { q: "Qual número aparece na tela?", code: 'int garrafas = 6;\nprintf("%d", garrafas);',
+        number: true, answer: "6", hint: "O printf mostra o valor de garrafas.", feedback: "Aparece 6." },
+      { q: "Complete com o comando que mostra a mensagem.", code: '____("Coleta registrada");',
+        answer: "printf", hint: "É o comando de saída.", feedback: "O comando é printf." },
+      { q: "Se você digitar 8, qual número aparece?", code: 'int caixas;\nscanf("%d", &caixas);\nprintf("%d", caixas);',
+        number: true, answer: "8", hint: "O scanf guarda o número na variável caixas.", feedback: "Aparece 8." }
+    ]
+  },
+  {
+    title: "Somando a coleta",
+    questions: [
+      { q: "Qual é o total de latinhas?", code: "int total = 4 + 3;",
+        number: true, answer: "7", hint: "Some as duas quantidades.", feedback: "São 7 latinhas." },
+      { q: "Qual sinal completa a soma?", code: "int total = papel ____ plastico;",
+        options: ["-", "*", "+"], answer: "+", hint: "As duas quantidades vão ser reunidas.", feedback: "Em C, + é o sinal da soma." },
+      { q: "Qual é o valor final de total?", code: "int total = 5;\ntotal = total + 2;",
+        number: true, answer: "7", hint: "Use o valor 5 na segunda linha.", feedback: "O total passa de 5 para 7." },
+      { q: "Complete com o número de caixas que saíram.", code: "int caixas = 9;\ncaixas = caixas - ____;\n// Agora restam 6 caixas.",
+        number: true, answer: "3", hint: "Quanto é preciso tirar de 9 para chegar a 6?", feedback: "Saíram 3 caixas." },
+      { q: "Qual número aparece na tela?", code: 'int sacos = 3;\nint garrafasPorSaco = 4;\nint total = sacos * garrafasPorSaco;\nprintf("%d", total);',
+        number: true, answer: "12", hint: "São 3 sacos com 4 garrafas em cada um.", feedback: "Aparece 12. São 3 vezes 4 garrafas." }
+    ]
+  },
+  {
+    title: "Tomando decisões",
+    questions: [
+      { q: "A condição 4 > 5 é verdadeira ou falsa?", options: ["Verdadeira", "Falsa"],
+        answer: "Falsa", hint: "O sinal > significa maior que.", feedback: "É falsa. 4 é menor que 5." },
+      { q: "A mensagem aparece?", code: 'int latinhas = 7;\nif (latinhas > 5) {\n    printf("Boa coleta!");\n}',
+        options: ["Sim", "Não"], answer: "Sim", hint: "Compare 7 com 5.", feedback: "Sim. 7 é maior que 5." },
+      { q: "Qual palavra completa o outro caminho?", code: 'if (total >= 5) {\n    printf("Meta atingida");\n} ____ {\n    printf("Continue");\n}',
+        answer: "else", hint: "Esse caminho é executado quando a condição é falsa.", feedback: "O outro caminho começa com else." },
+      { q: "Qual mensagem aparece?", code: 'int total = 3;\nif (total >= 5) {\n    printf("Meta atingida");\n} else {\n    printf("Continue");\n}',
+        options: ["Meta atingida", "Continue"], answer: "Continue",
+        hint: "A condição 3 >= 5 é falsa. Veja o bloco do else.", feedback: "Aparece Continue." },
+      { q: "Qual mensagem aparece com total igual a 5?", code: 'int total = 5;\nif (total >= 5) {\n    printf("Meta atingida");\n} else {\n    printf("Continue");\n}',
+        options: ["Continue", "Meta atingida"], answer: "Meta atingida",
+        hint: "O sinal >= aceita um valor igual a 5.", feedback: "Aparece Meta atingida." }
+    ]
+  },
+  {
+    title: "Repetindo o registro",
+    questions: [
+      { q: "O que o while faz?", options: ["Lê um valor digitado", "Mostra um valor na tela", "Repete enquanto a condição é verdadeira"],
+        answer: "Repete enquanto a condição é verdadeira", hint: "A palavra while significa enquanto.",
+        feedback: "O while repete enquanto a condição é verdadeira." },
+      { q: "Qual é o novo valor de contador?", code: "int contador = 2;\ncontador++;",
+        number: true, answer: "3", hint: "O comando ++ soma 1.", feedback: "O contador passa para 3." },
+      { q: "Quantas vezes a mensagem aparece?", code: 'int contador = 1;\nwhile (contador <= 3) {\n    printf("Material\\n");\n    contador++;\n}',
+        number: true, answer: "3", hint: "Acompanhe o contador: 1, 2, 3 e 4.",
+        feedback: "Aparece 3 vezes. Com 4, a condição fica falsa." },
+      { q: "Com qual valor de contador o laço termina?", code: "int contador = 1;\nwhile (contador < 4) {\n    contador++;\n}",
+        number: true, answer: "4", hint: "O sinal < exige um valor menor que 4.",
+        feedback: "O laço termina quando contador chega a 4." },
+      { q: "Qual total aparece na tela?", code: 'int total = 0;\nint contador = 1;\nwhile (contador <= 3) {\n    total = total + 2;\n    contador++;\n}\nprintf("%d", total);',
+        number: true, answer: "6", hint: "Some 2 ao total em cada uma das três repetições.",
+        feedback: "Aparece 6. O total passa por 2, 4 e 6." }
+    ]
+  }
+];
+
+const pages = [{ kind: "intro" }];
+const questions = [];
+for (const [blockIndex, block] of blocks.entries()) {
+  if (blockIndex > 0) pages.push({ kind: "pause", block });
+  for (const question of block.questions) {
+    question.id = questions.length + 1;
+    question.block = block;
+    questions.push(question);
+    pages.push({ kind: "question", question });
+  }
+}
+const endPage = pages.length;
+const fresh = () => ({ page: 0, name: "", records: {}, reachedEnd: false, sent: false });
+let state = fresh();
+let busy = false;
+let summaryOpen = false;
+
+try {
+  const saved = JSON.parse(localStorage.getItem(KEY));
+  if (saved && Number.isInteger(saved.page) && saved.page >= 0 && saved.page <= endPage) {
+    state = { ...state, ...saved };
+  }
+} catch (_) {}
+
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (_) {}
+}
+
+function stats(list) {
+  let first = 0;
+  let solved = 0;
+  let unanswered = 0;
+  for (const { id } of list) {
+    const attempts = state.records[id]?.attempts || [];
+    if (attempts[0]?.correct) first++;
+    if (attempts.some(attempt => attempt.correct)) solved++;
+    if (!attempts.length) unanswered++;
+  }
+  return { first, solved, unanswered };
+}
+
+function show(html, focus) {
+  $("main").innerHTML = '<section class="card" aria-labelledby="pageTitle">' + html + '</section>';
+  if (focus) $("pageTitle").focus();
+}
+
+function go(page) {
+  state.page = Math.max(0, Math.min(endPage, page));
+  if (state.page === endPage) state.reachedEnd = true;
+  save();
+  render(true);
+}
+
+function nav(back, next) {
+  return `<nav aria-label="Navegação da atividade">
+    ${back ? '<button id="prev">Voltar</button>' : '<span></span>'}
+    <button id="next" class="primary">${next}</button>
+  </nav>`;
+}
+
+function bindNav() {
+  if ($("prev")) $("prev").onclick = () => go(state.page - 1);
+  $("next").onclick = () => go(state.page + 1);
+}
+
+function render(focus = false) {
+  summaryOpen = false;
+  if (state.page === endPage) {
+    summary(focus);
+    return;
+  }
+  const page = pages[state.page];
+  if (page.kind === "intro") {
+    show(`<h1 id="pageTitle" tabindex="-1">${TITLE}</h1>
+      <p>Responda 20 questões sobre a coleta de recicláveis.</p>
+      <div class="note">Se precisar, use <strong>Pista</strong> ou <strong>Pular questão</strong>. Você pode voltar depois.</div>
+      <p>No final, digite seu nome e envie o resumo ao professor.</p>
+      ${nav(false, "Começar")}`, focus);
+  } else if (page.kind === "pause") {
+    show(`<h1 id="pageTitle" tabindex="-1">Hora de uma pausa</h1>
+      <p>Quando estiver pronto, siga para <strong>${esc(page.block.title)}</strong>.</p>
+      ${nav(true, "Continuar")}`, focus);
+  } else {
+    renderQuestion(page.question, focus);
+    return;
+  }
+  bindNav();
+}
+
+function renderQuestion(question, focus) {
+  const record = state.records[question.id] ||= { draft: "", attempts: [], hints: 0 };
+  const last = record.attempts.at(-1);
+  const label = `Questão ${question.id} de ${questions.length}`;
+  const options = question.options?.map(option =>
+    `<label class="option"><input type="radio" name="answer" value="${esc(option)}"
+      ${record.draft === option ? "checked" : ""}><span>${esc(option)}</span></label>`
+  ).join("");
+  const code = question.code ? `<pre><code>${esc(question.code)}</code></pre>` : "";
+  const entry = `<label for="answer">Sua resposta</label>
+    <input id="answer" name="answer" class="answer-input" type="text" maxlength="80"
+      ${question.number ? 'inputmode="numeric"' : ""} autocomplete="off" value="${esc(record.draft)}">`;
+  show(`<div class="phase">${esc(question.block.title)}</div>
+    <progress value="${question.id}" max="${questions.length}" aria-label="${label}"></progress>
+    <p class="small">${label}</p>
+    <h1 id="pageTitle" tabindex="-1">${esc(question.q)}</h1>
+    ${code}
+    <form id="questionForm">
+      <fieldset ${state.sent ? "disabled" : ""}>
+      ${options ? `<fieldset class="options" aria-labelledby="pageTitle">${options}</fieldset>` : entry}
+      <div class="actions">
+        <button class="primary" type="submit">Conferir</button>
+        <button id="hint" type="button">Pista</button>
+      </div>
+      </fieldset>
+    </form>
+    <div id="feedback" class="feedback" role="status"></div>
+    ${nav(true, last || state.sent ? "Continuar" : "Pular questão")}`, focus);
+
+  const form = $("questionForm");
+  function feedback(message, good = false) {
+    $("feedback").className = good ? "feedback good" : "feedback";
+    $("feedback").textContent = message;
+  }
+
+  form.oninput = () => {
+    record.draft = new FormData(form).get("answer") || "";
+    save();
+  };
+  form.onsubmit = event => {
+    event.preventDefault();
+    if (state.sent) return;
+    const answer = (new FormData(form).get("answer") || "").trim();
+    if (!answer) {
+      feedback(question.options ? "Escolha uma opção." : "Digite sua resposta.");
+      return;
+    }
+    const correct = question.number
+      ? /^[+-]?\d+$/.test(answer) && Number(answer) === Number(question.answer)
+      : answer.toLowerCase() === question.answer.toLowerCase();
+    const previous = record.attempts.at(-1);
+    if (!previous || previous.answer !== answer) {
+      record.attempts.push({ answer, correct, hints: record.hints });
+      save();
+    }
+    feedback(correct ? question.feedback : "Ainda não. Você pode tentar outra vez ou continuar.", correct);
+    $("next").textContent = "Continuar";
+  };
+  $("hint").onclick = () => {
+    record.hints++;
+    save();
+    feedback(question.hint);
+  };
+  if (state.sent) feedback("Esta atividade já foi enviada.", true);
+  else if (last) feedback(last.correct ? question.feedback : "Você pode tentar outra vez ou continuar.", last.correct);
+  bindNav();
+}
+
+function report() {
+  const total = stats(questions);
+  const lines = [
+    TITLE, "Professor: Cristhiano Vasconcellos",
+    "Estudante: " + (state.name || "Não informado"),
+    "Data: " + new Date().toLocaleString("pt-BR"),
+    "",
+    `Pontos na primeira tentativa: ${total.first}/${questions.length}`,
+    `Resolvidas em qualquer tentativa: ${total.solved}/${questions.length}`,
+    `Sem resposta conferida: ${total.unanswered}`
+  ];
+  for (const block of blocks) {
+    const result = stats(block.questions);
+    lines.push("", `${block.title} — primeira tentativa ${result.first}/${block.questions.length}`,
+      `Resolvidas: ${result.solved} | Sem resposta conferida: ${result.unanswered}`);
+    for (const question of block.questions) {
+      const record = state.records[question.id];
+      const attempts = record?.attempts || [];
+      lines.push(`${question.id}. ${question.q}`);
+      if (!attempts.length) lines.push("   Sem resposta conferida.");
+      attempts.forEach((attempt, index) => {
+        lines.push(`   ${index === 0 ? "Primeira resposta" : "Tentativa " + (index + 1)}: ${attempt.answer} (${attempt.correct ? "correta" : "incorreta"}) | pistas até aqui: ${attempt.hints}`);
+      });
+      lines.push(`   Pistas usadas: ${record?.hints || 0}`);
+    }
+  }
+  return lines.join("\n");
+}
+
+function summary(focus = true) {
+  if (busy) return;
+  summaryOpen = true;
+  const result = stats(questions);
+  const list = blocks.map(block => {
+    const byBlock = stats(block.questions);
+    return `<li>${esc(block.title)} — ${byBlock.first}/${block.questions.length} na primeira tentativa</li>`;
+  }).join("");
+  show(`<h1 id="pageTitle" tabindex="-1">Meu percurso</h1>
+    <p>Acertos na primeira tentativa <strong>${result.first}/${questions.length}</strong><br>
+      Questões resolvidas <strong>${result.solved}/${questions.length}</strong><br>
+      Sem resposta conferida <strong>${result.unanswered}</strong></p>
+    <ul class="block-results">${list}</ul>
+    ${state.reachedEnd
+      ? `<label for="studentName">Seu nome</label>
+        <input id="studentName" class="answer-input" maxlength="120" autocomplete="name" value="${esc(state.name)}" ${state.sent ? "readonly" : ""}>
+        <div class="actions">
+          <button id="send" class="primary" ${state.sent ? "disabled" : ""}>${state.sent ? "Resumo enviado" : "Enviar ao professor"}</button>
+          <button id="download">Baixar resumo</button>
+          <button id="return">Voltar à atividade</button>
+        </div>`
+      : '<p>O envio fica disponível no final da atividade.</p><button id="return" class="primary">Voltar à atividade</button>'}
+    <div id="feedback" class="feedback ${state.sent ? "good" : ""}" role="status">${state.sent ? "O FormSubmit confirmou o envio do resumo." : ""}</div>`, focus);
+  $("return").onclick = () => {
+    if (busy) return;
+    if (state.page === endPage) go(state.page - 1);
+    else render(true);
+  };
+  if (!state.reachedEnd) return;
+  $("studentName").oninput = event => {
+    state.name = event.target.value.trim();
+    save();
+  };
+  $("download").onclick = () => {
+    const url = URL.createObjectURL(new Blob([report()], { type: "text/plain;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "resumo_trabalho_final_coleta_c.txt";
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+  $("send").onclick = send;
+}
+
+async function send() {
+  if (busy || state.sent) return;
+  const feedback = $("feedback");
+  if (!state.name) {
+    feedback.textContent = "Digite seu nome.";
+    $("studentName").focus();
+    return;
+  }
+  if (!/^https?:$/.test(location.protocol)) {
+    feedback.textContent = "Abra a atividade pelo site para enviar ou use Baixar resumo.";
+    return;
+  }
+  busy = true;
+  const button = $("send");
+  button.disabled = true;
+  $("studentName").readOnly = true;
+  button.textContent = "Enviando…";
+  feedback.textContent = "Aguarde o envio.";
+  try {
+    const response = await fetch("https://formsubmit.co/ajax/" + DESTINO, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({
+        _subject: "Programação I — trabalho final — " + state.name,
+        _template: "table", _url: location.href,
+        estudante: state.name, atividade: TITLE, resumo: report()
+      }),
+      signal: AbortSignal.timeout(20000)
+    });
+    const body = await response.text();
+    let data;
+    try { data = JSON.parse(body); } catch (_) {}
+    if (!response.ok || (data?.success !== true && data?.success !== "true")) {
+      throw new Error(data?.message || data?.error || body.trim().slice(0, 250) || "HTTP " + response.status);
+    }
+    state.sent = true;
+    save();
+    feedback.className = "feedback good";
+    feedback.textContent = "O FormSubmit confirmou o envio do resumo.";
+    button.textContent = "Resumo enviado";
+  } catch (error) {
+    feedback.textContent = "Envio sem confirmação. Detalhe: " + error.message + ". Você pode tentar novamente ou baixar o resumo.";
+    $("studentName").readOnly = false;
+    button.disabled = false;
+    button.textContent = "Tentar novamente";
+  } finally {
+    busy = false;
+  }
+}
+
+$("summaryTop").onclick = () => { if (!summaryOpen) summary(); };
+$("restart").onclick = () => { if (!busy) $("restartDialog").showModal(); };
+$("cancelRestart").onclick = () => $("restartDialog").close();
+$("confirmRestart").onclick = () => {
+  state = fresh();
+  save();
+  $("restartDialog").close();
+  render(true);
+};
+$("backLink").onclick = event => { if (busy) event.preventDefault(); };
+render();
+})();
+</script>
+</body>
+</html>
